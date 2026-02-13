@@ -318,8 +318,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$auth$2d
 ;
 ;
 const metadata = {
-    title: "Wahid Admin Dashboard",
-    description: "CMS for Wahid Foundation"
+    title: "Jamiat Admin Dashboard",
+    description: "CMS for Jamiat Foundation",
+    icons: {
+        icon: "/logo.png"
+    }
 };
 const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -336,22 +339,22 @@ function RootLayout({ children }) {
                     children: children
                 }, void 0, false, {
                     fileName: "[project]/app/layout.js",
-                    lineNumber: 35,
+                    lineNumber: 38,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/layout.js",
-                lineNumber: 34,
+                lineNumber: 37,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/layout.js",
-            lineNumber: 31,
+            lineNumber: 34,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/layout.js",
-        lineNumber: 30,
+        lineNumber: 33,
         columnNumber: 5
     }, this);
 }

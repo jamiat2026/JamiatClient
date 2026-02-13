@@ -1,20 +1,7 @@
 {
-  "/about/page": "app/about/page.js",
-  "/api/aboutherosection/route": "app/api/aboutherosection/route.js",
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/api/donors/route": "app/api/donors/route.js",
-  "/api/homeherosection/route": "app/api/homeherosection/route.js",
-  "/api/impactherosection/route": "app/api/impactherosection/route.js",
   "/api/projects/[id]/route": "app/api/projects/[id]/route.js",
-  "/api/projects/route": "app/api/projects/route.js",
-  "/api/save-donation/route": "app/api/save-donation/route.js",
   "/api/users/[email]/route": "app/api/users/[email]/route.js",
-  "/api/users/route": "app/api/users/route.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/home/page": "app/home/page.js",
-  "/impact/page": "app/impact/page.js",
-  "/page": "app/page.js",
-  "/projects/[id]/edit/page": "app/projects/[id]/edit/page.js",
-  "/projects/page": "app/projects/page.js",
-  "/settings/page": "app/settings/page.js"
+  "/projects/[id]/edit/page": "app/projects/[id]/edit/page.js"
 }

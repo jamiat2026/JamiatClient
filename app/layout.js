@@ -14,8 +14,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Wahid Admin Dashboard",
-  description: "CMS for Wahid Foundation",
+  title: "Jamiat Admin Dashboard",
+  description: "CMS for Jamiat Foundation",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 // CORS headers
