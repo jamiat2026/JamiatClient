@@ -1,0 +1,16 @@
+const CHUNK_PUBLIC_PATH = "server/app/api/save-donation/route.js";
+const runtime = require("../../../chunks/[turbopack]_runtime.js");
+runtime.loadChunk("server/chunks/node_modules_next_dist_2cf1f649._.js");
+runtime.loadChunk("server/chunks/node_modules_nodemailer_a9f338b9._.js");
+runtime.loadChunk("server/chunks/node_modules_pako_d1ebb5fd._.js");
+runtime.loadChunk("server/chunks/node_modules_@pdf-lib_fontkit_dist_fontkit_es_3bce26ed.js");
+runtime.loadChunk("server/chunks/node_modules_pdf-lib_es_core_1fc2e46f._.js");
+runtime.loadChunk("server/chunks/node_modules_pdf-lib_es_api_92b12d44._.js");
+runtime.loadChunk("server/chunks/node_modules_pdf-lib_es_e4684426._.js");
+runtime.loadChunk("server/chunks/node_modules_@pdf-lib_standard-fonts_es_8fcc9eb5._.js");
+runtime.loadChunk("server/chunks/node_modules_56a914bb._.js");
+runtime.loadChunk("server/chunks/[root-of-the-server]__d54c7be3._.js");
+runtime.loadChunk("server/chunks/[next]_internal_font_google_1f739819._.css");
+runtime.getOrInstantiateRuntimeModule("[project]/.next-internal/server/app/api/save-donation/route/actions.js [app-rsc] (server actions loader, ecmascript)", CHUNK_PUBLIC_PATH);
+runtime.getOrInstantiateRuntimeModule("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/save-donation/route.js [app-route] (ecmascript)\" } [app-route] (ecmascript)", CHUNK_PUBLIC_PATH);
+module.exports = runtime.getOrInstantiateRuntimeModule("[project]/node_modules/next/dist/esm/build/templates/app-route.js { INNER_APP_ROUTE => \"[project]/app/api/save-donation/route.js [app-route] (ecmascript)\" } [app-route] (ecmascript)", CHUNK_PUBLIC_PATH).exports;
