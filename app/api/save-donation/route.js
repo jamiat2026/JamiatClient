@@ -56,7 +56,7 @@ async function generatePdfBuffer(donation, donor) {
     y -= size + gap;
   }
 
-  write("WAHID FOUNDATION", 20, 15);
+  write("JAMIAT ADMIN", 20, 15);
   write("Registered Non-Profit Organization");
   write("80G Registration Number: AABCW1234F20214");
   y -= 20;
@@ -79,7 +79,7 @@ async function generatePdfBuffer(donation, donor) {
   );
   y -= 20;
   write("Authorized Signatory");
-  write("Wahid Foundation");
+  write("Jamiat Admin");
   write(`Date: ${new Date().toLocaleDateString("en-IN")}`);
   write(
     "This is a computer-generated certificate and does not require a physical signature."
@@ -101,10 +101,10 @@ async function sendEmailWithPdf(toEmail, pdfBuffer) {
   });
 
   await transporter.sendMail({
-    from: `"Wahid Foundation" <${process.env.SMTP_USER}>`,
+    from: `"Jamiat Admin" <${process.env.SMTP_USER}>`,
     to: toEmail,
     subject: "Donation Certificate",
-    text: `Dear Donor,\n\nThank you for your generous donation. Please find your Donation Certificate attached.\n\nWarm regards,\nWahid Foundation`,
+    text: `Dear Donor,\n\nThank you for your generous donation. Please find your Donation Certificate attached.\n\nWarm regards,\nJamiat Admin`,
     attachments: [
       {
         filename: "donationcertificate.pdf",

@@ -58,11 +58,11 @@ export async function POST(req) {
     });
 
     const result = await transporter.sendMail({
-      from: '"Wahid Admin" <no-reply@wahid.org.in>',
+      from: '"Jamiat Admin" <no-reply@wahid.org.in>',
       to: email,
-      subject: "You are invited to WahidAdmin Dashboard",
+      subject: "You are invited to Jamiat Admin Dashboard",
       html: `
-        <h2>You've been invited to WahidAdmin</h2>
+        <h2>You've been invited to Jamiat Admin</h2>
         <p>You were invited to join the admin dashboard with role: <b>${role}</b></p>
         <p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/login">Click here to sign in</a> using your Google account</p>
       `,

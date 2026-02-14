@@ -22,7 +22,7 @@ export default function LoginPage() {
       <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-sm text-center animate-fade-in">
         <Image src={Logo} className=" w-16 mb-4 mx-auto" />
 
-        <h2 className="text-3xl font-bold mb-6 text-gray-800">Welcome to <br /> Wahid Admin Panel</h2>
+        <h2 className="text-3xl font-bold mb-6 text-gray-800">Welcome to <br /> Jamiat Admin Panel</h2>
         <p className="text-sm text-gray-500 mb-2">Please sign in to continue</p>
 
         <button
