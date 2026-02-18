@@ -3,6 +3,8 @@ import nodemailer from "nodemailer";
 import Invite from "@/lib/models/invite";
 import { dbConnect } from "@/lib/dbConnect";
 import crypto from "crypto";
+import bcrypt from "bcryptjs";
+import User from "@/lib/models/user";
 
 import { corsHeaders } from "../../layout";
 
@@ -18,7 +20,7 @@ export async function POST(req) {
     const body = await req.json();
     console.log("📥 Incoming Invite Payload:", JSON.stringify(body, null, 2));
 
-    const { email, role, access } = body;
+    const { email, role, access, password, skipEmail } = body;
 
     if (!email || !role) {
       console.log("❌ Missing email or role");
@@ -37,7 +39,7 @@ export async function POST(req) {
     }
 
     const existing = await Invite.findOne({ email });
-    if (existing) {
+    if (existing && !password) {
       console.log("⚠️ Email already invited:", email);
       return NextResponse.json(
         { error: "Email already invited" },
@@ -45,21 +47,69 @@ export async function POST(req) {
       );
     }
 
-    const rawToken = crypto.randomBytes(32).toString("hex");
-    const passwordSetupTokenHash = crypto
-      .createHash("sha256")
-      .update(rawToken)
-      .digest("hex");
-    const passwordSetupExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 72); // 72h
+    let rawToken = null;
+    let passwordSetupTokenHash = null;
+    let passwordSetupExpiresAt = null;
+    if (!password) {
+      rawToken = crypto.randomBytes(32).toString("hex");
+      passwordSetupTokenHash = crypto
+        .createHash("sha256")
+        .update(rawToken)
+        .digest("hex");
+      passwordSetupExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 72); // 72h
+    }
 
-    const invite = await Invite.create({
-      email,
-      role,
-      access,
-      passwordSetupTokenHash,
-      passwordSetupExpiresAt,
-    });
+    let invite = existing;
+    if (!invite) {
+      invite = await Invite.create({
+        email,
+        role,
+        access,
+        passwordSetupTokenHash,
+        passwordSetupExpiresAt,
+      });
+    } else {
+      invite.role = role;
+      invite.access = access;
+      if (passwordSetupTokenHash && passwordSetupExpiresAt) {
+        invite.passwordSetupTokenHash = passwordSetupTokenHash;
+        invite.passwordSetupExpiresAt = passwordSetupExpiresAt;
+      }
+      await invite.save();
+    }
     console.log("✅ Invite saved to DB:", invite);
+
+    if (password) {
+      const passwordHash = await bcrypt.hash(password, 10);
+      const existingUser = await User.findOne({ email }).select(
+        "+passwordHash"
+      );
+      if (existingUser) {
+        existingUser.passwordHash = passwordHash;
+        if (!existingUser.role) existingUser.role = role;
+        if (!existingUser.access?.length) existingUser.access = access || [];
+        await existingUser.save();
+      } else {
+        await User.create({
+          email,
+          role,
+          access,
+          passwordHash,
+        });
+      }
+    }
+
+    if (password || skipEmail) {
+      return NextResponse.json(
+        {
+          success: true,
+          invite,
+          manualPassword: !!password,
+          passwordSetupToken: rawToken || undefined,
+        },
+        { status: 201, headers: corsHeaders }
+      );
+    }
 
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,

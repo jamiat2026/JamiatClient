@@ -22,6 +22,8 @@ export default function SettingsPage() {
     email: '',
     role: '',
     access: [],
+    password: '',
+    sendInviteEmail: true,
   });
 async function handleDeleteUser(email) {
   const confirmed = confirm(`Are you sure you want to delete the user ${email}?`);
@@ -114,10 +116,17 @@ async function handleDeleteUser(email) {
   }
 
   async function handleAddSubmit() {
+  if (!newUserData.sendInviteEmail && !newUserData.password) {
+    alert("Please set a password or enable invite email.");
+    return;
+  }
+
   const payload = {
     email: newUserData.email,
     role: newUserData.role,
     access: newUserData.access,
+    password: newUserData.password || undefined,
+    skipEmail: !newUserData.sendInviteEmail || !!newUserData.password,
   };
 
   console.log("📤 Sending invite payload:", payload); // 👈 Log here
@@ -135,13 +144,16 @@ async function handleDeleteUser(email) {
 
     if (!res.ok) throw new Error(data.message);
 
+    const manual = !newUserData.sendInviteEmail || !!newUserData.password;
     setNewUserData({
       name: '',
       email: '',
       role: '',
       access: [],
+      password: '',
+      sendInviteEmail: true,
     });
-    alert("Invite sent successfully!");
+    alert(manual ? "User created with manual password." : "Invite sent successfully!");
   } catch (err) {
     console.error('❌ Error in adding user:', err);
     alert("Failed to invite user");
@@ -349,6 +361,30 @@ async function handleDeleteUser(email) {
                   />
                 </div>
               </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={newUserData.sendInviteEmail}
+                  onChange={(e) =>
+                    setNewUserData({ ...newUserData, sendInviteEmail: e.target.checked })
+                  }
+                  className="custom-checkbox"
+                />
+                <span className="text-sm">Send invite email</span>
+              </div>
+
+              {!newUserData.sendInviteEmail && (
+                <div>
+                  <label className="block text-sm font-medium mb-1">Password</label>
+                  <input
+                    type="password"
+                    value={newUserData.password}
+                    onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
+                    className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
+                  />
+                </div>
+              )}
 
               <div>
                 <p className="font-medium mb-2">Access Permissions</p>
