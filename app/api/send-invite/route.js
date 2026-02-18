@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import Invite from "@/lib/models/invite";
 import { dbConnect } from "@/lib/dbConnect";
+import crypto from "crypto";
 
 import { corsHeaders } from "../../layout";
 
@@ -44,7 +45,20 @@ export async function POST(req) {
       );
     }
 
-    const invite = await Invite.create({ email, role, access });
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const passwordSetupTokenHash = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex");
+    const passwordSetupExpiresAt = new Date(Date.now() + 1000 * 60 * 60 * 72); // 72h
+
+    const invite = await Invite.create({
+      email,
+      role,
+      access,
+      passwordSetupTokenHash,
+      passwordSetupExpiresAt,
+    });
     console.log("✅ Invite saved to DB:", invite);
 
     const transporter = nodemailer.createTransport({
@@ -57,6 +71,10 @@ export async function POST(req) {
       },
     });
 
+    const passwordLink = `${process.env.NEXT_PUBLIC_BASE_URL}/set-password?email=${encodeURIComponent(
+      email
+    )}&token=${rawToken}`;
+
     const result = await transporter.sendMail({
       from: '"Jamiat Admin" <no-reply@wahid.org.in>',
       to: email,
@@ -64,7 +82,10 @@ export async function POST(req) {
       html: `
         <h2>You've been invited to Jamiat Admin</h2>
         <p>You were invited to join the admin dashboard with role: <b>${role}</b></p>
-        <p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/login">Click here to sign in</a> using your Google account</p>
+        <p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/login">Click here to sign in</a> using Google.</p>
+        <p>Or set your password (valid for 72 hours): <a href="${passwordLink}">Set Password</a></p>
+        <p>If your email client hides the link, use this token on the Set Password page:</p>
+        <p><code style="font-size:12px;word-break:break-all;">${rawToken}</code></p>
       `,
     });
 

@@ -9,14 +9,16 @@ function AuthGate({ children }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  const isAuthRoute = pathname === '/login' || pathname === '/set-password';
+
   useEffect(() => {
-    // Only redirect if not on login and unauthenticated
-    if (status === 'unauthenticated' && pathname !== '/login') {
+    // Only redirect if not on auth routes and unauthenticated
+    if (status === 'unauthenticated' && !isAuthRoute) {
       router.replace('/login');
     }
-  }, [status, pathname, router]);
+  }, [status, isAuthRoute, router]);
 
-  if (pathname === '/login') {
+  if (isAuthRoute) {
     return <>{children}</>;
   }
 

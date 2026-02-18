@@ -14,6 +14,7 @@ export default function SettingsPage() {
     email: '',
     role: '',
     access: [],
+    password: '',
   });
 
   const [newUserData, setNewUserData] = useState({
@@ -69,16 +70,22 @@ async function handleDeleteUser(email) {
       email: user.email || '',
       role: user.role || '',
       access: user.access || [],
+      password: '',
     });
   }
 
   async function handleUpdate(e) {
     e.preventDefault();
 
+    const payload = { ...updateFormData };
+    if (!payload.password) {
+      delete payload.password;
+    }
+
     const res = await fetch(`/api/users/${encodeURIComponent(updateFormData.email)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(updateFormData),
+      body: JSON.stringify(payload),
     });
 
     if (res.ok) {
@@ -259,6 +266,16 @@ async function handleDeleteUser(email) {
                     type="text"
                     value={updateFormData.role}
                     onChange={(e) => setUpdateFormData({ ...updateFormData, role: e.target.value })}
+                    className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">New Password</label>
+                  <input
+                    type="password"
+                    value={updateFormData.password}
+                    onChange={(e) => setUpdateFormData({ ...updateFormData, password: e.target.value })}
+                    placeholder="Leave blank to keep current"
                     className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
                   />
                 </div>
