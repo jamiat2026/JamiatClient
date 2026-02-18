@@ -1,11 +1,54 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 import Invite from "@/lib/models/invite"; // correct if your invite model is there
 import User from "@/lib/models/user";     // create this if not already
 import { dbConnect } from "@/lib/dbConnect";
 
 const handler = NextAuth({
   providers: [
+    CredentialsProvider({
+      name: "Email and Password",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        try {
+          await dbConnect();
+
+          const email = credentials?.email?.toLowerCase()?.trim();
+          const password = credentials?.password || "";
+          if (!email || !password) return null;
+
+          const invited = await Invite.findOne({ email });
+          if (!invited) return null;
+
+          const existingUser = await User.findOne({ email }).select(
+            "+passwordHash"
+          );
+
+          if (existingUser?.passwordHash) {
+            const ok = await bcrypt.compare(password, existingUser.passwordHash);
+            if (!ok) return null;
+            return {
+              id: existingUser._id.toString(),
+              email: existingUser.email,
+              name: existingUser.name || "",
+              role: existingUser.role,
+              access: existingUser.access || [],
+            };
+          }
+
+          // Only allow credentials if a password has been set for the user
+          return null;
+        } catch (err) {
+          console.error("❌ Credentials authorize error:", err);
+          return null;
+        }
+      },
+    }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,

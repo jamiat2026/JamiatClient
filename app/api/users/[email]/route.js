@@ -1,6 +1,7 @@
 import { dbConnect } from "@/lib/dbConnect";
 import User from "@/lib/models/user";
 import Invite from "@/lib/models/invite";
+import bcrypt from "bcryptjs";
 
 import corsHeaders from "../../../layout";
 
@@ -49,6 +50,10 @@ export async function PUT(req, { params }) {
   try {
     const userEmail = decodeURIComponent(email);
     const body = await req.json();
+    if (body.password) {
+      body.passwordHash = await bcrypt.hash(body.password, 10);
+      delete body.password;
+    }
 
     const updated = await User.findOneAndUpdate({ email: userEmail }, body, {
       new: true,
@@ -61,7 +66,9 @@ export async function PUT(req, { params }) {
       });
     }
 
-    return new Response(JSON.stringify(updated), {
+    const updatedObj = updated.toObject();
+    delete updatedObj.passwordHash;
+    return new Response(JSON.stringify(updatedObj), {
       status: 200,
       headers: corsHeaders,
     });
