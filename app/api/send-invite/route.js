@@ -71,7 +71,8 @@ export async function POST(req) {
       },
     });
 
-    const passwordLink = `${process.env.NEXT_PUBLIC_BASE_URL}/set-password?email=${encodeURIComponent(
+    const baseUrl = "https://cms.jamiat.org.in";
+    const passwordLink = `${baseUrl}/set-password?email=${encodeURIComponent(
       email
     )}&token=${rawToken}`;
 
@@ -82,7 +83,7 @@ export async function POST(req) {
       html: `
         <h2>You've been invited to Jamiat Admin</h2>
         <p>You were invited to join the admin dashboard with role: <b>${role}</b></p>
-        <p><a href="${process.env.NEXT_PUBLIC_BASE_URL}/login">Click here to sign in</a> using Google.</p>
+        <p><a href="${baseUrl}/login">Click here to sign in</a> using Google.</p>
         <p>Or set your password (valid for 72 hours): <a href="${passwordLink}">Set Password</a></p>
         <p>If your email client hides the link, use this token on the Set Password page:</p>
         <p><code style="font-size:12px;word-break:break-all;">${rawToken}</code></p>
