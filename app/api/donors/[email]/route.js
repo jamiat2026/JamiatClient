@@ -1,8 +1,5 @@
 import { dbConnect } from '@/lib/dbConnect';
 import Donor from '@/lib/models/donor';
-import donation from '@/lib/models/donation';
-import project from '@/lib/models/Project';
-
 import { corsHeaders } from '../../../layout';
 
 export async function OPTIONS() {
@@ -13,7 +10,7 @@ export async function OPTIONS() {
 }
 
 export async function GET(req, { params }) {
-  const { email } = params;
+  const { email } = await params;
   await dbConnect();
 
   try {
@@ -42,7 +39,7 @@ export async function GET(req, { params }) {
 }
 
 export async function POST(req, { params }) {
-  const { email } = params;
+  const { email } = await params;
   await dbConnect();
   const body = await req.json();
 
@@ -70,7 +67,7 @@ export async function POST(req, { params }) {
 }
 
 export async function PUT(req, { params }) {
-  const { email } = params;
+  const { email } = await params;
   await dbConnect();
   const body = await req.json();
 
