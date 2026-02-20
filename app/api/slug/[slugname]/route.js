@@ -10,7 +10,7 @@ export async function GET(req, { params }) {
   await dbConnect();
   console.log(params);
 
-  const { slugname } = params;
+  const { slugname } = await params;
   const slug = slugname;
   console.log("Received slug:", slugname);
 

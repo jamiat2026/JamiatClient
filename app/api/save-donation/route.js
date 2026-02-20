@@ -90,18 +90,32 @@ async function generatePdfBuffer(donation, donor) {
 }
 // ---------- Email with Nodemailer ----------
 async function sendEmailWithPdf(toEmail, pdfBuffer) {
+  const host = process.env.SMTP_HOST;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (!host || !user || !pass) {
+    throw new Error("Missing SMTP configuration (SMTP_HOST/SMTP_USER/SMTP_PASS)");
+  }
+
+  const port = Number(process.env.SMTP_PORT) || 587;
+  const secure =
+    process.env.SMTP_SECURE === "true" ? true : port === 465 ? true : false;
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 465,
-    secure: true,
+    host,
+    port,
+    secure,
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user,
+      pass,
     },
   });
 
-  await transporter.sendMail({
-    from: `"Jamiat Admin" <${process.env.SMTP_USER}>`,
+  await transporter.verify();
+  console.log("✅ SMTP verified.");
+
+  const info = await transporter.sendMail({
+    from: `"Jamiat Admin" <${user}>`,
     to: toEmail,
     subject: "Donation Certificate",
     text: `Dear Donor,\n\nThank you for your generous donation. Please find your Donation Certificate attached.\n\nWarm regards,\nJamiat Admin`,
@@ -112,6 +126,8 @@ async function sendEmailWithPdf(toEmail, pdfBuffer) {
       },
     ],
   });
+  console.log("📤 SMTP response:", info.response);
+  console.log("📨 Message ID:", info.messageId);
 }
 
 export async function POST(req) {
