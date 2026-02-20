@@ -127,7 +127,7 @@ export async function POST(req) {
     )}&token=${rawToken}`;
 
     const result = await transporter.sendMail({
-      from: '"Jamiat Admin" <no-reply@wahid.org.in>',
+      from: '"Jamiat Admin" <info@jamiat.org.in>',
       to: email,
       subject: "You are invited to Jamiat Admin Dashboard",
       html: `
