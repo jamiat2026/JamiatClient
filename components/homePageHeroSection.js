@@ -1,0 +1,232 @@
+"use client";
+
+import { Heart, Users, Calendar, ArrowRight, Play, Star, Sparkles } from "lucide-react";
+import Link from "next/link";
+import clsx from "clsx";
+import Image from "next/image";
+import { Playfair_Display } from "next/font/google";
+
+const playfair = Playfair_Display({
+    subsets: ["latin"],
+    weight: ["400", "700"], // choose weights you want
+});
+const ICONS = { Calendar, Users, Heart };
+
+function lightenHexColor(hex, percent = 0.2) {
+    if (!hex) return "#e5e5e5"; // fallback gray
+    hex = hex.replace(/^#/, "");
+    let r = parseInt(hex.substring(0, 2), 16);
+    let g = parseInt(hex.substring(2, 4), 16);
+    let b = parseInt(hex.substring(4, 6), 16);
+    r = Math.round(r + (255 - r) * percent);
+    g = Math.round(g + (255 - g) * percent);
+    b = Math.round(b + (255 - b) * percent);
+    return `#${r.toString(16).padStart(2, "0")}${g
+        .toString(16)
+        .padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+}
+
+// 🔹 Skeleton Component
+function SkeletonBox({ className }) {
+    return (
+        <div className={clsx("animate-pulse bg-gray-100 rounded-md", className)} />
+    );
+}
+
+export default function HomePageHeroSection({ hero }) {
+    const isLoading = !hero;
+
+    return (
+        <section className="relative bg-white">
+            <div className="relative">
+                {/* Top CTA */}
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 lg:pt-10 pb-12 lg:pb-24 flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-20">
+                    {/* Left Content */}
+                    <div className="w-full lg:w-1/2 space-y-8">
+                        {isLoading ? (
+                            <div className="space-y-6">
+                                <SkeletonBox className="h-8 w-48 rounded-full" />
+                                <SkeletonBox className="h-16 w-full" />
+                                <SkeletonBox className="h-24 w-full mt-4" />
+                                <div className="flex gap-4">
+                                    <SkeletonBox className="h-14 w-40 rounded-xl" />
+                                    <SkeletonBox className="h-14 w-40 rounded-xl" />
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Badge */}
+                                <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full text-sm font-semibold border border-emerald-100 animate-fade-in">
+                                    <Sparkles className="size-4" />
+                                    <span>Supporting Families Since 1995</span>
+                                </div>
+
+                                {/* Heading */}
+                                <h1 className={`${playfair.className} text-4xl lg:text-6xl xl:text-7xl font-bold text-slate-900 leading-[1.1] tracking-tight`}>
+                                    {"Empowering the Ummah, Building the Future"}
+                                </h1>
+
+                                {/* Subtitle */}
+                                <p className="text-slate-600 text-lg lg:text-xl leading-relaxed max-w-xl">
+                                    {"Join us in making a lasting impact. Your contributions support education, healthcare, and sustainable development for communities in need around the globe."}
+                                </p>
+
+                                {/* CTA Buttons */}
+                                <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                                    <Link
+                                        href="/donate"
+                                        className="bg-emerald-900 text-white px-8 py-4 text-lg font-bold shadow-xl shadow-emerald-900/20 hover:bg-emerald-800 transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl border-2 border-emerald-900"
+                                    >
+                                        <Heart className="size-5 fill-current" />
+                                        {hero?.ctaText || "Donate Now"}
+                                    </Link>
+                                    <Link
+                                        href="/impact"
+                                        className="bg-white text-slate-900 px-8 py-4 text-lg font-bold hover:bg-slate-50 transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl border-2 border-slate-100"
+                                    >
+                                        <Play className="size-5 fill-emerald-600 text-emerald-600" />
+                                        See Our Impact
+                                    </Link>
+                                </div>
+
+                                {/* Social Proof */}
+                                <div className="flex items-center gap-5 pt-6 border-t border-slate-100">
+                                    <div className="flex -space-x-3">
+                                        {[1, 2, 3].map((i) => (
+                                            <div key={i} className="size-11 rounded-full border-2 border-white bg-slate-100 overflow-hidden shadow-sm">
+                                                <img
+                                                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=user${i + 42}`}
+                                                    alt="donor"
+                                                    className="size-full object-cover"
+                                                />
+                                            </div>
+                                        ))}
+                                        <div className="size-11 rounded-full border-2 border-white bg-emerald-50 flex items-center justify-center text-xs font-bold text-emerald-700 shadow-sm">
+                                            +2k
+                                        </div>
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        <p className="text-sm font-bold text-slate-900">
+                                            Trusted by 2,500+ Donors
+                                        </p>
+                                        <div className="flex gap-0.5">
+                                            {[1, 2, 3, 4, 5].map((i) => (
+                                                <Star key={i} className="size-3.5 fill-amber-400 text-amber-400" />
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Right Container */}
+                    <div className="w-full lg:w-[40%] relative">
+                        {/* Decorative Background Elements */}
+                        <div className="absolute -inset-10 bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+
+                        {/* Main Container for Image */}
+                        <div className="relative group">
+                            <div className="absolute -inset-2  rounded-[2.5rem]  opacity-0 group-hover:opacity-100 transition duration-700"></div>
+                            <div className="relative aspect-square w-full  overflow-hidden  transition-all duration-500 ">
+                                {/* This is the div where the user can put their image */}
+                                <div id="hero-image-container" className="w-full flex items-center justify-center">
+                                    <div className="rounded-lg overflow-hidden">
+                                        <img
+                                            src="/heroPic.svg"
+                                            className="w-full object-cover "
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Overlay for that extra premium feel (optional, but looks good in image) */}
+                                <div className="absolute inset-0  via-transparent to-transparent pointer-events-none"></div>
+                            </div>
+
+                            {/* Floating Card Detail (Optional, like in the image) */}
+                            <div className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-2xl shadow-emerald-950/10 border border-emerald-50/50 hidden sm:block animate-bounce-slow bg-gray-400">
+                                <div className="flex items-center gap-3">
+                                    <div className="size-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                                        <Heart className="size-5 text-emerald-600 fill-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Recent Donation</p>
+                                        <p className="text-sm font-bold text-slate-900">₹5,000 for Water Project</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/* Stats */}
+                <div className="px-4 sm:px-6 lg:px-8 py-24 bg-[#06422d] lg:py-32">
+                    <div className="max-w-7xl mx-auto space-y-16 lg:space-y-24">
+                        {/* Stats Section */}
+                        <div className="grid grid-cols-3 gap-4 lg:gap-12">
+                            {isLoading
+                                ? Array.from({ length: 3 }).map((_, i) => (
+                                    <div key={i} className="text-center space-y-2">
+                                        <SkeletonBox className="h-8 w-16 mx-auto bg-white/10" />
+                                        <SkeletonBox className="h-4 w-20 mx-auto bg-white/5" />
+                                    </div>
+                                ))
+                                : Object.values(hero.stats || {}).map((stat, i) => (
+                                    <div
+                                        key={stat.label}
+                                        className={`text-center${i === 1 ? " border-x border-white/10" : ""
+                                            }`}
+                                    >
+                                        <div className="text-3xl font-bold text-white sm:text-5xl mb-2">
+                                            {stat.value}
+                                        </div>
+                                        <div className="text-xs text-emerald-100/70 font-medium sm:text-base tracking-wide uppercase">
+                                            {stat.label}
+                                        </div>
+                                    </div>
+                                ))}
+                        </div>
+
+                        {/* Impact Cards */}
+                        <div className="grid sm:grid-cols-3 gap-6 lg:gap-10">
+                            {isLoading
+                                ? Array.from({ length: 3 }).map((_, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="rounded-3xl bg-white/5 p-8 flex flex-col items-center gap-5"
+                                    >
+                                        <SkeletonBox className="w-20 h-20 rounded-full bg-white/10" />
+                                        <div className="space-y-3 w-full flex flex-col items-center">
+                                            <SkeletonBox className="h-6 w-1/2 bg-white/10" />
+                                            <SkeletonBox className="h-4 w-full bg-white/5" />
+                                            <SkeletonBox className="h-4 w-3/4 bg-white/5" />
+                                        </div>
+                                    </div>
+                                ))
+                                : hero?.cards?.map((card, idx) => {
+                                    const Icon = ICONS[card.icon] || Heart;
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className="bg-white rounded-[2rem] p-10 lg:p-14 flex flex-col items-center text-center shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
+                                        >
+                                            <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-full bg-[#f0fdf4] flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300">
+                                                <Icon className="h-8 w-8 lg:h-10 lg:w-10 text-[#06422d]" />
+                                            </div>
+                                            <div className="space-y-4">
+                                                <h3 className="text-xl lg:text-2xl font-bold text-[#06422d] tracking-tight">
+                                                    {card.title}
+                                                </h3>
+                                                <p className="text-slate-600 leading-relaxed text-sm lg:text-base">
+                                                    {card.description}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
