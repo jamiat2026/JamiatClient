@@ -135,7 +135,7 @@ export default function Sidebar({ children }) {
       <NavBar user={user} setIsOpen={setIsOpen} isOpen={isOpen} role={role} />
 
       <div className="flex flex-row flex-1 min-h-0">
-        <aside className="hidden md:flex flex-col gap-2 min-w-[250px] w-[20%] p-6 bg-gray-900 text-gray-100">
+        <aside className="hidden md:flex flex-col gap-2 min-w-[220px] max-w-[320px] w-64 lg:w-[20%] p-6 bg-gray-900 text-gray-100">
           {loading ? (
             <div className="flex flex-col gap-2">
               {[...Array(5)].map((_, index) => (
@@ -238,16 +238,17 @@ export default function Sidebar({ children }) {
           )}
         </aside>
 
-        {/* Mobile Menu Button */}
-        <div className="md:hidden fixed top-5 left-3">
-          <button onClick={() => setIsOpen(!isOpen)} className="text-gray-800">
-            {isOpen && <Menu size={28} />}
-          </button>
-        </div>
+        {/* Mobile Backdrop */}
+        {isOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 z-30 md:hidden"
+            onClick={() => setIsOpen(false)}
+          />
+        )}
 
         {/* Mobile Sidebar */}
         <div
-          className={`fixed top-0 left-0 h-full w-64 bg-gray-900 text-gray-100 shadow-md z-40 p-6 transform transition-transform duration-300 ease-in-out ${
+          className={`fixed top-0 left-0 h-full w-72 max-w-[80vw] bg-gray-900 text-gray-100 shadow-md z-40 p-6 transform transition-transform duration-300 ease-in-out overflow-y-auto ${
             isOpen ? "translate-x-0" : "-translate-x-full"
           } md:hidden`}
         >
