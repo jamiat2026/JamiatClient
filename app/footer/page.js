@@ -28,7 +28,7 @@ export default function FooterSettingsPage() {
   const handleNestedChange = (section, field, value) => {
     setFormData(prev => ({
       ...prev,
-      [section]: { ...prev[section], [field]: value }
+      [section]: { ...(prev[section] || {}), [field]: value }
     }));
   };
 
@@ -334,6 +334,46 @@ export default function FooterSettingsPage() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Contact Info */}
+          <div className="border-b pb-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Contact Info
+            </label>
+            {editMode ? (
+              <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+                <input
+                  type="email"
+                  value={formData.contact?.email || ''}
+                  onChange={e => handleNestedChange('contact', 'email', e.target.value)}
+                  placeholder="Email"
+                  className="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                />
+                <input
+                  type="text"
+                  value={formData.contact?.phone || ''}
+                  onChange={e => handleNestedChange('contact', 'phone', e.target.value)}
+                  placeholder="Phone"
+                  className="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                />
+                <textarea
+                  value={formData.contact?.address || ''}
+                  onChange={e => handleNestedChange('contact', 'address', e.target.value)}
+                  placeholder="Address (use new lines as needed)"
+                  className="border border-gray-300 p-2 rounded-lg w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                  rows={4}
+                />
+              </div>
+            ) : (
+              <div className="bg-gray-50 p-4 rounded-lg space-y-1">
+                <p className="text-gray-900 font-medium">{footer.contact?.email}</p>
+                <p className="text-gray-900 font-medium">{footer.contact?.phone}</p>
+                <p className="text-gray-600 whitespace-pre-line">
+                  {footer.contact?.address}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Copyright */}
