@@ -3,6 +3,13 @@ import Project from "@/lib/models/Project";
 
 import { corsHeaders } from "../../../layout";
 
+function generateSlug(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 // OPTIONS handler (for preflight requests)
 export async function OPTIONS() {
   return new Response(null, {
@@ -34,6 +41,26 @@ export async function PUT(req, props) {
   await dbConnect();
 
   const body = await req.json();
+  if (body && Object.prototype.hasOwnProperty.call(body, "slug")) {
+    if (!body.slug || !String(body.slug).trim()) {
+      const existing = await Project.findById(params.id).select("title");
+      const baseTitle = body.title || existing?.title;
+      if (!baseTitle) {
+        return new Response(JSON.stringify({ error: "Title is required" }), {
+          status: 400,
+          headers: corsHeaders,
+        });
+      }
+      let slug = generateSlug(baseTitle);
+      let slugSuffix = 1;
+      while (await Project.findOne({ slug, _id: { $ne: params.id } })) {
+        slug = `${generateSlug(baseTitle)}-${slugSuffix}`;
+        slugSuffix++;
+      }
+      body.slug = slug;
+    }
+  }
+
   const updatedProject = await Project.findByIdAndUpdate(params.id, body, {
     new: true,
   });

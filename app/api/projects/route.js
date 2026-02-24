@@ -3,6 +3,13 @@ import Project from "@/lib/models/Project";
 
 import { corsHeaders } from "../../layout";
 
+function generateSlug(title) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
 // GET Projects
 export async function GET(req) {
   await dbConnect();
@@ -50,6 +57,26 @@ export async function POST(req) {
   try {
     await dbConnect();
     const body = await req.json();
+    console.log("[POST /api/projects] payload keys:", Object.keys(body || {}));
+    console.log("[POST /api/projects] payload:", body);
+
+    if (!body?.title) {
+      return new Response(JSON.stringify({ error: "Title is required" }), {
+        status: 400,
+        headers: corsHeaders,
+      });
+    }
+
+    if (!body.slug || !String(body.slug).trim()) {
+      let slug = generateSlug(body.title);
+      let slugSuffix = 1;
+      while (await Project.findOne({ slug })) {
+        slug = `${generateSlug(body.title)}-${slugSuffix}`;
+        slugSuffix++;
+      }
+      body.slug = slug;
+    }
+
     const newProject = new Project(body);
     await newProject.save();
 
@@ -58,6 +85,7 @@ export async function POST(req) {
       headers: corsHeaders,
     });
   } catch (error) {
+    console.error("[POST /api/projects] error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: corsHeaders,
