@@ -2,19 +2,24 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "sonner";
+import Link from "next/link";
 import {
   Heart,
   Users,
   GraduationCap,
   Globe,
   UserPlus,
-  MapPin,
-  Home,
-  ArrowRight,
   ChevronDown,
-  Clock,
-  Laptop
+  ArrowRight,
+  Calendar,
 } from "lucide-react";
+
+const ICON_MAP = {
+  GraduationCap,
+  Heart,
+  Users,
+  Calendar,
+};
 
 export const VolunteerPage = () => {
   const [formData, setFormData] = useState({
@@ -27,6 +32,33 @@ export const VolunteerPage = () => {
     newsletter: false,
   });
   const [loading, setLoading] = useState(false);
+  const [opportunities, setOpportunities] = useState([]);
+  const [oppLoading, setOppLoading] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function fetchOpportunities() {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/volunteer-positions`,
+          { signal: controller.signal }
+        );
+        if (!res.ok) throw new Error("Failed to fetch opportunities");
+        const data = await res.json();
+        setOpportunities(Array.isArray(data) ? data : []);
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          console.error(err);
+        }
+      } finally {
+        setOppLoading(false);
+      }
+    }
+
+    fetchOpportunities();
+    return () => controller.abort();
+  }, []);
 
   const handleChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
@@ -86,7 +118,7 @@ export const VolunteerPage = () => {
               </div>
 
               <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">First Name</label>
                     <input
@@ -96,7 +128,7 @@ export const VolunteerPage = () => {
                       value={formData.firstName}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none "
                     />
                   </div>
                   <div className="space-y-2">
@@ -108,7 +140,7 @@ export const VolunteerPage = () => {
                       value={formData.lastName}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none"
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none placeholder:text-gray-500"
                     />
                   </div>
                 </div>
@@ -122,7 +154,7 @@ export const VolunteerPage = () => {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none placeholder:text-gray-500"
                   />
                 </div>
 
@@ -135,7 +167,7 @@ export const VolunteerPage = () => {
                     value={formData.phone}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none placeholder:text-gray-500"
                   />
                 </div>
 
@@ -167,7 +199,7 @@ export const VolunteerPage = () => {
                     value={formData.message}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none resize-none"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all outline-none resize-none placeholder:text-gray-500"
                   />
                 </div>                <div className="p-4 bg-gray-50 rounded-2xl flex items-start gap-4">
                   <div
@@ -204,95 +236,70 @@ export const VolunteerPage = () => {
           {/* Right Column: Why Volunteer & Opportunities */}
           <div className="lg:col-span-5 space-y-10">
 
-            {/* Why Volunteer Card */}
-            <div className="bg-[#ECFDF5] rounded-3xl p-8 space-y-8">
-              <h2 className="text-2xl font-serif text-[#064E3B] font-bold">Why Volunteer?</h2>
+            {/* Current Volunteer Opportunities */}
+            <div className="bg-[#ECFDF5] rounded-3xl p-8 space-y-6">
+              <h2 className="text-2xl font-serif text-[#064E3B] font-bold">Current Opportunities</h2>
 
               <div className="space-y-6">
-                {[
-                  {
-                    icon: Users,
-                    title: "Build Community",
-                    desc: "Connect with like-minded individuals and strengthen the bonds of our ummah."
-                  },
-                  {
-                    icon: GraduationCap,
-                    title: "Learn New Skills",
-                    desc: "Gain valuable experience in leadership, organization, and social work."
-                  },
-                  {
-                    icon: Heart,
-                    title: "Earn Rewards",
-                    desc: "Seek the pleasure of Allah through service to His creation."
-                  }
-                ].map((item, idx) => (
-                  <div key={idx} className="flex gap-4">
-                    <div className="flex-shrink-0 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
-                      <item.icon className="w-6 h-6 text-emerald-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-[#064E3B]">{item.title}</h3>
-                      <p className="text-emerald-800/70 text-sm leading-snug">{item.desc}</p>
-                    </div>
+                {oppLoading ? (
+                  <div className="text-emerald-800/60 animate-pulse py-4">
+                    Loading opportunities...
                   </div>
-                ))}
+                ) : opportunities.length === 0 ? (
+                  <div className="text-emerald-800/60 py-4">
+                    No active opportunities at the moment.
+                  </div>
+                ) : (
+                  opportunities.map((opportunity, idx) => {
+                    const Icon = ICON_MAP[opportunity.icon] || GraduationCap;
+                    return (
+                      <div key={opportunity._id || idx} className="flex gap-4 group">
+                        <div className="flex-shrink-0 w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                          <Icon className="w-6 h-6 text-emerald-600" />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-[#064E3B]">{opportunity.title}</h3>
+                          </div>
+                          <p className="text-emerald-800/70 text-sm leading-snug">
+                            {opportunity.description}
+                          </p>
+                          {opportunity.commitment && (
+                            <div className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-100/50 px-2 py-0.5 rounded">
+                              {opportunity.commitment}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
 
-            {/* Upcoming Opportunities */}
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-gray-900 px-2">Upcoming Opportunities</h2>
-
-              <div className="space-y-4">
-                {[
-                  {
-                    badge: "Next Weekend",
-                    title: "Food Drive Distribution",
-                    location: "Community Center hall B",
-                    desc: "Help sort and distribute food packages to families in need for the upcoming month.",
-                    icon: MapPin,
-                    badgeColor: "bg-emerald-100 text-emerald-700"
-                  },
-                  {
-                    badge: "Urgent",
-                    title: "Youth Mentorship Program",
-                    location: "Jamiat Youth Wing",
-                    desc: "We need mentors to help guide high school students with college applications and career advice.",
-                    icon: MapPin,
-                    badgeColor: "bg-orange-100 text-orange-700"
-                  },
-                  {
-                    badge: "Remote",
-                    title: "Graphic Design Support",
-                    location: "Work from home",
-                    desc: "Assist our media team in creating flyers and social media posts for upcoming charity events.",
-                    icon: Home,
-                    badgeColor: "bg-blue-100 text-blue-700"
-                  }
-                ].map((opp, idx) => (
-                  <div
-                    key={idx}
-                    className="group bg-white p-6 rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] hover:shadow-md transition-all cursor-pointer relative"
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <span className={`px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${opp.badgeColor}`}>
-                        {opp.badge}
-                      </span>
-                      <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-emerald-500 transition-colors" />
-                    </div>
-
-                    <h3 className="text-lg font-bold text-gray-900 mb-1">{opp.title}</h3>
-                    <div className="flex items-center gap-1.5 text-gray-400 text-sm mb-3">
-                      <opp.icon className="w-4 h-4" />
-                      {opp.location}
-                    </div>
-                    <p className="text-sm text-gray-500 leading-relaxed">
-                      {opp.desc}
-                    </p>
-                  </div>
-                ))}
+            {/* Other Ways to Help Card */}
+            <div className="bg-white rounded-3xl p-8 border border-emerald-100 shadow-[0_8px_30px_rgb(16,185,129,0.05)] space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-emerald-50 p-2 rounded-lg">
+                  <Heart className="w-5 h-5 text-emerald-600" />
+                </div>
+                <h2 className="text-2xl font-serif text-[#064E3B] font-bold">Other Ways to Help</h2>
               </div>
+
+              <p className="text-gray-600 leading-relaxed">
+                Can't volunteer your time right now? You can still make a significant difference in our community by supporting our initiatives financially.
+              </p>
+
+              <Link
+                href="/donate"
+                className="inline-flex items-center justify-center gap-2 w-full py-4 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 transition-all shadow-md shadow-emerald-100 group"
+              >
+                Make a Donation
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
+
+
 
           </div>
         </div>
