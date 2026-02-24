@@ -82,7 +82,12 @@ export default function HomePageHeroSection({ hero }) {
                                     </Link>
                                     <Link
                                         href="/impact"
-                                        className="bg-white text-slate-900 px-8 py-4 text-lg font-bold hover:bg-slate-50 transition-all duration-300 active:scale-[0.98] flex items-center justify-center gap-3 rounded-xl border-2 border-slate-100"
+                                        className="bg-white text-slate-800 px-8 py-4 text-lg font-semibold 
+                                        hover:bg-slate-50 transition-all duration-300 
+                                        active:scale-[0.98] 
+                                        flex items-center justify-center gap-3 
+                                        rounded-xl border border-slate-200 
+                                        shadow-2xl hover:shadow-md"
                                     >
                                         <Play className="size-5 fill-emerald-600 text-emerald-600" />
                                         See Our Impact
