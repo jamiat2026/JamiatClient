@@ -4,6 +4,8 @@ import { SessionProvider, useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
+import Loader from './loader';
+
 function AuthGate({ children }) {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -23,7 +25,7 @@ function AuthGate({ children }) {
   }
 
   if (status === 'loading') {
-    return <div className="p-6">Loading...</div>;
+    return <Loader />;
   }
 
   if (status === 'authenticated') {

@@ -1,8 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { GraduationCap, Heart, Users, Calculator, Trash2, Plus } from 'lucide-react'
-import { TbTrash } from 'react-icons/tb'
+import { GraduationCap, Heart, Users, Calculator, Plus, Trash2 } from 'lucide-react'
 
 const ICON_MAP = {
   GraduationCap,
@@ -88,48 +87,51 @@ export default function ImpactSectionEditor() {
   }
 
   return (
-    <div className="bg-white sm:p-6 p-4 sm:rounded-2xl min-h-full">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold">Impact Stories</h1>
+    <div className="p-6 min-h-full space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">Impact Stories</h2>
+          <p className="text-xs text-gray-500">Manage testimonials and impact stories.</p>
+        </div>
       </div>
 
       {loading ? (
-        <div className="text-center py-10 text-gray-500">Loading...</div>
+        <div className="text-center py-10 text-sm text-gray-500">Loading...</div>
       ) : stories.length === 0 ? (
-        <div className="text-center py-10 text-gray-500">No stories found.</div>
+        <div className="text-center py-10 text-sm text-gray-500">No stories found.</div>
       ) : (
-        <div className="space-y-6 grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-1 sm:grid-cols-2 grid-cols-1 gap-4">
+        <div className="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-1 sm:grid-cols-2 grid-cols-1 gap-4">
           {stories.map((story) => {
             const Icon = ICON_MAP[story.icon] || Users;
 
             return (
-              <div key={story._id} className="gap-1 bg-violet-50 rounded-xl p-4 border-2 border-violet-300 w-full min-h-full flex flex-col justify-between">
+              <div key={story._id} className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col justify-between hover:shadow-md transition-shadow">
                 <div className='flex flex-row justify-between'>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="bg-violet-200 text-violet-600 rounded-full p-2 text-xs font-semibold">{story.initials}</span>
-                      <span className="font-semibold text-gray-700">{story.name}</span>
+                      <span className="bg-emerald-100 text-emerald-700 rounded-full p-2 text-xs font-semibold">{story.initials}</span>
+                      <span className="font-semibold text-sm text-gray-800">{story.name}</span>
                     </div>
 
-                    <span className="text-gray-500 text-sm">({story.location})</span>
+                    <span className="text-gray-500 text-xs mt-1 block">({story.location})</span>
 
                     <div className="text-xs text-gray-400 mt-1">
                       {story.createdAt ? new Date(story.createdAt).toLocaleString() : ''}
                     </div>
 
-                    <p className="text-gray-700 mt-2">"{story.quote}"</p>
+                    <p className="text-gray-600 text-sm mt-2">"{story.quote}"</p>
                   </div>
 
-                  <Icon className="min-w-6 h-6 text-gray-700" />
+                  <Icon className="min-w-5 h-5 text-gray-400" />
                 </div>
 
-                <div className="flex flex-row gap-2 items-center justify-end w-full">
+                <div className="flex flex-row gap-2 items-center justify-end w-full mt-3">
                   <button
-                    className="btn btn-sm btn-error ml-2 text-red-500 cursor-pointer hover:bg-red-100 rounded-full p-2.5"
+                    className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg p-1.5 cursor-pointer transition-all"
                     onClick={() => handleDelete(story._id)}
                     type="button"
                   >
-                    <TbTrash className="text-xl" />
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>
@@ -138,58 +140,59 @@ export default function ImpactSectionEditor() {
         </div>
       )}
 
-      <div ref={formRef}  className="bg-white border border-gray-300 rounded-xl ms:p-6 p-5 w-full mt-4 sm:mt-10">
-        <h2 className="font-semibold text-lg mb-4">Add Impact Story</h2>
+      <div ref={formRef} className="bg-white border border-gray-200 rounded-xl p-6 space-y-4">
+        <h2 className="text-sm font-semibold text-gray-900">Add Impact Story</h2>
 
         <div className="flex flex-col gap-y-4">
-          <div className="grid sm:grid-cols-2 gap-2 sm:gap-4 w-full">
+          <div className="grid sm:grid-cols-2 gap-3 w-full">
             <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">Quote</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Quote</label>
               <textarea
                 name="quote"
                 value={form.quote}
                 onChange={handleFormChange}
                 required
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
+                className="px-4 py-2.5 text-sm w-full border border-gray-200 rounded-xl bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none resize-none"
+                rows={3}
               />
             </div>
             <div className='sm:col-span-1 col-span-2'>
-              <label className="block text-sm font-medium mb-1">Name</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Name</label>
               <input
                 name="name"
                 value={form.name}
                 onChange={handleFormChange}
                 required
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
+                className="px-4 py-2.5 text-sm w-full border border-gray-200 rounded-xl bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none"
               />
             </div>
             <div className='sm:col-span-1 col-span-2'>
-              <label className="block text-sm font-medium mb-1">Location</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Location</label>
               <input
                 name="location"
                 value={form.location}
                 onChange={handleFormChange}
                 required
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
+                className="px-4 py-2.5 text-sm w-full border border-gray-200 rounded-xl bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none"
               />
             </div>
             <div className='sm:col-span-1 col-span-2'>
-              <label className="block text-sm font-medium mb-1">Initials</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Initials</label>
               <input
                 name="initials"
                 value={form.initials}
                 onChange={handleFormChange}
                 required
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
+                className="px-4 py-2.5 text-sm w-full border border-gray-200 rounded-xl bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none"
               />
             </div>
             <div className='sm:col-span-1 col-span-2'>
-              <label className="block text-sm font-medium mb-1">Icon</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">Icon</label>
               <select
                 name="icon"
                 value={form.icon}
                 onChange={handleFormChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl appearance-none cursor-pointer"
+                className="px-4 py-2.5 text-sm w-full border border-gray-200 rounded-xl bg-white appearance-none cursor-pointer focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none"
               >
                 {ICONS.map((icon) => (
                   <option key={icon.value} value={icon.value}>{icon.label}</option>
@@ -203,9 +206,10 @@ export default function ImpactSectionEditor() {
               type="submit"
               onClick={handleAdd}
               disabled={adding}
-              className="px-10 py-2 font-medium cursor-pointer bg-violet-600 hover:bg-violet-700 text-white text-sm rounded-xl"
+              className="flex items-center gap-2 px-6 py-2.5 font-semibold cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded-xl transition-all shadow-sm hover:shadow-md active:scale-95"
             >
-              {adding ? 'Adding...' : 'Add'}
+              <Plus size={16} />
+              {adding ? 'Adding...' : 'Add Story'}
             </button>
           </div>
         </div>

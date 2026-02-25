@@ -80,23 +80,23 @@ export default function HomeImpactSectionEditor() {
   return (
     <>
       {edit ? (
-        <div className="space-y-6 mt-6 px-2">
+        <div className="space-y-10">
           <div className="flex flex-col gap-2">
-            <label className="text-base ms:text-xl font-semibold">Title</label>
-            <input name="title" value={form.title || ""} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-400" />
+            <label className="text-sm font-bold uppercase tracking-wider text-gray-500">Title</label>
+            <input name="title" value={form.title || ""} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-base ms:text-xl font-semibold">Subtitle</label>
-            <input name="subtitle" value={form.subtitle || ""} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-400" />
+            <label className="text-sm font-bold uppercase tracking-wider text-gray-500">Subtitle</label>
+            <input name="subtitle" value={form.subtitle || ""} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400" />
           </div>
 
           <hr className="text-gray-300 my-8" />
 
           <div className="flex flex-row gap-2 mb-4 items-center justify-between w-full">
-            <label className="text-base ms:text-xl font-semibold">Impact Stats</label>
+            <label className="text-sm font-bold uppercase tracking-wider text-gray-500">Impact Stats</label>
             <button
-              className="flex flex-row text-sm sm:text-base gap-2 items-center font-medium btn btn-primary border border-violet-600 hover:bg-violet-500 px-4 sm:px-6 py-2 cursor-pointer text-violet-600 hover:text-white transition rounded-xl"
+              className="flex flex-row text-sm sm:text-base gap-2 items-center font-medium btn btn-primary border border-emerald-600 hover:bg-emerald-500 px-4 sm:px-6 py-2 cursor-pointer text-emerald-600 hover:text-white transition rounded-xl"
               onClick={handleAddStat} type="button"
             >
               Add Stat
@@ -137,16 +137,16 @@ export default function HomeImpactSectionEditor() {
             ))}
           </div>
 
-          <div className="flex gap-2 absolute right-3 sm:right-6 top-3 sm:top-6">
+          <div className="flex gap-2 justify-end mt-8 border-t border-gray-100 pt-6">
             <button
-              className="flex flex-row text-sm sm:text-base gap-2 items-center font-medium btn btn-primary border bg-violet-600 hover:bg-violet-600 px-4 ms:px-6 py-2 cursor-pointer text-white transition rounded-xl"
+              className="flex flex-row text-sm sm:text-base gap-2 items-center font-medium btn btn-primary border bg-emerald-600 hover:bg-emerald-700 px-4 ms:px-6 py-2 cursor-pointer text-white transition rounded-xl"
               onClick={handleSave}
               disabled={saving}
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving..." : "Save Changes"}
             </button>
             <button
-              className="flex flex-row text-sm sm:text-base gap-2 items-center font-medium btn btn-primary border border-violet-600 hover:bg-violet-600 px-4 ms:px-6 py-2 cursor-pointer text-violet-600 hover:text-white transition rounded-xl"
+              className="flex flex-row text-sm sm:text-base gap-2 items-center font-medium btn btn-primary border border-emerald-600 hover:bg-emerald-50 px-4 ms:px-6 py-2 cursor-pointer text-emerald-600 transition rounded-xl"
               onClick={() => { setEdit(false); setForm(data) }}
             >
               Cancel
@@ -154,29 +154,30 @@ export default function HomeImpactSectionEditor() {
           </div>
         </div>
       ) : (
-        <div className="px-2 mt-6 space-y-6">
-          <button
-            className="absolute text-sm sm:text-base right-3 sm:right-4 top-3 sm:top-4 flex flex-row gap-2 items-center font-medium btn btn-primary border border-violet-600 hover:bg-violet-600 sm:px-6 px-4 py-2 cursor-pointer text-violet-600 hover:text-white transition rounded-xl"
-            onClick={() => setEdit(true)}
-          >
-            Edit Impact
-             <TbEdit className="text-xl" />
-          </button>
+        <div className="space-y-10">
+          <div className="flex justify-end pt-2">
+            <button
+              className="flex flex-row gap-2 items-center font-semibold bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 cursor-pointer text-white transition-all rounded-xl shadow-sm text-sm sm:text-base border border-emerald-500/50"
+              onClick={() => setEdit(true)}
+            >
+              Edit Impact Content <TbEdit className="text-xl" />
+            </button>
+          </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-base ms:text-xl font-semibold">Title:</span>
+            <span className="text-sm font-bold uppercase tracking-wider text-gray-500">Title:</span>
             <span className="block text-base ms:text-sm">{data.title}</span>
           </div>
 
           <div className="flex flex-col gap-2">
-            <span className="text-base ms:text-xl font-semibold">Subtitle:</span>
+            <span className="text-sm font-bold uppercase tracking-wider text-gray-500">Subtitle:</span>
             <span className="block">{data.subtitle}</span>
           </div>
 
           <hr className="text-gray-300 my-8" />
 
           <div>
-            <span className="text-base ms:text-xl font-semibold block mb-4">Impact Stats:</span>
+            <span className="text-sm font-bold uppercase tracking-wider text-gray-500 block mb-4">Impact Stats:</span>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
               {(data.stats || []).map((stat, idx) => {
@@ -192,7 +193,7 @@ export default function HomeImpactSectionEditor() {
                       {stat.title || "No Title"}
                     </div>
 
-                    <div className="text-violet-700 text-sm">{stat.value || "No Value"}</div>
+                    <div className="text-emerald-700 text-sm">{stat.value || "No Value"}</div>
 
                     <div className="text-gray-600 text-sm">{stat.description || "No Description"}</div>
 

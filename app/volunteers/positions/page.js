@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react'
 import { GraduationCap, Heart, Users, Calendar, Eye, Trash2 } from 'lucide-react'
 
+import Loader from '../../components/loader'
+
 const ICON_MAP = {
   GraduationCap: GraduationCap,
   Heart: Heart,
@@ -26,6 +28,14 @@ export default function VolunteerPositionsPage() {
     const data = await res.json()
     setPositions(data)
     setLoading(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center bg-gray-100">
+        <Loader fullScreen={false} />
+      </div>
+    );
   }
 
   async function handleDelete(id) {

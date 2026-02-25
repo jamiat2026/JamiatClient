@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react"
 import { Trash2 } from "lucide-react"
 import { TbEdit } from "react-icons/tb"
-import { FaPlus, FaCheck } from "react-icons/fa6"
-import { FcCancel } from "react-icons/fc"
+import { FaPlus } from "react-icons/fa6"
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([])
@@ -76,95 +75,114 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="p-6 bg-white rounded-2xl min-h-screen w-full">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold">Categories</h1>
+    <div className="min-h-full w-full bg-gray-50/50 p-4 sm:p-8 rounded-3xl border border-gray-200/60 shadow-sm space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Categories</h1>
+          <p className="text-sm text-gray-500">Manage and organize your project categories.</p>
+        </div>
+
         <button
           onClick={openAddModal}
-          className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl"
+          className="flex flex-row text-sm sm:text-base gap-2 items-center font-semibold bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 cursor-pointer text-white transition-all rounded-xl shadow-sm border border-emerald-500/50"
         >
-          <FaPlus />
+          <FaPlus size={14} />
           Add Category
         </button>
       </div>
 
-      {loading ? (
-        <div className="text-center py-10 text-gray-500">Loading...</div>
-      ) : (
-        <div className="grid md:grid-cols-3 grid-cols-1 gap-4 w-full">
-          {categories.map((cat) => (
-            <div
-              key={cat._id}
-              className="flex justify-between items-start bg-violet-50 border-2 border-violet-300 p-3 rounded-xl"
-            >
-              <div>
-                <h2 className="font-semibold text-lg">{cat.name}</h2>
-                <p className="text-sm text-gray-500">{cat.description}</p>
-              </div>
+      {/* Content */}
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden p-4 sm:p-6">
+        {loading ? (
+          <div className="text-center py-10 text-gray-500">Loading...</div>
+        ) : (
+          <div className="grid md:grid-cols-3 grid-cols-1 gap-4">
+            {categories.map((cat) => (
+              <div
+                key={cat._id}
+                className="bg-white border border-gray-200 p-4 rounded-xl hover:shadow-md transition-all duration-200 group"
+              >
+                <div>
+                  <h2 className="text-base font-semibold text-gray-900">{cat.name}</h2>
+                  <p className="text-sm text-gray-400 mt-1">{cat.description}</p>
+                </div>
 
-              <div className="space-x-2 ml-4 flex-shrink-0">
-                <button
-                  onClick={() => openEditModal(cat)}
-                  className="text-violet-600 hover:bg-violet-200 rounded-3xl p-2 transition"
-                  title="Edit"
-                >
-                  <TbEdit size={20} />
-                </button>
-                <button
-                  onClick={() => handleDelete(cat._id)}
-                  className="text-red-600 hover:bg-red-200 rounded-3xl p-2 transition"
-                  title="Delete"
-                >
-                  <Trash2 size={20} />
-                </button>
+                <div className="mt-3 pt-3 border-t border-gray-100 flex justify-end gap-2">
+                  <button
+                    onClick={() => openEditModal(cat)}
+                    className="text-emerald-600 hover:bg-emerald-50 rounded-lg p-2 cursor-pointer transition-all"
+                    title="Edit"
+                  >
+                    <TbEdit size={18} />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(cat._id)}
+                    className="text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg p-2 cursor-pointer transition-all"
+                    title="Delete"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+
+            {!categories.length && (
+              <div className="col-span-full text-center py-16 text-gray-400">
+                <p className="text-base">No categories found.</p>
+                <p className="text-sm mt-1">Create your first category to get started.</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-white/30 z-50">
-          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6">
-            <h2 className="text-xl font-bold mb-4">
-              {modalType === "add" ? "Add Category" : "Edit Category"}
-            </h2>
-            <form onSubmit={handleSave} className="flex flex-col gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
-                <input
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  className="p-2.5 w-full border border-gray-300 rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Description</label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="p-2.5 w-full border border-gray-300 rounded-xl"
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-lg"
-                >
-                  {saving ? "Saving..." : "Save"}
-                </button>
-              </div>
-            </form>
+        <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-black/20 z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+            <div className="p-6 space-y-5">
+              <h2 className="text-lg font-bold tracking-tight text-gray-900">
+                {modalType === "add" ? "Add Category" : "Edit Category"}
+              </h2>
+              <form onSubmit={handleSave} className="flex flex-col gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Name</label>
+                  <input
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    className="p-2.5 w-full border border-gray-200 rounded-xl bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Description</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={3}
+                    className="p-2.5 w-full border border-gray-200 rounded-xl bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 transition-all resize-none"
+                  />
+                </div>
+              </form>
+            </div>
+
+            <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+              <button
+                type="button"
+                onClick={() => setModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="px-4 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg cursor-pointer transition-all shadow-sm border border-emerald-500/50 disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save"}
+              </button>
+            </div>
           </div>
         </div>
       )}

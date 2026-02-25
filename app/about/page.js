@@ -1,16 +1,17 @@
 "use client";
+
 import { useEffect, useRef, useState } from "react";
-import { BsThreeDotsVertical } from "react-icons/bs";
+import { ChevronDown, Sparkles, Eye, Heart, BookOpen } from "lucide-react";
 import AboutHeroSectionEditor from "../components/aboutherosection";
 import AboutVisionSectionEditor from "../components/aboutvisionsection";
 import AboutValuesSectionEditor from "../components/aboutvaluessection";
 import AboutStorySectionEditor from "../components/aboutstorysection";
 
 const sections = [
-  { name: "Hero", key: "hero" },
-  { name: "Vision and Mission", key: "vision" },
-  { name: "Values", key: "values" },
-  { name: "Story", key: "story" },
+  { name: "Hero", key: "hero", icon: Sparkles },
+  { name: "Vision & Mission", key: "vision", icon: Eye },
+  { name: "Values", key: "values", icon: Heart },
+  { name: "Story", key: "story", icon: BookOpen },
 ];
 
 export default function AboutCMSPage() {
@@ -36,67 +37,93 @@ export default function AboutCMSPage() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
+  const ActiveIcon = sections.find((s) => s.key === activeSection)?.icon;
+
   return (
-    <div className="min-h-full bg-white ms:p-6 p-4 sm:rounded-2xl relative">
-      <div className="sm:hidden flex">
+    <div className="min-h-full w-full bg-gray-50/50 p-4 sm:p-8 rounded-3xl border border-gray-200/60 shadow-sm space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">About Page</h1>
+          <p className="text-sm text-gray-500">Manage the hero, vision & mission, values, and story sections.</p>
+        </div>
+      </div>
+
+      {/* Mobile Dropdown */}
+      <div className="sm:hidden relative">
         <button
           ref={buttonRef}
           onClick={() => setShowDropdown((prev) => !prev)}
-          className="text-xl cursor-pointer hover:bg-black hover:text-white p-1 transition-colors rounded-full"
+          className="flex items-center justify-between w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 cursor-pointer hover:border-emerald-300 transition-all shadow-sm"
         >
-          <BsThreeDotsVertical />
+          <span className="flex items-center gap-2">
+            {ActiveIcon && <ActiveIcon size={16} className="text-emerald-600" />}
+            {sections.find((s) => s.key === activeSection)?.name}
+          </span>
+          <ChevronDown size={16} className={`text-gray-400 transition-transform ${showDropdown ? "rotate-180" : ""}`} />
         </button>
 
         {showDropdown && (
           <div
             ref={dropdownRef}
-            className="flex flex-col absolute top-12 left-10 gap-1 bg-white border border-gray-300 p-2 rounded-2xl rounded-tl-none shadow-2xs"
+            className="absolute top-full left-0 right-0 mt-1 z-10 bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden"
           >
-            {sections.map((section) => (
-              <button
-                key={section.key}
-                onClick={() => {
-                  setActiveSection(section.key);
-                  setShowDropdown(false);
-                }}
-                className={`text-left text-sm px-6 py-1.5 rounded-lg cursor-pointer font-semibold transition-all ${
-                  activeSection === section.key
-                    ? "bg-violet-600 text-white"
-                    : "hover:bg-violet-200 hover:text-violet-600"
-                }`}
-              >
-                {section.name}
-              </button>
-            ))}
+            {sections.map((section) => {
+              const Icon = section.icon;
+              return (
+                <button
+                  key={section.key}
+                  onClick={() => {
+                    setActiveSection(section.key);
+                    setShowDropdown(false);
+                  }}
+                  className={`flex items-center gap-2.5 w-full text-left text-sm px-4 py-3 cursor-pointer font-medium transition-all ${activeSection === section.key
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "text-gray-600 hover:bg-gray-50"
+                    }`}
+                >
+                  <Icon size={16} className={activeSection === section.key ? "text-emerald-600" : "text-gray-400"} />
+                  {section.name}
+                </button>
+              );
+            })}
           </div>
         )}
       </div>
 
-      <nav className="flex-row gap-1 sm:flex hidden">
-        {sections.map((section) => (
-          <button
-            key={section.key}
-            onClick={() => setActiveSection(section.key)}
-            className={`text-left px-6 py-2 rounded-lg cursor-pointer font-semibold transition-all ${
-              activeSection === section.key
-                ? "bg-violet-600 text-white"
-                : "hover:bg-violet-200 hover:text-violet-600"
-            }`}
-          >
-            {section.name}
-          </button>
-        ))}
+      {/* Desktop Tabs */}
+      <nav className="hidden sm:flex gap-1 p-1 bg-white border border-gray-200 rounded-xl shadow-sm w-fit">
+        {sections.map((section) => {
+          const Icon = section.icon;
+          return (
+            <button
+              key={section.key}
+              onClick={() => setActiveSection(section.key)}
+              className={`flex items-center gap-2 px-5 py-2 rounded-lg cursor-pointer text-sm font-semibold transition-all duration-200 ${activeSection === section.key
+                ? "bg-emerald-600 text-white shadow-sm"
+                : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                }`}
+            >
+              <Icon size={16} />
+              {section.name}
+            </button>
+          );
+        })}
       </nav>
 
-      {activeSection === "hero" ? (
-        <AboutHeroSectionEditor />
-      ) : activeSection === "vision" ? (
-        <AboutVisionSectionEditor />
-      ) : activeSection === "values" ? (
-        <AboutValuesSectionEditor />
-      ) : (
-        <AboutStorySectionEditor />
-      )}
+      {/* Section Content */}
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        {activeSection === "hero" ? (
+          <AboutHeroSectionEditor />
+        ) : activeSection === "vision" ? (
+          <AboutVisionSectionEditor />
+        ) : activeSection === "values" ? (
+          <AboutValuesSectionEditor />
+        ) : (
+          <AboutStorySectionEditor />
+        )}
+      </div>
     </div>
   );
 }
+

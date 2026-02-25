@@ -149,7 +149,7 @@ export default function HomeHeroSectionEditor() {
       if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
         schemaToSave = parsed;
       }
-    } catch {}
+    } catch { }
 
     const res = await fetch("/api/homeherosection", {
       method: "POST",
@@ -187,43 +187,43 @@ export default function HomeHeroSectionEditor() {
   return (
     <>
       {edit ? (
-        <div className="space-y-6 mt-6 px-2">
+        <div className="space-y-10">
           <div className="flex flex-col gap-2">
-            <label className="text-base sm:text-xl font-semibold">Title</label>
+            <label className="text-sm font-bold uppercase tracking-wider text-gray-500">Title</label>
             <input
               name="title"
               value={form.title || ""}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-400"
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-base sm:text-xl font-semibold">
+            <label className="text-sm font-bold uppercase tracking-wider text-gray-500">
               Subtitle
             </label>
             <input
               name="subtitle"
               value={form.subtitle || ""}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-400"
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-base sm:text-xl font-semibold">
+            <label className="text-sm font-bold uppercase tracking-wider text-gray-500">
               CTA Text
             </label>
             <input
               name="ctaText"
               value={form.ctaText || ""}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-400"
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
             />
           </div>
 
           <>
-            <label className="text-base sm:text-xl font-semibold">
+            <label className="text-sm font-bold uppercase tracking-wider text-gray-500">
               Secondary CTA
             </label>
 
@@ -248,7 +248,7 @@ export default function HomeHeroSectionEditor() {
           <hr className="text-gray-300 my-8" />
 
           <>
-            <label className="text-base sm:text-xl font-semibold">Stats</label>
+            <label className="text-sm font-bold uppercase tracking-wider text-gray-500">Stats</label>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-2 mt-4">
               <div className="flex flex-col gap-2">
@@ -312,11 +312,11 @@ export default function HomeHeroSectionEditor() {
 
           <>
             <div className="flex flex-row gap-2 mb-4 items-center justify-between w-full">
-              <label className="text-base sm:text-xl font-semibold">
+              <label className="text-sm font-bold uppercase tracking-wider text-gray-500">
                 Cards
               </label>
               <button
-                className="flex flex-row text-sm sm:text-base gap-2 items-center font-medium btn btn-primary border border-violet-600 hover:bg-violet-500 px-4 ms:px-6 py-2 cursor-pointer text-violet-600 hover:text-white transition rounded-xl"
+                className="flex flex-row text-sm sm:text-base gap-2 items-center font-medium btn btn-primary border border-emerald-600 hover:bg-emerald-500 px-4 ms:px-6 py-2 cursor-pointer text-emerald-600 hover:text-white transition rounded-xl"
                 onClick={handleAddCard}
                 type="button"
               >
@@ -328,7 +328,7 @@ export default function HomeHeroSectionEditor() {
               {(form.cards || []).map((card, idx) => (
                 <div
                   key={idx}
-                  className="flex min-w-full sm:min-w-[250px] max-w-fit sm:max-w-[300px] flex-col gap-4 items-center border-2 border-violet-300 p-4 rounded-xl bg-violet-50"
+                  className="flex min-w-full sm:min-w-[250px] max-w-fit sm:max-w-[300px] flex-col gap-4 items-center border-2 border-emerald-300 p-4 rounded-xl bg-emerald-50"
                 >
                   <div className="flex flex-row gap-2 items-center justify-between w-full">
                     <select
@@ -392,16 +392,16 @@ export default function HomeHeroSectionEditor() {
             </div>
           </>
 
-          <div className="flex gap-2 absolute right-3 sm:right-6 top-3 sm:top-6">
+          <div className="flex gap-2 justify-end mt-8 border-t border-gray-100 pt-6">
             <button
-              className="flex flex-row sm:text-base text-sm gap-2 items-center font-medium btn btn-primary border bg-violet-600 hover:bg-violet-600 sm:px-6 px-4 py-2 cursor-pointer text-white  transition rounded-xl"
+              className="flex flex-row sm:text-base text-sm gap-2 items-center font-medium btn btn-primary border bg-emerald-600 hover:bg-emerald-700 sm:px-6 px-4 py-2 cursor-pointer text-white transition rounded-xl"
               onClick={handleSave}
               disabled={saving}
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? "Saving..." : "Save Changes"}
             </button>
             <button
-              className="flex flex-row sm:text-base text-sm gap-2 items-center font-medium btn btn-primary border border-violet-600 hover:bg-violet-600 sm:px-6 px-4 py-2 cursor-pointer text-violet-600 hover:text-white transition rounded-xl"
+              className="flex flex-row sm:text-base text-sm gap-2 items-center font-medium btn btn-primary border border-emerald-600 hover:bg-emerald-50 sm:px-6 px-4 py-2 cursor-pointer text-emerald-600 transition rounded-xl"
               onClick={() => {
                 setEdit(false);
                 setForm(data);
@@ -423,7 +423,7 @@ export default function HomeHeroSectionEditor() {
                 name="metatitle"
                 value={form.metatitle || ""}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-400"
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
               />
             </div>
 
@@ -436,7 +436,7 @@ export default function HomeHeroSectionEditor() {
                 name="metadescription"
                 value={form.metadescription || ""}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-violet-400"
+                className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
                 rows={3}
               />
             </div>
@@ -480,13 +480,13 @@ export default function HomeHeroSectionEditor() {
                 {(form.target_keywords || []).map((kw, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-2 bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-sm"
+                    className="flex items-center gap-2 bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm"
                   >
                     {kw}
                     <button
                       type="button"
                       onClick={() => removeKeyword(idx)}
-                      className="text-violet-500 hover:text-red-500 ml-1"
+                      className="text-emerald-500 hover:text-red-500 ml-1"
                     >
                       ✕
                     </button>
@@ -508,19 +508,21 @@ export default function HomeHeroSectionEditor() {
                 rows={6}
               />
             </div>
-            <p className="text-sm p-3 font-mono rounded-xl bg-purple-100 border border-gray-300 whitespace-pre-wrap">
+            <p className="text-sm p-3 font-mono rounded-xl bg-emerald-50 border border-emerald-100 whitespace-pre-wrap">
               {rawSchema || "No Schema Added"}
             </p>
           </div>
         </div>
       ) : (
-        <div className="px-2 mt-6 space-y-6">
-          <button
-            className="absolute text-sm sm:text-base right-3 sm:right-4 top-3 sm:top-4 flex flex-row gap-2 items-center font-medium btn btn-primary border border-violet-600 hover:bg-violet-600 sm:px-6 px-4 py-2 cursor-pointer text-violet-600 hover:text-white transition rounded-xl"
-            onClick={() => setEdit(true)}
-          >
-            Edit Hero <TbEdit className="text-xl" />
-          </button>
+        <div className="space-y-10">
+          <div className="flex justify-end pt-2">
+            <button
+              className="flex flex-row gap-2 items-center font-semibold bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 cursor-pointer text-white transition-all rounded-xl shadow-sm text-sm sm:text-base border border-emerald-500/50"
+              onClick={() => setEdit(true)}
+            >
+              Edit Hero Content <TbEdit className="text-xl" />
+            </button>
+          </div>
 
           <>
             <span className="text-base sm:text-xl font-semibold">Title:</span>
@@ -549,7 +551,7 @@ export default function HomeHeroSectionEditor() {
             </span>
             <span className="block mt-2">
               {data.secondaryCTA?.text}{" "}
-              <span className="text-violet-600">
+              <span className="text-emerald-600">
                 ({data.secondaryCTA?.link})
               </span>
             </span>
@@ -563,21 +565,21 @@ export default function HomeHeroSectionEditor() {
             <div className="flex sm:gap-6 gap-2 mt-4 flex-wrap">
               {data.stats && (
                 <>
-                  <div className="border-2 border-violet-300 bg-violet-50 rounded-lg px-3 py-1.5 sm:py-2">
+                  <div className="border-2 border-emerald-300 bg-emerald-50 rounded-lg px-3 py-1.5 sm:py-2">
                     <span className="font-semibold text-sm sm:text-base">
                       {data.stats.perDay?.label}
                       {": "}
                     </span>
                     {data.stats.perDay?.value}
                   </div>
-                  <div className="border-2 border-violet-300 bg-violet-50 rounded-lg px-3 py-1.5 sm:py-2">
+                  <div className="border-2 border-emerald-300 bg-emerald-50 rounded-lg px-3 py-1.5 sm:py-2">
                     <span className="font-semibold text-sm sm:text-base">
                       {data.stats.livesChanged?.label}
                       {": "}
                     </span>
                     {data.stats.livesChanged?.value}
                   </div>
-                  <div className="border-2 border-violet-300 bg-violet-50 rounded-lg px-3 py-1.5 sm:py-2">
+                  <div className="border-2 border-emerald-300 bg-emerald-50 rounded-lg px-3 py-1.5 sm:py-2">
                     <span className="font-semibold text-sm sm:text-base">
                       {data.stats.states?.label}
                       {": "}
@@ -602,7 +604,7 @@ export default function HomeHeroSectionEditor() {
                 return (
                   <div
                     key={idx}
-                    className="flex-shrink-0 min-w-full sm:min-w-[250px] max-w-fit sm:max-w-[300px] border-2 border-violet-300 p-4 rounded-xl bg-violet-50 flex flex-col gap-3"
+                    className="flex-shrink-0 min-w-full sm:min-w-[250px] max-w-fit sm:max-w-[300px] border-2 border-emerald-300 p-4 rounded-xl bg-emerald-50 flex flex-col gap-3"
                   >
                     {/* Icon & Name */}
                     <div className="flex items-center justify-between">
@@ -677,7 +679,7 @@ export default function HomeHeroSectionEditor() {
                   data.target_keywords.map((keyword, idx) => (
                     <span
                       key={idx}
-                      className="bg-violet-100 text-violet-700 px-3 py-1 rounded-full text-xs sm:text-sm"
+                      className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs sm:text-sm"
                     >
                       {keyword}
                     </span>
@@ -762,8 +764,9 @@ export default function HomeHeroSectionEditor() {
               )}
             </div>
           </div>
-        </div>
-      )}
+        </div >
+      )
+      }
     </>
   );
 }
