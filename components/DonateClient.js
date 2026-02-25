@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Heart,
   Users,
@@ -39,6 +39,14 @@ export default function DonatePage({ searchParams }) {
   const [showRecurringConfirm, setShowRecurringConfirm] = useState(false);
   const [oneTimeCountdown, setOneTimeCountdown] = useState(0);
   const [currentStep, setCurrentStep] = useState(1);
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentStep]);
   const quickAmounts = [1000, 2500, 5000, 10000, 15000, 25000];
   const amountValue = customAmount === "" ? 0 : Number(customAmount);
   const impact = isRecurring
@@ -425,7 +433,10 @@ export default function DonatePage({ searchParams }) {
       </section>
 
       {/* Donation Section */}
-      <div className="w-full lg:w-7/12 flex flex-col pt-8 lg:pt-32 pb-16 overflow-y-auto bg-slate-50/50">
+      <div
+        ref={scrollRef}
+        className="w-full lg:w-7/12 flex flex-col pt-8 lg:pt-32 pb-16 overflow-y-auto bg-slate-50/50"
+      >
 
         <AnimatePresence mode="wait">
           {
@@ -784,31 +795,31 @@ export default function DonatePage({ searchParams }) {
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
               >
-                <section className="max-w-2xl mx-auto px-4 sm:px-5 lg:px-8 w-full">
+                <section className="max-w-xl mx-auto px-4 sm:px-5 lg:px-8 w-full">
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="bg-[#0F172A] rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-8 lg:p-12 text-white shadow-2xl space-y-8 sm:space-y-10"
+                    className="bg-[#0F172A] rounded-[1.5rem] sm:rounded-[2.5rem] px-6 py-5 sm:px-8 sm:py-6 lg:px-10 lg:py-8 text-white shadow-2xl space-y-4 sm:space-y-6"
                   >
-                    <div className="space-y-2 text-center flex flex-col items-center">
+                    <div className="space-y-1 text-center flex flex-col items-center">
                       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-600/20 text-emerald-400 font-medium text-xs border border-emerald-400/20">
                         <ShieldCheck className="w-4 h-4" />
                         <span>Final Step</span>
                       </div>
-                      <h2 className="text-3xl font-bold text-center">Review & Pay</h2>
-                      <p className="text-slate-400 text-center">Please confirm your donation details before proceeding.</p>
+                      <h2 className="text-2xl sm:text-3xl font-bold text-center">Review & Pay</h2>
+                      <p className="text-slate-400 text-xs sm:text-sm text-center">Please confirm your donation details before proceeding.</p>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {[
                         { label: "Purpose", val: donationType },
                         { label: "Dedication", val: donationFor === "self" ? "For Myself" : dedicatedTo || "Family/Memory" },
                         { label: "Impact", val: `₹${amountValue} ${isRecurring ? donationFrequency : ""}`, accent: true },
                         { label: "Project", val: selectedProject?.title || "—" },
                       ].map((item, idx) => (
-                        <div key={idx} className="flex justify-between items-center py-4 border-b border-white/5 last:border-0">
-                          <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">{item.label}</span>
-                          <span className={`font-bold ${item.accent ? "text-emerald-400 text-xl" : "text-white text-base"}`}>
+                        <div key={idx} className="flex justify-between items-center py-3 border-b border-white/5 last:border-0">
+                          <span className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">{item.label}</span>
+                          <span className={`font-bold ${item.accent ? "text-emerald-400 text-lg sm:text-xl" : "text-white text-sm sm:text-base"}`}>
                             {item.val}
                           </span>
                         </div>
@@ -817,23 +828,23 @@ export default function DonatePage({ searchParams }) {
 
                     <button
                       onClick={handlePayment}
-                      className="w-full py-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all active:scale-95 group shadow-xl shadow-emerald-900/20"
+                      className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 transition-all active:scale-95 group shadow-xl shadow-emerald-900/20"
                     >
                       Complete Payment
                       <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </button>
 
-                    <div className="flex flex-col items-center gap-4 pt-4">
-                      <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+                    <div className="flex flex-col items-center gap-3 pt-2">
+                      <div className="flex items-center gap-2 text-slate-500 text-[10px] sm:text-xs font-medium">
                         <ShieldCheck className="w-3 h-3" />
                         <span>Secure Payment via Razorpay</span>
                       </div>
-                      <img src="https://cdn.razorpay.com/logo.svg" alt="Razorpay" className="h-4 brightness-0 invert opacity-50" />
+                      <img src="https://cdn.razorpay.com/logo.svg" alt="Razorpay" className="h-3 brightness-0 invert opacity-50" />
                     </div>
                   </motion.div>
                 </section>
 
-                <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex justify-center">
+                <footer className="max-w-xl mx-auto px-5 lg:px-8 flex justify-center">
                   <button
                     onClick={() => setCurrentStep(3)}
                     className="text-slate-400 font-bold hover:text-slate-600 transition-colors"
