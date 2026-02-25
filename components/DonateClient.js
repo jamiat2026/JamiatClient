@@ -453,14 +453,14 @@ export default function DonatePage({ searchParams }) {
               </motion.button>
               <span className={`mt-2 text-[10px] font-bold uppercase tracking-widest mx-2 ${currentStep >= step ? "text-emerald-700" : "text-slate-400"
                 }`}>
-                {step === 1 ? "Purpose" : step === 2 ? "Dedication" : "Amount"}
+                {step === 1 ? "Details" : step === 2 ? "Donation Type" : "Amount"}
               </span>
             </div>
           ))}
         </div>
       </section >
 
-      {/* Step 1: Purpose & Project */}
+      {/* Step 1: Project & Dedication */}
       {
         currentStep === 1 && (
           <motion.div
@@ -470,14 +470,14 @@ export default function DonatePage({ searchParams }) {
             exit={{ opacity: 0, x: -20 }}
             className="space-y-8"
           >
-            <section className="max-w-7xl mx-auto px-5 lg:px-8 py-6">
-              <div className="grid lg:grid-cols-2 gap-8">
-                {/* Project Selection */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-white p-8 lg:p-10 rounded-[2rem] shadow-sm border border-emerald-100/50 space-y-6"
-                >
+            <section className="max-w-3xl mx-auto px-5 lg:px-8 py-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white p-8 lg:p-12 rounded-[2rem] shadow-sm border border-emerald-100/50 space-y-10"
+              >
+                {/* Project Selection Section */}
+                <div className="space-y-6">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-emerald-600 font-bold tracking-tight uppercase text-sm">
                       <Heart className="w-4 h-4" />
@@ -502,60 +502,84 @@ export default function DonatePage({ searchParams }) {
                       <TrendingUp className="w-5 h-5" />
                     </div>
                   </div>
-                </motion.div>
+                </div>
 
-                {/* Intention Selection */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-white p-8 lg:p-10 rounded-[2rem] shadow-sm border border-emerald-100/50 space-y-8"
-                >
+                <div className="h-px bg-slate-100" />
+
+                {/* Dedication Form Section */}
+                <div className="space-y-8">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-emerald-600 font-bold tracking-tight uppercase text-sm">
-                      <Gift className="w-4 h-4" />
-                      <span>Intention</span>
+                      <Users className="w-4 h-4" />
+                      <span>Dedication</span>
                     </div>
-                    <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">Donation Type</h2>
-                    <p className="text-slate-500">Select your contribution category.</p>
+                    <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">Who is this for?</h2>
+                    <p className="text-slate-500">You can dedicate this donation to a loved one.</p>
                   </div>
+
                   <div className="grid gap-3">
-                    {donationTypes.map((opt) => (
+                    {[
+                      { value: "self", label: "For myself" },
+                      { value: "family", label: "On behalf of family member" },
+                      { value: "memory", label: "In memory of someone" },
+                    ].map((option) => (
                       <label
-                        key={opt.type}
-                        className={`relative flex items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${donationType === opt.type
+                        key={option.value}
+                        className={`flex items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${donationFor === option.value
                           ? "border-emerald-500 bg-emerald-50/50"
                           : "border-slate-100 bg-slate-50/30 hover:border-emerald-200"
                           }`}
                       >
                         <input
                           type="radio"
-                          name="donationType"
-                          value={opt.type}
-                          checked={donationType === opt.type}
-                          onChange={() => setDonationType(opt.type)}
-                          className="sr-only"
+                          name="donationFor"
+                          value={option.value}
+                          checked={donationFor === option.value}
+                          onChange={() => setDonationFor(option.value)}
+                          className="h-5 w-5 accent-emerald-600 mr-3"
                         />
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mr-3 transition-colors ${donationType === opt.type ? "bg-emerald-600 text-white" : "bg-white text-emerald-600 border border-emerald-100"
-                          }`}>
-                          {opt.type === "General Donation" && <Heart className="w-5 h-5" />}
-                          {opt.type === "Zakat" && <Gift className="w-5 h-5" />}
-                          {opt.type === "Sadqa" && <HandCoins className="w-5 h-5" />}
-                          {opt.type === "Interest Earnings" && <CircleDollarSign className="w-5 h-5" />}
-                        </div>
-                        <span className="font-bold text-slate-900">{opt.type}</span>
+                        <span className="font-bold text-slate-900">{option.label}</span>
                       </label>
                     ))}
                   </div>
-                </motion.div>
-              </div>
+
+                  {(donationFor === "family" || donationFor === "memory") && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-2">
+                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">
+                        {donationFor === "family" ? "FAMILY MEMBER NAME" : "IN MEMORY OF"}
+                      </label>
+                      <input
+                        type="text"
+                        className="w-full h-14 px-4 rounded-xl border-2 border-slate-100 bg-slate-50/50 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-900 font-medium"
+                        placeholder={donationFor === "family" ? "Enter name" : "Enter name"}
+                        value={dedicatedTo}
+                        onChange={(e) => setDedicatedTo(e.target.value)}
+                      />
+                    </motion.div>
+                  )}
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">
+                      MESSAGE (OPTIONAL)
+                    </label>
+                    <textarea
+                      rows="3"
+                      className="w-full p-4 border-2 border-slate-100 bg-slate-50/50 rounded-xl focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-900 font-medium resize-none"
+                      placeholder="Add a prayer or message..."
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </motion.div>
             </section>
 
-            <footer className="max-w-7xl mx-auto px-5 lg:px-8 py-8 flex justify-end">
+            <footer className="max-w-3xl mx-auto px-5 lg:px-8 py-8 flex justify-end">
               <button
                 onClick={() => setCurrentStep(2)}
                 className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all active:scale-95 shadow-xl shadow-emerald-900/10"
               >
-                Next Step: Dedication
+                Next Step: Donation Type
                 <ArrowRight className="w-5 h-5" />
               </button>
             </footer>
@@ -563,7 +587,7 @@ export default function DonatePage({ searchParams }) {
         )
       }
 
-      {/* Step 2: Dedication */}
+      {/* Step 2: Donation Type */}
       {
         currentStep === 2 && (
           <motion.div
@@ -581,65 +605,39 @@ export default function DonatePage({ searchParams }) {
               >
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 text-emerald-600 font-bold tracking-tight uppercase text-sm">
-                    <Users className="w-4 h-4" />
-                    <span>Dedication</span>
+                    <Gift className="w-4 h-4" />
+                    <span>Intention</span>
                   </div>
-                  <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">Who is this for?</h2>
-                  <p className="text-slate-500">You can dedicate this donation to a loved one.</p>
+                  <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">Donation Type</h2>
+                  <p className="text-slate-500">Select your contribution category.</p>
                 </div>
-
                 <div className="grid gap-3">
-                  {[
-                    { value: "self", label: "For myself" },
-                    { value: "family", label: "On behalf of family member" },
-                    { value: "memory", label: "In memory of someone" },
-                  ].map((option) => (
+                  {donationTypes.map((opt) => (
                     <label
-                      key={option.value}
-                      className={`flex items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${donationFor === option.value
+                      key={opt.type}
+                      className={`relative flex items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${donationType === opt.type
                         ? "border-emerald-500 bg-emerald-50/50"
                         : "border-slate-100 bg-slate-50/30 hover:border-emerald-200"
                         }`}
                     >
                       <input
                         type="radio"
-                        name="donationFor"
-                        value={option.value}
-                        checked={donationFor === option.value}
-                        onChange={() => setDonationFor(option.value)}
-                        className="h-5 w-5 accent-emerald-600 mr-3"
+                        name="donationType"
+                        value={opt.type}
+                        checked={donationType === opt.type}
+                        onChange={() => setDonationType(opt.type)}
+                        className="sr-only"
                       />
-                      <span className="font-bold text-slate-900">{option.label}</span>
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mr-3 transition-colors ${donationType === opt.type ? "bg-emerald-600 text-white" : "bg-white text-emerald-600 border border-emerald-100"
+                        }`}>
+                        {opt.type === "General Donation" && <Heart className="w-5 h-5" />}
+                        {opt.type === "Zakat" && <Gift className="w-5 h-5" />}
+                        {opt.type === "Sadqa" && <HandCoins className="w-5 h-5" />}
+                        {opt.type === "Interest Earnings" && <CircleDollarSign className="w-5 h-5" />}
+                      </div>
+                      <span className="font-bold text-slate-900">{opt.type}</span>
                     </label>
                   ))}
-                </div>
-
-                {(donationFor === "family" || donationFor === "memory") && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-2">
-                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">
-                      {donationFor === "family" ? "FAMILY MEMBER NAME" : "IN MEMORY OF"}
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full h-14 px-4 rounded-xl border-2 border-slate-100 bg-slate-50/50 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-900 font-medium"
-                      placeholder={donationFor === "family" ? "Enter name" : "Enter name"}
-                      value={dedicatedTo}
-                      onChange={(e) => setDedicatedTo(e.target.value)}
-                    />
-                  </motion.div>
-                )}
-
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">
-                    MESSAGE (OPTIONAL)
-                  </label>
-                  <textarea
-                    rows="3"
-                    className="w-full p-4 border-2 border-slate-100 bg-slate-50/50 rounded-xl focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-900 font-medium resize-none"
-                    placeholder="Add a prayer or message..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                  />
                 </div>
               </motion.div>
             </section>
@@ -649,7 +647,7 @@ export default function DonatePage({ searchParams }) {
                 onClick={() => setCurrentStep(1)}
                 className="text-slate-400 font-bold hover:text-slate-600 transition-colors"
               >
-                Back to Purpose
+                Back to Details
               </button>
               <button
                 onClick={() => setCurrentStep(3)}
@@ -738,7 +736,9 @@ export default function DonatePage({ searchParams }) {
                       onChange={(e) => setCustomAmount(e.target.value === "" ? "" : Number(e.target.value))}
                       className="w-full h-14 pl-10 pr-4 rounded-xl border-2 border-slate-100 bg-slate-50/50 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-900 font-bold text-lg"
                     />
+                    <div className="absolute text-red-500 text-xs mt-2 ml-2">(min: ₹{minAmount})</div>
                   </div>
+
 
                   <label className="flex items-start gap-3 cursor-pointer p-4 rounded-2xl bg-slate-50 border border-slate-100">
                     <input

@@ -313,7 +313,7 @@ export default function Home() {
 
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 3
+      duration: 2
     });
     let rafId;
     function raf(time) {

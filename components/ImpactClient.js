@@ -1,16 +1,18 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   Users,
-  Droplets,
   GraduationCap,
   Heart,
-  Globe,
+  Calculator,
   ArrowRight,
+  ChevronRight,
+  Globe,
   Quote,
-  MapPin,
-  HandCoins
+  Droplets,
+  HandCoins,
 } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
 
@@ -19,104 +21,96 @@ const playfair = Playfair_Display({
   weight: ["400", "700"],
 });
 
+const ICON_MAP = {
+  GraduationCap,
+  Heart,
+  Users,
+  Calculator,
+};
+
 const Impact = () => {
-  const [heroData, setHeroData] = useState(null);
+  const [hero, setHero] = useState(null);
+  const [loadingHero, setLoadingHero] = useState(true);
   const [stories, setStories] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingStories, setLoadingStories] = useState(true);
+  const [tabContent, setTabContent] = useState({});
+  const [loadingCategories, setLoadingCategories] = useState(true);
+
+  const [showAllStories, setShowAllStories] = useState(false);
+  const [activeTab, setActiveTab] = useState("");
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchContent() {
       try {
-        const [heroRes, storiesRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/impactherosection`, { cache: "force-cache" }),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/impact-stories`, { cache: "force-cache" }),
+        const [heroRes, storiesRes, categoriesRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/impactherosection`, {
+            cache: "force-cache",
+          }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/impact-stories`, {
+            cache: "force-cache",
+          }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/impactcategories`, {
+            cache: "force-cache",
+          }),
         ]);
 
-        const hero = await heroRes.json();
-        const storiesData = await storiesRes.json();
+        const [heroData, storiesData, categoriesData] = await Promise.all([
+          heroRes.json(),
+          storiesRes.json(),
+          categoriesRes.json(),
+        ]);
 
-        setHeroData(hero);
+        setHero(heroData);
         setStories(storiesData);
+        setTabContent(categoriesData);
       } catch (err) {
         console.error("Failed to fetch impact data:", err);
       } finally {
-        setLoading(false);
+        setLoadingHero(false);
+        setLoadingStories(false);
+        setLoadingCategories(false);
       }
     }
-    fetchData();
+
+    fetchContent();
   }, []);
 
-  const stats = [
+  useEffect(() => {
+    if (tabContent?.categories?.length > 0 && !activeTab) {
+      setActiveTab(tabContent.categories[0].key);
+    }
+  }, [tabContent, activeTab]);
+
+  const visibleStories = showAllStories ? stories : stories.slice(0, 3);
+
+  if (loadingHero || loadingStories || loadingCategories) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  const statsList = [
     {
       icon: <Users className="w-6 h-6 text-emerald-600" />,
-      value: "50k+",
-      label: "Lives Touched",
+      value: hero?.stats?.livesChanged?.value || "0",
+      label: hero?.stats?.livesChanged?.label || "Lives Touched",
       description: "Direct beneficiaries of our social welfare programs."
     },
     {
-      icon: <Droplets className="w-6 h-6 text-emerald-600" />,
-      value: "120",
-      label: "Clean Water Projects",
-      description: "Wells and filtration plants installed in arid regions."
+      icon: <Globe className="w-6 h-6 text-emerald-600" />,
+      value: hero?.stats?.states?.value || "0",
+      label: hero?.stats?.states?.label || "States Covered",
+      description: "Expansion across regions to reach those in need."
     },
     {
       icon: <GraduationCap className="w-6 h-6 text-emerald-600" />,
-      value: "8.5k",
-      label: "Students Educated",
-      description: "Scholarships provided to underprivileged children."
-    },
-    {
-      icon: <HandCoins className="w-6 h-6 text-emerald-600" />,
-      value: "$2M+",
-      label: "Funds Distributed",
-      description: "Total aid delivered directly to those in need."
+      value: hero?.stats?.projects?.value || "0",
+      label: hero?.stats?.projects?.label || "Active Projects",
+      description: "Ongoing initiatives driving sustainable change."
     }
   ];
-
-  const footprintItems = [
-    {
-      dotColor: "bg-emerald-500",
-      title: "Emergency Relief",
-      description: "Currently active in Turkey & Syria"
-    },
-    {
-      dotColor: "bg-blue-500",
-      title: "Education Programs",
-      description: "Ongoing in Pakistan, India & Bangladesh"
-    },
-    {
-      dotColor: "bg-orange-500",
-      title: "Orphan Support",
-      description: "Supporting families in Somalia & Yemen"
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: "Aisha K.",
-      role: "SCHOLARSHIP RECIPIENT",
-      quote: "Because of the Jamiat scholarship, I can focus on my medical studies without worrying about tuition. I hope to serve my village as a doctor one day.",
-      avatar: "https://res.cloudinary.com/dts36v9yv/image/upload/v1740030588/avatars/female1.jpg"
-    },
-    {
-      name: "Omar F.",
-      role: "CLEAN WATER PROJECT",
-      quote: "The new well in our community has changed everything. Our children are healthier, and we no longer walk miles just to fetch drinking water.",
-      avatar: "https://res.cloudinary.com/dts36v9yv/image/upload/v1740030588/avatars/male1.jpg"
-    },
-    {
-      name: "Fatima Z.",
-      role: "MICRO-FINANCE BENEFICIARY",
-      quote: "With the small business grant, I started a sewing shop. Now I can provide for my three children with dignity and pride.",
-      avatar: "https://res.cloudinary.com/dts36v9yv/image/upload/v1740030588/avatars/female2.jpg"
-    }
-  ];
-
-  if (loading) return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="w-12 h-12 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div>
-    </div>
-  );
 
   return (
     <div className="bg-white">
@@ -133,19 +127,28 @@ const Impact = () => {
             <span className="text-[10px] uppercase tracking-widest font-bold text-emerald-700">Global Reach</span>
           </div>
           <h1 className={`${playfair.className} text-4xl md:text-6xl font-bold text-[#1a2e35] leading-tight tracking-tight px-2`}>
-            Our Collective Impact
+            {hero?.title || "Our Collective Impact"}
           </h1>
           <p className="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
-            Together, we are transforming lives and building resilient communities. Every donation is a seed of hope that grows into lasting change.
+            {hero?.subtitle || "Together, we are transforming lives and building resilient communities. Every donation is a seed of hope."}
           </p>
+          <div className="pt-4">
+            <Link
+              href="/donate"
+              className="inline-flex items-center gap-2 bg-emerald-600 text-white px-10 py-4 rounded-full font-bold shadow-lg hover:shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-[0.98]"
+            >
+              {hero?.ctaText || "Support Our Mission"}
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* Stats Grid */}
       <section className="bg-white pb-24">
         <div className="max-w-7xl mx-auto w-full -mt-16 lg:-mt-24 relative z-20 px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, idx) => (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {statsList.map((stat, idx) => (
               <div
                 key={idx}
                 className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-[0_15px_50px_-12px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.12)] transition-all duration-500 hover:-translate-y-2 group"
@@ -162,77 +165,97 @@ const Impact = () => {
         </div>
       </section>
 
-      {/* Global Footprint Section */}
-      <section className="bg-[#F8FAFC]">
-        <div className="py-24 lg:py-32 px-4 max-w-7xl mx-auto overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-            <div className="space-y-10 order-2 lg:order-1">
-              <div className="space-y-6">
-                <h2 className={`${playfair.className} text-4xl lg:text-5xl font-bold text-[#1a2e35] leading-tight`}>
-                  Our Footprint Across the Globe
-                </h2>
-                <p className="text-gray-500 text-lg max-w-lg leading-relaxed font-medium">
-                  From bustling cities to remote villages, Jamiat is on the ground where help is needed most. We currently operate active projects in 14 countries.
-                </p>
-              </div>
+      {/* Impact categories section */}
+      <section className="px-4 py-24 lg:py-32 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className={`${playfair.className} text-4xl lg:text-5xl font-bold text-[#1a2e35]`}>
+              {tabContent?.section?.title || "Areas of Impact"}
+            </h2>
+            <p className="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
+              {tabContent?.section?.subtitle || "Explore how we're making a difference across different areas of social development."}
+            </p>
+          </div>
 
-              <div className="space-y-4 max-w-md">
-                {footprintItems.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-white p-6 rounded-2xl border border-gray-100 flex items-center gap-5 hover:shadow-xl hover:border-transparent transition-all cursor-default group"
-                  >
-                    <div className={`w-3.5 h-3.5 rounded-full ${item.dotColor} shrink-0 shadow-[0_0_10px_rgba(0,0,0,0.1)] group-hover:scale-125 transition-transform`} />
-                    <div>
-                      <h4 className="font-bold text-[#1a2e35] text-base">{item.title}</h4>
-                      <p className="text-gray-400 text-sm mt-0.5">{item.description}</p>
+          {/* Tab navigation */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
+            {tabContent?.categories?.map((cat) => (
+              <button
+                key={cat.key}
+                onClick={() => setActiveTab(cat.key)}
+                className={`px-6 py-3 rounded-full text-sm lg:text-base font-bold transition-all ${activeTab === cat.key
+                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-200"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+                  }`}
+              >
+                {cat.title}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab content */}
+          <div className="mt-12">
+            {tabContent?.categories?.map(
+              ({ key, color, title, subtitle, stats, description, link }) =>
+                activeTab === key && (
+                  <div key={key} className="bg-[#F8FAFC] rounded-[48px] p-8 lg:p-16 border border-gray-100 shadow-sm animate-in fade-in duration-500 max-w-4xl mx-auto">
+                    <div className="space-y-8">
+                      <div className="flex items-center gap-6">
+                        <div className="bg-white w-20 h-20 rounded-[28px] shadow-xl flex items-center justify-center flex-shrink-0 border border-emerald-50">
+                          {key === "education" && <GraduationCap className="h-10 w-10 text-emerald-600" />}
+                          {key === "healthcare" && <Heart className="h-10 w-10 text-emerald-600" />}
+                          {key === "women" && <Users className="h-10 w-10 text-emerald-600" />}
+                          {key === "economic" && <Calculator className="h-10 w-10 text-emerald-600" />}
+                        </div>
+                        <div>
+                          <h3 className={`${playfair.className} text-3xl font-bold text-[#1a2e35]`}>{title}</h3>
+                          <p className="text-emerald-600 font-bold text-sm tracking-wider uppercase mt-1">{subtitle}</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-6">
+                        {stats?.map((stat, index) => (
+                          <div key={index} className="space-y-3">
+                            <div className="flex justify-between items-center text-sm lg:text-base">
+                              <span className="font-bold text-[#1a2e35]">{stat.label}</span>
+                              <span className="font-extrabold text-emerald-600">{stat.value}</span>
+                            </div>
+                            <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-emerald-100/50">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                whileInView={{ width: `${stat.progress}%` }}
+                                transition={{ duration: 1.5, ease: "easeOut" }}
+                                viewport={{ once: true }}
+                                className="h-full bg-emerald-600"
+                              ></motion.div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="pt-6 border-t border-gray-200">
+                        <p className="text-gray-600 text-lg leading-relaxed">{description}</p>
+                        {typeof link === "string" && (
+                          <Link
+                            href={link}
+                            className="mt-8 inline-flex items-center gap-2 text-emerald-700 font-bold hover:gap-4 transition-all"
+                          >
+                            Explore {title.split(" ")[0]} Initiatives
+                            <ArrowRight className="h-5 w-5" />
+                          </Link>
+                        )}
+                      </div>
                     </div>
+
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Map Container */}
-            <div className="order-1 lg:order-2 relative">
-              <div className="absolute -inset-4 bg-emerald-50/50 rounded-[60px] blur-3xl -z-10" />
-              <div className="aspect-[1.2/1] bg-gray-50 rounded-[48px] relative overflow-hidden shadow-2xl border-8 border-white group">
-                <div className="absolute inset-0 bg-[#f8f9fa] flex items-center justify-center">
-                  <div className="w-full h-full relative">
-                    <img
-                      src="https://res.cloudinary.com/dts36v9yv/image/upload/v1740031175/map_bg.png"
-                      alt="World Map"
-                      className="w-full h-full object-cover opacity-60 grayscale brightness-110"
-                    />
-
-                    {/* Pulsing Dots on Map */}
-                    <div className="absolute top-[35%] left-[60%] flex items-center justify-center">
-                      <div className="w-4 h-4 bg-emerald-500 rounded-full animate-ping opacity-75" />
-                      <div className="absolute w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white shadow-sm" />
-                    </div>
-
-                    <div className="absolute top-[55%] left-[68%] flex items-center justify-center">
-                      <div className="w-4 h-4 bg-orange-500 rounded-full animate-ping opacity-75" />
-                      <div className="absolute w-2.5 h-2.5 bg-orange-500 rounded-full border-2 border-white shadow-sm" />
-                    </div>
-
-                    <div className="absolute top-[50%] left-[82%] flex items-center justify-center">
-                      <div className="w-4 h-4 bg-blue-500 rounded-full animate-ping opacity-75" />
-                      <div className="absolute w-2.5 h-2.5 bg-blue-500 rounded-full border-2 border-white shadow-sm" />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="absolute bottom-8 right-8 bg-white/95 backdrop-blur-md px-6 py-2.5 rounded-full border border-white/50 text-[10px] font-bold text-gray-500 shadow-xl uppercase tracking-[0.2em] transition-all group-hover:px-8">
-                  Interactive Project Map
-                </div>
-              </div>
-            </div>
+                )
+            )}
           </div>
         </div>
       </section>
 
       {/* Voices of Change Section */}
-      <section className="py-24 lg:py-32 bg-[#fcfdfd]">
+      <section className="bg-[#fcfdfd]">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-20 space-y-4">
             <h2 className={`${playfair.className} text-4xl lg:text-5xl font-bold text-[#1a2e35]`}>
@@ -244,44 +267,54 @@ const Impact = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-12">
-            {testimonials.map((t, idx) => (
-              <div
-                key={idx}
-                className={`p-12 rounded-[40px] border border-gray-50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative group hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-3 ${idx === 1 ? "bg-white" : "bg-[#ECFDF5]"}`}
-              >
-                <Quote className={`absolute top-10 right-10 size-10  transition-colors duration-500 ${idx === 1 ? "text-emerald-500" : "text-[#A7F3D0]"}`} />
+            {stories.length === 0 ? (
+              <div className="col-span-3 text-center text-gray-400 py-12">No stories available.</div>
+            ) : (
+              visibleStories.map((story, idx) => (
+                <div
+                  key={story._id || story.id}
+                  className={`p-10 lg:p-12 rounded-[40px] border border-gray-50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative group hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-3 ${idx % 2 === 1 ? "bg-white" : "bg-[#ECFDF5]"}`}
+                >
+                  <Quote className={`absolute top-10 right-10 size-10 transition-colors duration-500 ${idx % 2 === 1 ? "text-emerald-500" : "text-[#A7F3D0]"}`} />
 
-                <div className="flex items-center gap-5 mb-10 relative z-10">
-                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-lg">
-                    <img
-                      src={t.avatar}
-                      alt={t.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
+                  <div className="flex items-center gap-5 mb-10 relative z-10">
+                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-xl">
+                      {story.initials}
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-[#1a2e35] text-lg">{story.name}</h4>
+                      <p className="text-emerald-600 text-[11px] font-extrabold tracking-[0.1em] uppercase mt-1">{story.location}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-[#1a2e35] text-lg">{t.name}</h4>
-                    <p className="text-emerald-600 text-[11px] font-extrabold tracking-[0.1em] uppercase mt-1">{t.role}</p>
-                  </div>
+
+                  <p className={`${playfair.className} text-gray-600 leading-relaxed italic text-xl relative z-10 antialiased`}>
+                    "{story.quote}"
+                  </p>
                 </div>
+              ))
+            )}
+          </div>
 
-                <p className={`${playfair.className} text-gray-600 leading-relaxed italic text-xl relative z-10 antialiased`}>
-                  "{t.quote}"
-                </p>
-              </div>
-            ))}
+          <div className="mt-16 text-center">
+            <button
+              onClick={() => setShowAllStories(!showAllStories)}
+              className="inline-flex items-center gap-2 border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-10 py-4 rounded-full font-bold transition-all"
+            >
+              {showAllStories ? "Show Fewer Stories" : "Read More Impact Stories"}
+              <ArrowRight className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      {/* <section className="max-w-7xl mx-auto px-4 py-20 lg:py-32">
+      <section className="max-w-7xl mx-auto px-4 py-24 lg:py-32">
         <div className="bg-gradient-to-br from-[#064e3b] to-[#065f46] rounded-[48px] p-8 md:p-20 text-center relative overflow-hidden shadow-2xl shadow-emerald-900/20">
           <div className="absolute top-0 right-0 w-[50%] h-full bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.1),transparent_70%)]" />
           <div className="absolute bottom-0 left-0 w-[50%] h-full bg-[radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.05),transparent_70%)]" />
 
           <div className="relative z-10 space-y-8 max-w-3xl mx-auto">
-            <h2 className={`${playfair.className} text-3xl md:text-5xl font-bold text-white leading-tight`}>
+            <h2 className={`${playfair.className} text-3xl md:text-6xl font-bold text-white leading-tight`}>
               Be the Reason Someone Smiles Today
             </h2>
             <p className="text-emerald-100/80 text-lg md:text-xl leading-relaxed">
@@ -291,20 +324,20 @@ const Impact = () => {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               <Link
                 href="/donate"
-                className="w-full sm:w-auto bg-white text-emerald-900 px-10 py-4 rounded-full font-bold hover:shadow-lg hover:bg-gray-50 transition-all active:scale-[0.98]"
+                className="w-full sm:w-auto bg-white text-emerald-900 px-12 py-5 rounded-full font-bold hover:shadow-xl hover:scale-105 transition-all active:scale-[0.98]"
               >
                 Donate Now
               </Link>
               <Link
-                href="/annual-report"
-                className="w-full sm:w-auto bg-transparent border-2 border-white/20 text-white px-10 py-4 rounded-full font-bold hover:bg-white/10 transition-all"
+                href="/projects"
+                className="w-full sm:w-auto bg-transparent border-2 border-white/20 text-white px-12 py-5 rounded-full font-bold hover:bg-white/10 transition-all"
               >
-                View Annual Report
+                Explore Projects
               </Link>
             </div>
           </div>
         </div>
-      </section> */}
+      </section>
     </div>
   );
 };

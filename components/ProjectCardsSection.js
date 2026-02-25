@@ -3,64 +3,99 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
-import { Users, Calendar, Droplets, GraduationCap, UtensilsCrossed, Heart, Gift, Coins, Target, Plus, Thermometer, ShieldCheck, Landmark } from "lucide-react";
+import { Users, Calendar, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
 import ShareButton from "./ShareButton";
 
 // Utils
-const categoryIcons = {
-  "Clean Water Initiative": Droplets,
-  "Water Wells": Droplets,
-  "Education": GraduationCap,
-  "Food Security": UtensilsCrossed,
-  "General Donation": Heart,
-  "Social Welfare": Heart,
-  "Zakat": Gift,
-  "Sadqa": Coins,
-  "Interest Earnings": Target,
-  "Emergency Relief": Plus,
-  "Healthcare": Plus,
-  "Orphan Care": Gift,
-  "Religious": Landmark
+const formatCurrency = (amount) => {
+  const value = Number(amount) || 0;
+  if (value < 1_000) return `₹${value}`;
+  if (value < 1_000_000) return `₹${Math.floor(value / 1_000)}k`;
+  if (value < 10_000_000) return `₹${Math.floor(value / 100_000)}L`;
+  return `₹${Math.floor(value / 10_000_000)}Cr`;
 };
 
-const formatCurrency = (amount) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(amount || 0);
-
 const formatNumber = (num) => {
-  if (num >= 1_000_000) return Math.floor(num / 1_000_000) + "M";
-  if (num >= 1_000) return Math.floor(num / 1_000) + "K";
-  return num?.toString() || "0";
+  const value = Number(num) || 0;
+  if (value < 1_000) return value.toString();
+  if (value < 1_000_000) return Math.floor(value / 1_000) + "k";
+  if (value < 10_000_000) return Math.floor(value / 100_000) + "L";
+  return Math.floor(value / 10_000_000) + "Cr";
 };
 
 // Skeleton Loader
 const ProjectCardSkeleton = () => (
-  <div className="overflow-hidden bg-white rounded-[2rem] shadow-sm animate-pulse flex flex-col h-[480px]">
-    <div className="h-52 bg-gray-200"></div>
-    <div className="p-5 space-y-4 flex-grow">
-      <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-      <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-      <div className="h-3 bg-gray-200 rounded w-full"></div>
-      <div className="h-3 bg-gray-200 rounded w-5/6"></div>
-      <div className="mt-auto space-y-4">
-        <div className="flex justify-between">
-          <div className="h-2 bg-gray-200 rounded w-1/4"></div>
-          <div className="h-2 bg-gray-200 rounded w-1/4"></div>
-        </div>
-        <div className="h-1.5 bg-gray-200 rounded-full w-full"></div>
-        <div className="flex gap-2">
-          <div className="h-10 bg-gray-200 rounded-xl flex-grow"></div>
-          <div className="h-10 bg-gray-200 rounded-xl w-10"></div>
-        </div>
+  <div className="overflow-hidden bg-white rounded-2xl border border-gray-100 shadow-sm animate-pulse flex flex-col h-full">
+    <div className="h-52 bg-gray-100"></div>
+    <div className="p-6 space-y-4 flex-grow">
+      <div className="h-6 bg-gray-100 rounded-md w-3/4"></div>
+      <div className="space-y-2">
+        <div className="h-3.5 bg-gray-100 rounded-md w-full"></div>
+        <div className="h-3.5 bg-gray-100 rounded-md w-full"></div>
+        <div className="h-3.5 bg-gray-100 rounded-md w-2/3"></div>
+        <div className="h-3 bg-gray-50 rounded-md w-24"></div>
       </div>
+      <div className="pt-4 space-y-3 mt-auto">
+        <div className="flex justify-between">
+          <div className="h-3 bg-gray-100 rounded-full w-1/4"></div>
+          <div className="h-3 bg-gray-100 rounded-full w-1/6"></div>
+        </div>
+        <div className="h-2.5 bg-gray-100 rounded-full w-full"></div>
+      </div>
+    </div>
+    <div className="p-6 pt-0 flex gap-3">
+      <div className="h-11 bg-gray-100 rounded-xl w-1/2"></div>
+      <div className="h-11 bg-gray-100 rounded-xl w-1/2"></div>
     </div>
   </div>
 );
+
+// Truncated Description Component
+const TruncatedDescription = ({ html, slug }) => {
+  const [isTruncated, setIsTruncated] = useState(false);
+  const descriptionRef = useRef(null);
+
+  useEffect(() => {
+    const checkTruncation = () => {
+      const el = descriptionRef.current;
+      if (el) {
+        // Checking if content overflows 3 lines
+        setIsTruncated(el.scrollHeight > el.clientHeight + 1);
+      }
+    };
+
+    // Initial check
+    checkTruncation();
+
+    // Check on resize
+    window.addEventListener("resize", checkTruncation);
+    return () => window.removeEventListener("resize", checkTruncation);
+  }, [html]);
+
+  return (
+    <div className="mt-3 relative">
+      <div
+        ref={descriptionRef}
+        className="text-[13px] sm:text-sm text-gray-500 line-clamp-3 leading-relaxed min-h-[60px]"
+        dangerouslySetInnerHTML={{
+          __html: html || "No description available",
+        }}
+      />
+      {isTruncated && (
+        <Link
+          href={`/projects/${slug || ""}`}
+          className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-700 font-bold text-xs mt-2 group/more transition-colors"
+        >
+          Read Full Story
+          <ChevronRight className="w-3 h-3 group-hover/more:translate-x-1 transition-transform" />
+        </Link>
+      )}
+    </div>
+  );
+};
+
 
 export default function ProjectCardsSection({
   searchTerm = "",
@@ -68,19 +103,13 @@ export default function ProjectCardsSection({
   donationTypeFilter = "all",
   infiniteScroll = false, // homepage=false, projects page=true
   initialLimit = 4, // how many to load per API call
-  sortBy = "Most Urgent",
-  page: propPage,
-  onTotalPagesChange,
 }) {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [internalPage, setInternalPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const { isSignedIn } = useUser();
   const loaderRef = useRef(null);
-
-  // Use prop page if provided, else use internal state for infinite scroll
-  const page = propPage || internalPage;
 
   // Fetch data
   useEffect(() => {
@@ -90,60 +119,82 @@ export default function ProjectCardsSection({
       try {
         setLoading(true);
 
-        // Build query params
-        const queryParams = new URLSearchParams({
-          limit: initialLimit,
-          page: page,
-          search: searchTerm || "",
-          category: categoryFilter === "all" ? "" : categoryFilter,
-          donationType: donationTypeFilter === "all" ? "" : donationTypeFilter,
-          sortBy: sortBy,
-        });
+        const projectsRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/projects?limit=${initialLimit}&page=${page}`,
+          { signal: controller.signal }
+        );
 
-        const [projectsRes, donationsRes] = await Promise.all([
-          fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/projects?${queryParams.toString()}`,
-            { signal: controller.signal }
-          ),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/donations/summary`, {
-            signal: controller.signal,
-          }),
-        ]);
+        console.log(`${process.env.NEXT_PUBLIC_API_URL}/projects?limit=${initialLimit}&page=${page}`)
 
         const projectsData = await projectsRes.json();
-        const donationsData = await donationsRes.json();
+
+        const projectList = Array.isArray(projectsData?.projects)
+          ? projectsData.projects
+          : [];
+
+        const perProjectSummaries = await Promise.all(
+          projectList.map(async (p) => {
+            if (!p?._id) {
+              return { id: null, summary: null };
+            }
+            try {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/donations/summary/${p._id}`,
+                { signal: controller.signal }
+              );
+              if (!res.ok) {
+                return { id: p._id, summary: null };
+              }
+              const json = await res.json();
+              return { id: p._id, summary: json?.data || null };
+            } catch (err) {
+              if (err instanceof DOMException && err.name === "AbortError") {
+                throw err;
+              }
+              return { id: p._id, summary: null };
+            }
+          })
+        );
 
         const donationsMap = {};
-        donationsData?.data?.forEach((d) => {
-          donationsMap[d._id] = {
-            totalCollected: d.totalCollected,
-            totalDonors: d.totalDonors,
+        perProjectSummaries.forEach(({ id, summary }) => {
+          if (!id || !summary) return;
+          donationsMap[id] = {
+            totalCollected: summary.totalCollected ?? 0,
+            totalDonors: summary.totalDonors ?? 0,
           };
         });
 
-        const merged = Array.isArray(projectsData?.projects)
-          ? projectsData.projects.map((p) => ({
+        const merged = projectList.map((p) => {
+          const donationSummary = donationsMap[p._id] || {
+            totalCollected: 0,
+            totalDonors: 0,
+          };
+          const totalRequired = p?.totalRequired ?? 0;
+          const completion =
+            totalRequired > 0
+              ? Math.min(
+                100,
+                Math.round(
+                  (donationSummary.totalCollected / totalRequired) * 100
+                )
+              )
+              : 0;
+
+          return {
             ...p,
-            donationSummary: donationsMap[p._id] || {
-              totalCollected: 0,
-              totalDonors: 0,
-            },
-          }))
-          : [];
+            donationSummary,
+            collected: donationSummary.totalCollected,
+            completion,
+          };
+        });
 
-        // If page=1 OR not infinite scroll, reset list, else append
-        setProjects((prev) => (page === 1 || !infiniteScroll ? merged : [...prev, ...merged]));
-
-        // Update total pages for parent
-        if (onTotalPagesChange) {
-          onTotalPagesChange(projectsData?.totalPages || 1);
-        }
+        // If page=1, reset list, else append
+        setProjects((prev) => (page === 1 ? merged : [...prev, ...merged]));
 
         // Stop if no more pages
         if (page >= (projectsData?.totalPages || 1)) {
           setHasMore(false);
-        } else {
-          setHasMore(true);
         }
       } catch (err) {
         if (!(err instanceof DOMException && err.name === "AbortError")) {
@@ -156,17 +207,16 @@ export default function ProjectCardsSection({
 
     fetchData();
     return () => controller.abort();
-    // Re-fetch when ANY filter or page changes
-  }, [page, initialLimit, searchTerm, categoryFilter, donationTypeFilter, sortBy, infiniteScroll, onTotalPagesChange]);
+  }, [page, initialLimit]);
 
-  // Infinite scroll observer (only used if no propPage and infiniteScroll is true)
+  // Infinite scroll observer
   useEffect(() => {
-    if (!infiniteScroll || !!propPage || !loaderRef.current) return;
+    if (!infiniteScroll || !loaderRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !loading) {
-          setInternalPage((prev) => prev + 1);
+          setPage((prev) => prev + 1);
         }
       },
       { threshold: 1 }
@@ -174,7 +224,7 @@ export default function ProjectCardsSection({
 
     observer.observe(loaderRef.current);
     return () => observer.disconnect();
-  }, [infiniteScroll, propPage, hasMore, loading]);
+  }, [infiniteScroll, hasMore, loading]);
 
   // Filtering
   const filteredProjects = useMemo(() => {
@@ -191,9 +241,8 @@ export default function ProjectCardsSection({
 
       const matchesCategory =
         categoryFilter === "all" ||
-        (Array.isArray(project?.category)
-          ? project.category.includes(categoryFilter)
-          : project?.category === categoryFilter);
+        (Array.isArray(project?.category) &&
+          project.category.includes(categoryFilter));
 
       let matchesDonationType = true;
       if (donationTypeFilter !== "all") {
@@ -215,10 +264,14 @@ export default function ProjectCardsSection({
   }, [projects, searchTerm, categoryFilter, donationTypeFilter]);
 
   return (
-    <section className="flex flex-col items-center w-full py-4 text-gray-900">
-      {loading && (page === 1 || !infiniteScroll) ? (
-        <div className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-          {Array.from({ length: initialLimit || 9 }).map(
+    <section className="flex flex-col items-center w-full px-4 py-8 sm:px-12 text-gray-900 max-w-[1800px] mx-auto">
+      {loading && page === 1 ? (
+        <div className="grid w-full gap-6 md:gap-6
+                      grid-cols-1
+                      sm:grid-cols-2
+                      lg:grid-cols-3
+                      xl:grid-cols-4">
+          {Array.from({ length: infiniteScroll ? initialLimit : 3 }).map(
             (_, i) => (
               <ProjectCardSkeleton key={i} />
             )
@@ -227,107 +280,176 @@ export default function ProjectCardsSection({
       ) : (
         <>
           {/* Projects Grid */}
-          <div className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProjects.map((project, index) => {
-              // Determine category for icon/label
-              const categoryMatch = project?.category?.[0] || "General Donation";
-              const CategoryIcon = categoryIcons[categoryMatch] || Heart;
+          <div className="grid w-full gap-6 md:gap-6
+                      grid-cols-1
+                      sm:grid-cols-2
+                      lg:grid-cols-3
+                      xl:grid-cols-4">
+            {filteredProjects.map((project) => (
+              <div
+                key={project?._id}
+                className="group overflow-hidden bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-emerald-900/10 transition-all duration-300 flex flex-col h-full"
+              >
+                {/* Image & Share */}
+                <div className="h-52 lg:h-60 relative overflow-hidden">
+                  <Image
+                    src={project?.cardImage || project?.mainImage}
+                    alt={project?.title || "Project"}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
 
-              return (
-                <div
-                  key={project?._id}
-                  className="group overflow-hidden bg-white rounded-[2rem] shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col border border-gray-100"
-                >
-                  {/* Image & Category Tag */}
-                  <div className="h-52 relative overflow-hidden">
-                    <Image
-                      src={project?.cardImage || project?.mainImage}
-                      alt={project?.title || "Project"}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                    {/* Floating Category Badge */}
-                    <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm px-3.5 py-1.5 rounded-full flex items-center gap-2 shadow-sm border border-white/20">
-                      <CategoryIcon className="h-3 w-3 text-[#2ebc94]" />
-                      <span className="text-[0.65rem] font-bold text-gray-700 tracking-wide">
-                        {categoryMatch}
+                  {/* Category Badges */}
+                  <div className="absolute top-3 left-3 flex gap-1.5 flex-wrap">
+                    {Array.isArray(project?.category) && project.category.slice(0, 2).map((cat, idx) => (
+                      <span key={idx} className="bg-emerald-600/90 backdrop-blur-md text-white px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider shadow-lg">
+                        {cat}
                       </span>
-                    </div>
+                    ))}
                   </div>
 
-                  {/* Content */}
-                  <div className="p-5 pb-6 flex flex-col flex-grow">
-                    {/* Title */}
-                    <h3 className="text-[1.1rem] text-[#1e293b] font-bold mb-2 leading-tight line-clamp-2 min-h-[2.8rem]">
-                      {project?.title || "Untitled Project"}
-                    </h3>
+                  <div className="absolute top-3 right-3 transform translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                    <ShareButton slug={project?.slug || ""} />
+                  </div>
+                </div>
 
-                    {/* Description */}
-                    <p
-                      className="text-[0.85rem] text-gray-500 font-medium mb-8 line-clamp-2 leading-relaxed opacity-90"
-                      dangerouslySetInnerHTML={{
-                        __html: project?.description || "No description available",
-                      }}
-                    />
+                {/* Title & Description */}
+                <div className="p-6 pb-4">
+                  <h3 className="text-xl text-emerald-900 font-bold min-h-[56px] leading-tight group-hover:text-emerald-700 transition-colors">
+                    {project?.title || "Untitled Project"}
+                  </h3>
+                  <TruncatedDescription
+                    html={project?.description}
+                    slug={project?.slug}
+                  />
+                </div>
 
-                    {/* Progress Stats */}
-                    <div className="mt-auto">
-                      <div className="flex justify-between items-end mb-3">
-                        <span className="text-[0.85rem] font-bold text-[#2ebc94]">
-                          {Math.min(project?.completion || 0, 100)}% Funded
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[0.75rem] font-bold text-[#1e293b]">
-                            {formatCurrency(project?.collected ?? 0)}
+                {/* Stats & Buttons */}
+                <div className="p-6 pt-0 flex flex-col flex-grow space-y-5">
+                  {project?.totalRequired > 0 ? (
+                    <>
+                      <div className="space-y-2.5 mt-auto">
+                        <div className="flex justify-between items-end text-sm">
+                          <span className="text-gray-500 font-medium tracking-wide flex items-center gap-1.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                            PROGRESS
                           </span>
-                          <span className="text-[0.75rem] font-medium text-gray-400">
-                            / {formatCurrency(project?.totalRequired ?? 0)}
+                          <span className="font-bold text-emerald-950">
+                            {project?.completion ?? 0}%
                           </span>
+                        </div>
+                        <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden shadow-inner p-0.5">
+                          <div
+                            className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full transition-all duration-1000 ease-out relative shadow-[0_0_8px_rgba(16,185,129,0.3)]"
+                            style={{ width: `${project?.completion || 0}%` }}
+                          >
+                            <div className="absolute inset-0 bg-white/20 animate-shimmer"></div>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center bg-emerald-50/50 p-3 rounded-xl border border-emerald-100/50">
+                          <div className="flex flex-col">
+                            <span className="text-[10px] text-emerald-700 font-bold uppercase tracking-tighter">Raised</span>
+                            <span className="text-lg font-black text-emerald-800 leading-none">
+                              {formatCurrency(project?.collected ?? 0)}
+                            </span>
+                          </div>
+                          <div className="flex flex-col items-end">
+                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-tighter">Goal</span>
+                            <span className="text-base font-bold text-gray-700 leading-none">
+                              {formatCurrency(project?.totalRequired ?? 0)}
+                            </span>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="h-1.5 w-full bg-[#f1f5f9] rounded-full overflow-hidden mb-8">
-                        <div
-                          className="h-full bg-[#2ebc94] rounded-full transition-all duration-1000 ease-out"
-                          style={{ width: `${Math.min(project?.completion || 0, 100)}%` }}
-                        />
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex gap-2">
-                        {project?.status !== "Completed" && (
-                          <Link
-                            href={`/donate/${project?.slug || ""}?type=${categoryMatch}`}
-                            className="flex-grow text-center bg-emerald-600 text-white py-2.5 px-4 rounded-lg hover:bg-emerald-700 font-bold transition-all duration-300 text-[0.85rem]"
-                          >
-                            Donate Now
-                          </Link>
+                      {(Number(project?.beneficiaries) > 0 ||
+                        project?.status === "Completed" ||
+                        Number(project?.daysLeft) > 0) && (
+                          <div className="flex items-center justify-between pt-2 border-t border-gray-50">
+                            {Number(project?.beneficiaries) > 0 && (
+                              <div className="flex items-center gap-1.5 py-1.5 px-3 bg-gray-50 rounded-lg">
+                                <Users className="h-3.5 w-3.5 text-emerald-600" />
+                                <span className="text-xs font-semibold text-gray-600">
+                                  {formatNumber(project?.beneficiaries ?? 0)}{" "}
+                                </span>
+                              </div>
+                            )}
+                            {(project?.status === "Completed" ||
+                              Number(project?.daysLeft) > 0) && (
+                                <div className={`flex items-center gap-1.5 py-1.5 px-3 rounded-lg ${project?.status === "Completed" ? "bg-emerald-50" : "bg-amber-50"}`}>
+                                  <Calendar className={`h-3.5 w-3.5 ${project?.status === "Completed" ? "text-emerald-600" : "text-amber-600"}`} />
+                                  <span className={`text-xs font-semibold ${project?.status === "Completed" ? "text-emerald-700" : "text-amber-700"}`}>
+                                    {project?.status === "Completed"
+                                      ? "Completed"
+                                      : `${project?.daysLeft ?? 0} days to go`}
+                                  </span>
+                                </div>
+                              )}
+                          </div>
                         )}
-                        <Link
-                          href={`/projects/${project?.slug || ""}`}
-                          className="flex-grow text-center border border-[#2ebc94] text-[#2ebc94] py-2.5 rounded-lg font-bold hover:bg-[#2ebc94] hover:text-white transition-all duration-300 text-[0.85rem]"
-                        >
-                          View Details
-                        </Link>
-                        <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-[#e2e8f0] text-[#2ebc94] hover:bg-[#f0fdf9] hover:border-[#2ebc94] transition-all duration-300 group/heart">
-                          <Heart className="h-4 w-4 transition-transform group-hover/heart:scale-110" />
-                        </button>
+                    </>
+                  ) : (
+                    <div className="flex justify-between bg-emerald-50/30 p-4 rounded-2xl border border-emerald-100/50 mt-auto">
+                      <div className="flex flex-col items-start">
+                        <span className="text-[10px] uppercase text-emerald-600 font-black tracking-widest">
+                          Collected
+                        </span>
+                        <span className="text-xl font-black text-emerald-800">
+                          {formatCurrency(
+                            project?.donationSummary?.totalCollected ?? 0
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="text-[10px] uppercase text-gray-500 font-black tracking-widest">
+                          Donors
+                        </span>
+                        <span className="text-xl font-black text-gray-800 leading-none">
+                          {project?.donationSummary?.totalDonors ?? 0}
+                        </span>
                       </div>
                     </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                    {project?.status !== "Completed" && (
+                      <Link
+                        href={
+                          !isSignedIn
+                            ? "/login"
+                            : `/donate/${project?.slug || ""}`
+                        }
+                        className="w-full sm:flex text-center bg-gradient-to-br from-emerald-600 to-emerald-700 text-white py-3 px-4 rounded-xl hover:shadow-lg hover:shadow-emerald-900/20 active:scale-95 transition-all font-bold text-sm tracking-wide justify-center items-center"
+                      >
+                        Donate Now
+                      </Link>
+                    )}
+                    <Link
+                      href={`/projects/${project?.slug || ""}`}
+                      className="w-full sm:flex-1 text-center border-2 border-emerald-600 text-emerald-600 py-3 px-4 rounded-xl hover:bg-emerald-50 active:scale-95 transition-all font-bold text-sm tracking-wide shadow-sm"
+                    >
+                      View Details
+                    </Link>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
 
           {/* Infinite scroll loader */}
           {infiniteScroll && hasMore && (
             <div
               ref={loaderRef}
-              className="mt-10 grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              className="grid w-full gap-6 md:gap-6
+               grid-cols-1
+               sm:grid-cols-2
+               lg:grid-cols-3
+               xl:grid-cols-4"
             >
-              {Array.from({ length: 3 }).map((_, i) => (
+              {Array.from({ length: infiniteScroll ? initialLimit : 3 }).map((_, i) => (
                 <ProjectCardSkeleton key={`skeleton-${i}`} />
               ))}
             </div>
