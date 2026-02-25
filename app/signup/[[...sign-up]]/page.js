@@ -71,7 +71,7 @@ export default function SignUpPage() {
         {/* Auth Form Side */}
         <div className="flex justify-center items-center">
           <div className="relative w-full max-w-md">
-            <div className="bg-white rounded-[40px] shadow-[0_32px_80px_-20px_rgba(6,78,59,0.08)] border border-emerald-100/40 overflow-hidden relative">
+            <div >
               <SignUp
                 appearance={{
                   elements: {

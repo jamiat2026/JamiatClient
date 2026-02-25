@@ -72,9 +72,7 @@ export default function SignInPage() {
         <div className="flex justify-center items-center">
           <div className="relative w-full max-w-md">
             {/* Decorative Card Shadow/Glow */}
-            <div className="absolute -inset-4 bg-emerald-500/5 rounded-[40px] blur-2xl -z-10" />
-
-            <div className="bg-white rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-emerald-100/50 overflow-hidden">
+            <div>
               <SignIn
                 appearance={{
                   elements: {
