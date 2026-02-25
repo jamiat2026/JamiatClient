@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function DonatePage({ searchParams }) {
   const { projectId, type, amount, frequency } = searchParams;
@@ -363,15 +363,15 @@ export default function DonatePage({ searchParams }) {
     selectedProject?.donationOptions?.filter((opt) => opt.isEnabled) || [];
 
   return (
-    <div className="flex flex-col lg:flex-row-reverse bg-white overflow-hidden min-h-screen">
+    <div className="flex flex-col lg:flex-row justify-center bg-white overflow-x-hidden min-h-screen">
       {/* Hero Section */}
-      <section className="lg:w-5/12 relative pb-16 lg:pt-32 lg:pb-0 px-5 overflow-hidden flex items-start bg-slate-50/50 border-l border-slate-100">
+      <section className="w-full lg:w-5/12 relative pb-12 pt-10 lg:pt-32 lg:pb-0 px-5 lg:px-24 overflow-hidden flex items-start bg-slate-50/50 border-b lg:border-b-0 lg:border-l border-slate-100">
         <div className="absolute inset-0 -z-10 pointer-events-none">
           <div className="absolute top-[-10%] right-[-10%] w-[70%] h-[70%] bg-emerald-50 rounded-full blur-3xl opacity-60" />
           <div className="absolute bottom-[5%] left-[-5%] w-[50%] h-[50%] bg-blue-50 rounded-full blur-3xl opacity-50" />
         </div>
 
-        <div className="max-w-xl mx-auto text-center lg:text-left space-y-6 lg:space-y-8 py-12 lg:py-0">
+        <div className="max-w-xl mx-auto text-center space-y-6 lg:space-y-8 py-12 lg:py-0">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -386,9 +386,9 @@ export default function DonatePage({ searchParams }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl lg:text-6xl font-serif font-bold tracking-tight text-slate-900 leading-[1.1]"
+            className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold tracking-tight text-slate-900 leading-[1.1]"
           >
-            Empower Change <br className="hidden lg:block" />
+            Empower Change <br className="hidden sm:block" />
             Through <span className="text-emerald-600">Your Generosity</span>
           </motion.h1>
 
@@ -396,7 +396,7 @@ export default function DonatePage({ searchParams }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed"
+            className="text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed"
           >
             Your contribution provides a safety net for those who have nowhere else to turn.
             Every rupee counts in building a better tomorrow.
@@ -406,13 +406,13 @@ export default function DonatePage({ searchParams }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="grid grid-cols-3 gap-6 pt-8 max-w-2xl mx-auto lg:mx-0"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 max-w-2xl mx-auto"
           >
             <div className="space-y-1">
               <div className="text-2xl lg:text-3xl font-bold text-emerald-600">10k+</div>
               <div className="text-[10px] lg:text-xs font-bold text-slate-400 uppercase tracking-widest">ACTIVE DONORS</div>
             </div>
-            <div className="space-y-1 border-x border-slate-100">
+            <div className="space-y-1 sm:border-x border-slate-100">
               <div className="text-2xl lg:text-3xl font-bold text-emerald-600">50k+</div>
               <div className="text-[10px] lg:text-xs font-bold text-slate-400 uppercase tracking-widest">LIVES IMPACTED</div>
             </div>
@@ -425,268 +425,235 @@ export default function DonatePage({ searchParams }) {
       </section>
 
       {/* Donation Section */}
-      <div className="lg:w-7/12 flex flex-col pt-24 lg:pt-32 pb-16 overflow-y-auto">
-        {/* Progress Indicator */}
-        <section className="max-w-3xl mx-auto px-5 lg:px-8 py-8" >
-          <div className="relative flex justify-between items-center">
-            {/* Progress Line */}
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-100 -z-10 rounded-full overflow-hidden">
+      <div className="w-full lg:w-7/12 flex flex-col pt-8 lg:pt-32 pb-16 overflow-y-auto bg-slate-50/50">
+
+        <AnimatePresence mode="wait">
+          {
+            currentStep === 1 && (
               <motion.div
-                initial={false}
-                animate={{ width: `${((currentStep - 1) / 2) * 100}%` }}
-                className="h-full bg-emerald-600 transition-all duration-500"
-              />
-            </div>
-
-            {[1, 2, 3].map((step) => (
-              <div key={step} className="flex flex-col items-center">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    if (step < currentStep) setCurrentStep(step);
-                  }}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${currentStep >= step
-                    ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200"
-                    : "bg-white border-slate-200 text-slate-400"
-                    }`}
-                >
-                  {step}
-                </motion.button>
-                <span className={`mt-2 text-[10px] font-bold uppercase tracking-widest mx-2 ${currentStep >= step ? "text-emerald-700" : "text-slate-400"
-                  }`}>
-                  {step === 1 ? "Details" : step === 2 ? "Donation Type" : "Amount"}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section >
-
-        {/* Step 1: Project & Dedication */}
-        {
-          currentStep === 1 && (
-            <motion.div
-              key="step1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-8"
-            >
-              <section className="max-w-3xl mx-auto px-5 lg:px-8 py-6">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-white p-8 lg:p-12 rounded-[2rem] shadow-sm border border-emerald-100/50 space-y-10"
-                >
-                  {/* Project Selection Section */}
-                  <div className="space-y-6">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-emerald-600 font-bold tracking-tight uppercase text-sm">
-                        <Heart className="w-4 h-4" />
-                        <span>Target Project</span>
+                key="step1"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <section className="max-w-2xl mx-auto px-4 sm:px-5 lg:px-8 w-full">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white p-6 sm:p-8 lg:p-12 rounded-[1.5rem] sm:rounded-[2rem] shadow-sm border border-emerald-100/50 space-y-8 sm:space-y-10"
+                  >
+                    {/* Project Selection Section */}
+                    <div className="space-y-6">
+                      <div className="space-y-2 text-center flex flex-col items-center">
+                        <div className="flex items-center gap-2 text-emerald-600 font-bold tracking-tight uppercase text-sm">
+                          <Heart className="w-4 h-4" />
+                          <span>Target Project</span>
+                        </div>
+                        <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 text-center">Select Project</h2>
+                        <p className="text-slate-500 text-center">Where should your donation go?</p>
                       </div>
-                      <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">Select Project</h2>
-                      <p className="text-slate-500">Where should your donation go?</p>
+                      <div className="relative group">
+                        <select
+                          value={selectedProjectId}
+                          onChange={(e) => setSelectedProjectId(e.target.value)}
+                          className="w-full h-14 pl-4 pr-10 rounded-2xl border-2 border-slate-100 bg-slate-50/50 appearance-none focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-900 font-medium"
+                        >
+                          {projects?.map((project) => (
+                            <option key={project._id} value={project._id}>
+                              {project.title}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                          <TrendingUp className="w-5 h-5" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="relative group">
-                      <select
-                        value={selectedProjectId}
-                        onChange={(e) => setSelectedProjectId(e.target.value)}
-                        className="w-full h-14 pl-4 pr-10 rounded-2xl border-2 border-slate-100 bg-slate-50/50 appearance-none focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-900 font-medium"
-                      >
-                        {projects?.map((project) => (
-                          <option key={project._id} value={project._id}>
-                            {project.title}
-                          </option>
+
+                    <div className="h-px bg-slate-100" />
+
+                    {/* Dedication Form Section */}
+                    <div className="space-y-8">
+                      <div className="space-y-2 text-center flex flex-col items-center">
+                        <div className="flex items-center gap-2 text-emerald-600 font-bold tracking-tight uppercase text-sm">
+                          <Users className="w-4 h-4" />
+                          <span>Dedication</span>
+                        </div>
+                        <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 text-center">Who is this for?</h2>
+                        <p className="text-slate-500 text-center">You can dedicate this donation to a loved one.</p>
+                      </div>
+
+                      <div className="grid gap-3">
+                        {[
+                          { value: "self", label: "For myself" },
+                          { value: "family", label: "On behalf of family member" },
+                          { value: "memory", label: "In memory of someone" },
+                        ].map((option) => (
+                          <label
+                            key={option.value}
+                            className={`flex items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${donationFor === option.value
+                              ? "border-emerald-500 bg-emerald-50/50"
+                              : "border-slate-100 bg-slate-50/30 hover:border-emerald-200"
+                              }`}
+                          >
+                            <input
+                              type="radio"
+                              name="donationFor"
+                              value={option.value}
+                              checked={donationFor === option.value}
+                              onChange={() => setDonationFor(option.value)}
+                              className="h-5 w-5 accent-emerald-600 mr-3"
+                            />
+                            <span className="font-bold text-slate-900">{option.label}</span>
+                          </label>
                         ))}
-                      </select>
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                        <TrendingUp className="w-5 h-5" />
+                      </div>
+
+                      {(donationFor === "family" || donationFor === "memory") && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-2">
+                          <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">
+                            {donationFor === "family" ? "FAMILY MEMBER NAME" : "IN MEMORY OF"}
+                          </label>
+                          <input
+                            type="text"
+                            className="w-full h-14 px-4 rounded-xl border-2 border-slate-100 bg-slate-50/50 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-900 font-medium"
+                            placeholder={donationFor === "family" ? "Enter name" : "Enter name"}
+                            value={dedicatedTo}
+                            onChange={(e) => setDedicatedTo(e.target.value)}
+                          />
+                        </motion.div>
+                      )}
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">
+                          MESSAGE (OPTIONAL)
+                        </label>
+                        <textarea
+                          rows="3"
+                          className="w-full p-4 border-2 border-slate-100 bg-slate-50/50 rounded-xl focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-900 font-medium resize-none"
+                          placeholder="Add a prayer or message..."
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                        />
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
+                </section>
 
-                  <div className="h-px bg-slate-100" />
+                <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex justify-end">
+                  <button
+                    onClick={() => setCurrentStep(2)}
+                    className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all active:scale-95 shadow-xl shadow-emerald-900/10"
+                  >
+                    Next Step: Donation Type
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                </footer>
+              </motion.div>
+            )
+          }
 
-                  {/* Dedication Form Section */}
-                  <div className="space-y-8">
-                    <div className="space-y-2">
+          {/* Step 2: Donation Type */}
+          {
+            currentStep === 2 && (
+              <motion.div
+                key="step2"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <section className="max-w-2xl mx-auto px-4 sm:px-5 lg:px-8 w-full">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white p-6 sm:p-8 lg:p-12 rounded-[1.5rem] sm:rounded-[2rem] shadow-sm border border-emerald-100/50 space-y-6 sm:space-y-8"
+                  >
+                    <div className="space-y-2 text-center flex flex-col items-center">
                       <div className="flex items-center gap-2 text-emerald-600 font-bold tracking-tight uppercase text-sm">
-                        <Users className="w-4 h-4" />
-                        <span>Dedication</span>
+                        <Gift className="w-4 h-4" />
+                        <span>Intention</span>
                       </div>
-                      <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">Who is this for?</h2>
-                      <p className="text-slate-500">You can dedicate this donation to a loved one.</p>
+                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 text-center">Donation Type</h2>
+                      <p className="text-slate-500 text-center">Select your contribution category.</p>
                     </div>
-
                     <div className="grid gap-3">
-                      {[
-                        { value: "self", label: "For myself" },
-                        { value: "family", label: "On behalf of family member" },
-                        { value: "memory", label: "In memory of someone" },
-                      ].map((option) => (
+                      {donationTypes.map((opt) => (
                         <label
-                          key={option.value}
-                          className={`flex items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${donationFor === option.value
+                          key={opt.type}
+                          className={`relative flex items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${donationType === opt.type
                             ? "border-emerald-500 bg-emerald-50/50"
                             : "border-slate-100 bg-slate-50/30 hover:border-emerald-200"
                             }`}
                         >
                           <input
                             type="radio"
-                            name="donationFor"
-                            value={option.value}
-                            checked={donationFor === option.value}
-                            onChange={() => setDonationFor(option.value)}
-                            className="h-5 w-5 accent-emerald-600 mr-3"
+                            name="donationType"
+                            value={opt.type}
+                            checked={donationType === opt.type}
+                            onChange={() => setDonationType(opt.type)}
+                            className="sr-only"
                           />
-                          <span className="font-bold text-slate-900">{option.label}</span>
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center mr-3 transition-colors ${donationType === opt.type ? "bg-emerald-600 text-white" : "bg-white text-emerald-600 border border-emerald-100"
+                            }`}>
+                            {opt.type === "General Donation" && <Heart className="w-5 h-5" />}
+                            {opt.type === "Zakat" && <Gift className="w-5 h-5" />}
+                            {opt.type === "Sadqa" && <HandCoins className="w-5 h-5" />}
+                            {opt.type === "Interest Earnings" && <CircleDollarSign className="w-5 h-5" />}
+                          </div>
+                          <span className="font-bold text-slate-900">{opt.type}</span>
                         </label>
                       ))}
                     </div>
+                  </motion.div>
+                </section>
 
-                    {(donationFor === "family" || donationFor === "memory") && (
-                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-2">
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">
-                          {donationFor === "family" ? "FAMILY MEMBER NAME" : "IN MEMORY OF"}
-                        </label>
-                        <input
-                          type="text"
-                          className="w-full h-14 px-4 rounded-xl border-2 border-slate-100 bg-slate-50/50 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-900 font-medium"
-                          placeholder={donationFor === "family" ? "Enter name" : "Enter name"}
-                          value={dedicatedTo}
-                          onChange={(e) => setDedicatedTo(e.target.value)}
-                        />
-                      </motion.div>
-                    )}
+                <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex items-center justify-between">
+                  <button
+                    onClick={() => setCurrentStep(1)}
+                    className="text-slate-400 font-bold hover:text-slate-600 transition-colors"
+                  >
+                    Back to Details
+                  </button>
+                  <button
+                    onClick={() => setCurrentStep(3)}
+                    className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-900/10"
+                  >
+                    Next Step: Amount
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                </footer>
+              </motion.div>
+            )
+          }
 
-                    <div className="space-y-2">
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">
-                        MESSAGE (OPTIONAL)
-                      </label>
-                      <textarea
-                        rows="3"
-                        className="w-full p-4 border-2 border-slate-100 bg-slate-50/50 rounded-xl focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-900 font-medium resize-none"
-                        placeholder="Add a prayer or message..."
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              </section>
-
-              <footer className="max-w-3xl mx-auto px-5 lg:px-8 py-8 flex justify-end">
-                <button
-                  onClick={() => setCurrentStep(2)}
-                  className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all active:scale-95 shadow-xl shadow-emerald-900/10"
-                >
-                  Next Step: Donation Type
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-              </footer>
-            </motion.div>
-          )
-        }
-
-        {/* Step 2: Donation Type */}
-        {
-          currentStep === 2 && (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-8"
-            >
-              <section className="max-w-3xl mx-auto px-5 lg:px-8 py-6">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="bg-white p-8 lg:p-12 rounded-[2rem] shadow-sm border border-emerald-100/50 space-y-8"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-emerald-600 font-bold tracking-tight uppercase text-sm">
-                      <Gift className="w-4 h-4" />
-                      <span>Intention</span>
-                    </div>
-                    <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">Donation Type</h2>
-                    <p className="text-slate-500">Select your contribution category.</p>
-                  </div>
-                  <div className="grid gap-3">
-                    {donationTypes.map((opt) => (
-                      <label
-                        key={opt.type}
-                        className={`relative flex items-center p-4 rounded-xl border-2 transition-all cursor-pointer ${donationType === opt.type
-                          ? "border-emerald-500 bg-emerald-50/50"
-                          : "border-slate-100 bg-slate-50/30 hover:border-emerald-200"
-                          }`}
-                      >
-                        <input
-                          type="radio"
-                          name="donationType"
-                          value={opt.type}
-                          checked={donationType === opt.type}
-                          onChange={() => setDonationType(opt.type)}
-                          className="sr-only"
-                        />
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mr-3 transition-colors ${donationType === opt.type ? "bg-emerald-600 text-white" : "bg-white text-emerald-600 border border-emerald-100"
-                          }`}>
-                          {opt.type === "General Donation" && <Heart className="w-5 h-5" />}
-                          {opt.type === "Zakat" && <Gift className="w-5 h-5" />}
-                          {opt.type === "Sadqa" && <HandCoins className="w-5 h-5" />}
-                          {opt.type === "Interest Earnings" && <CircleDollarSign className="w-5 h-5" />}
-                        </div>
-                        <span className="font-bold text-slate-900">{opt.type}</span>
-                      </label>
-                    ))}
-                  </div>
-                </motion.div>
-              </section>
-
-              <footer className="max-w-3xl mx-auto px-5 lg:px-8 py-8 flex items-center justify-between">
-                <button
-                  onClick={() => setCurrentStep(1)}
-                  className="text-slate-400 font-bold hover:text-slate-600 transition-colors"
-                >
-                  Back to Details
-                </button>
-                <button
-                  onClick={() => setCurrentStep(3)}
-                  className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-900/10"
-                >
-                  Next Step: Amount
-                  <ArrowRight className="w-5 h-5" />
-                </button>
-              </footer>
-            </motion.div>
-          )
-        }
-
-        {/* Step 3: Amount & Summary */}
-        {
-          currentStep === 3 && (
-            <motion.div
-              key="step3"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-12"
-            >
-              <section className="max-w-7xl mx-auto px-5 lg:px-8">
-                <div className="grid lg:grid-cols-2 gap-12">
+          {/* Step 3: Amount */}
+          {
+            currentStep === 3 && (
+              <motion.div
+                key="step3"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <section className="max-w-2xl mx-auto px-4 sm:px-5 lg:px-8 w-full">
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="bg-white p-8 lg:p-10 rounded-[2rem] shadow-sm border border-emerald-100/50 space-y-10"
+                    className="bg-white p-6 sm:p-8 lg:p-12 rounded-[1.5rem] sm:rounded-[2rem] shadow-sm border border-emerald-100/50 space-y-8 sm:space-y-10"
                   >
-                    <div className="space-y-2">
+                    <div className="space-y-2 text-center flex flex-col items-center">
                       <div className="flex items-center gap-2 text-emerald-600 font-bold tracking-tight uppercase text-sm">
                         <IndianRupee className="w-4 h-4" />
                         <span>Investment</span>
                       </div>
-                      <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">Choose Amount</h2>
-                      <p className="text-slate-500">How much would you like to contribute?</p>
+                      <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 text-center">Choose Amount</h2>
+                      <p className="text-slate-500 text-center">How much would you like to contribute?</p>
                     </div>
 
                     <div className="space-y-4">
@@ -741,7 +708,6 @@ export default function DonatePage({ searchParams }) {
                       <div className="absolute text-red-500 text-xs mt-2 ml-2">(min: ₹{minAmount})</div>
                     </div>
 
-
                     <label className="flex items-start gap-3 cursor-pointer p-4 rounded-2xl bg-slate-50 border border-slate-100">
                       <input
                         type="checkbox"
@@ -754,67 +720,169 @@ export default function DonatePage({ searchParams }) {
                         <p className="text-xs text-slate-500 leading-relaxed">Request official certificate for tax deductions.</p>
                       </div>
                     </label>
-                  </motion.div>
 
-                  <div className="space-y-8">
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="bg-[#0F172A] rounded-[2.5rem] p-8 lg:p-10 text-white shadow-2xl space-y-8"
-                    >
-                      <div className="space-y-2">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-600/20 text-emerald-400 font-medium text-xs border border-emerald-400/20">
-                          <ShieldCheck className="w-4 h-4" />
-                          <span>Summary</span>
-                        </div>
-                        <h2 className="text-2xl font-bold">Review & Pay</h2>
-                      </div>
-
-                      <div className="space-y-4">
-                        {[
-                          { label: "Purpose", val: donationType },
-                          { label: "Dedication", val: donationFor === "self" ? "For Myself" : dedicatedTo || "Family/Memory" },
-                          { label: "Impact", val: `₹${amountValue} ${isRecurring ? donationFrequency : ""}`, accent: true },
-                          { label: "Project", val: selectedProject?.title || "—" },
-                        ].map((item, idx) => (
-                          <div key={idx} className="flex justify-between items-center py-3 border-b border-white/5 last:border-0">
-                            <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">{item.label}</span>
-                            <span className={`font-bold text-sm ${item.accent ? "text-emerald-400 text-lg" : "text-white"}`}>
-                              {item.val}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <button
-                        onClick={handlePayment}
-                        className="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold flex items-center justify-center gap-3 transition-all active:scale-95 group"
+                    {isRecurring && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        className="mt-6 border-t border-slate-100 pt-6 space-y-4"
                       >
-                        Complete Payment
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                      </button>
+                        <h3 className="font-bold text-slate-900 text-center">
+                          Your Contribution Impact
+                        </h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                          {[
+                            { label: "Daily", val: impact.Daily },
+                            { label: "Weekly", val: impact.Weekly },
+                            { label: "Monthly", val: impact.Monthly },
+                            { label: "Yearly", val: impact.Yearly },
+                          ].map((item) => (
+                            <div key={item.label} className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center space-y-1">
+                              <div className="text-emerald-600 font-bold text-lg">₹{item.val}</div>
+                              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{item.label}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                </section>
 
-                      <div className="flex items-center justify-center gap-4 pt-4 grayscale opacity-50">
-                        <img src="https://cdn.razorpay.com/logo.svg" alt="Razorpay" className="h-4 brightness-0 invert" />
+                <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex items-center justify-between">
+                  <button
+                    onClick={() => setCurrentStep(2)}
+                    className="text-slate-400 font-bold hover:text-slate-600 transition-colors"
+                  >
+                    Back to Type
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!amountValue || amountValue < minAmount) {
+                        alert(`Please enter a valid donation amount (minimum ₹${minAmount}).`);
+                        return;
+                      }
+                      setCurrentStep(4);
+                    }}
+                    className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-900/10"
+                  >
+                    Next Step: Review
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                </footer>
+              </motion.div>
+            )
+          }
+
+          {/* Step 4: Review & Payment */}
+          {
+            currentStep === 4 && (
+              <motion.div
+                key="step4"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <section className="max-w-2xl mx-auto px-4 sm:px-5 lg:px-8 w-full">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-[#0F172A] rounded-[1.5rem] sm:rounded-[2.5rem] p-6 sm:p-8 lg:p-12 text-white shadow-2xl space-y-8 sm:space-y-10"
+                  >
+                    <div className="space-y-2 text-center flex flex-col items-center">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-600/20 text-emerald-400 font-medium text-xs border border-emerald-400/20">
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>Final Step</span>
                       </div>
-                    </motion.div>
+                      <h2 className="text-3xl font-bold text-center">Review & Pay</h2>
+                      <p className="text-slate-400 text-center">Please confirm your donation details before proceeding.</p>
+                    </div>
+
+                    <div className="space-y-4">
+                      {[
+                        { label: "Purpose", val: donationType },
+                        { label: "Dedication", val: donationFor === "self" ? "For Myself" : dedicatedTo || "Family/Memory" },
+                        { label: "Impact", val: `₹${amountValue} ${isRecurring ? donationFrequency : ""}`, accent: true },
+                        { label: "Project", val: selectedProject?.title || "—" },
+                      ].map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center py-4 border-b border-white/5 last:border-0">
+                          <span className="text-slate-400 text-xs font-bold uppercase tracking-widest">{item.label}</span>
+                          <span className={`font-bold ${item.accent ? "text-emerald-400 text-xl" : "text-white text-base"}`}>
+                            {item.val}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
 
                     <button
-                      onClick={() => setCurrentStep(2)}
-                      className="w-full text-slate-400 font-bold hover:text-slate-600 transition-colors text-center"
+                      onClick={handlePayment}
+                      className="w-full py-6 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all active:scale-95 group shadow-xl shadow-emerald-900/20"
                     >
-                      Change details
+                      Complete Payment
+                      <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </button>
-                  </div>
-                </div>
-              </section>
-            </motion.div>
-          )
-        }
 
+                    <div className="flex flex-col items-center gap-4 pt-4">
+                      <div className="flex items-center gap-2 text-slate-500 text-xs font-medium">
+                        <ShieldCheck className="w-3 h-3" />
+                        <span>Secure Payment via Razorpay</span>
+                      </div>
+                      <img src="https://cdn.razorpay.com/logo.svg" alt="Razorpay" className="h-4 brightness-0 invert opacity-50" />
+                    </div>
+                  </motion.div>
+                </section>
+
+                <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex justify-center">
+                  <button
+                    onClick={() => setCurrentStep(3)}
+                    className="text-slate-400 font-bold hover:text-slate-600 transition-colors"
+                  >
+                    Change Amount
+                  </button>
+                </footer>
+              </motion.div>
+            )
+          }
+        </AnimatePresence>
+        {/* Progress Indicator */}
+        <section className="max-w-2xl mx-auto px-4 sm:px-5 lg:px-8 py-6 sm:py-10 w-full" >
+          <div className="relative flex justify-between items-center max-w-md mx-auto">
+            {/* Progress Line */}
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-100 -z-10 rounded-full overflow-hidden">
+              <motion.div
+                initial={false}
+                animate={{ width: `${((currentStep - 1) / 3) * 100}%` }}
+                className="h-full bg-emerald-600 transition-all duration-500"
+              />
+            </div>
+
+            {[1, 2, 3, 4].map((step) => (
+              <div key={step} className="flex flex-col items-center">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    if (step < currentStep) setCurrentStep(step);
+                  }}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${currentStep >= step
+                    ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200"
+                    : "bg-white border-slate-200 text-slate-400"
+                    }`}
+                >
+                  {step}
+                </motion.button>
+                <span className={`mt-2 text-[10px] font-bold uppercase tracking-widest mx-2 ${currentStep >= step ? "text-emerald-700" : "text-slate-400"
+                  }`}>
+                  {step === 1 ? "Details" : step === 2 ? "Type" : step === 3 ? "Amount" : "Review"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section >
         {/* Spacing */}
-        <div className="h-20" />
-      </div>
+        <div className="h-10" />
+      </div >
 
       {/* Recurring Confirmation Popup */}
       {
