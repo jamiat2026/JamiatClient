@@ -2,13 +2,72 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft, Save, Plus, X, Pencil, Image as ImageIcon, Upload, Globe, Tag, Clock, TrendingUp, Users, FileText, Settings, Video, UserCircle } from "lucide-react";
 import { IoIosCloseCircle } from "react-icons/io";
 import { AiOutlineEdit } from "react-icons/ai";
 
 import dynamic from "next/dynamic";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
+
+const Input = ({ className, ...props }) => (
+  <input
+    className={`border border-gray-200 px-4 py-2.5 rounded-xl text-sm w-full bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none ${className || ""}`}
+    {...props}
+  />
+);
+
+const Select = ({ className, children, ...props }) => (
+  <select
+    className={`border border-gray-200 px-4 py-2.5 rounded-xl text-sm w-full bg-white text-gray-700 appearance-none cursor-pointer outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all ${className || ""}`}
+    {...props}
+  >
+    {children}
+  </select>
+);
+
+const Textarea = ({ className, ...props }) => (
+  <textarea
+    className={`border border-gray-200 px-4 py-2.5 rounded-xl text-sm w-full bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none resize-none ${className || ""}`}
+    {...props}
+  />
+);
+
+const SectionCard = ({ title, subtitle, icon: Icon, children }) => (
+  <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+    <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+      {Icon && (
+        <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-emerald-100 text-emerald-600">
+          <Icon size={16} />
+        </div>
+      )}
+      <div>
+        <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
+        {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+      </div>
+    </div>
+    <div className="p-6 space-y-4">{children}</div>
+  </div>
+);
+
+const FieldLabel = ({ children, htmlFor }) => (
+  <label htmlFor={htmlFor} className="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1.5">
+    {children}
+  </label>
+);
+
+const ChipTag = ({ label, onRemove }) => (
+  <span className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 py-1 pl-3 pr-2 rounded-full text-xs font-medium text-emerald-700">
+    {label}
+    <button
+      type="button"
+      className="cursor-pointer hover:text-red-500 transition-colors"
+      onClick={onRemove}
+    >
+      <X size={14} />
+    </button>
+  </span>
+);
 
 export default function CreateProjectPage() {
   const router = useRouter();
@@ -336,58 +395,86 @@ export default function CreateProjectPage() {
     fetchCategories();
   }, []);
 
-  console.log(form.impact);
+  const statusBadge = (status) => {
+    const styles = {
+      Completed: "bg-green-100 text-green-700",
+      "In-Progress": "bg-amber-100 text-amber-700",
+      Pending: "bg-gray-100 text-gray-600",
+      Direct: "bg-green-100 text-green-700",
+      Indirect: "bg-amber-100 text-amber-700",
+      "Long-term": "bg-emerald-100 text-emerald-700",
+    };
+    return (
+      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${styles[status] || "bg-gray-100 text-gray-600"}`}>
+        {status}
+      </span>
+    );
+  };
 
   return (
-    <div className="min-h-full w-full bg-white p-4 sm:p-6 sm:rounded-2xl">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold">Create New Project</h1>
+    <div className="min-h-full w-full bg-gray-50/50 p-4 sm:p-8 rounded-3xl border border-gray-200/60 shadow-sm space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => router.push("/projects")}
+            className="flex items-center justify-center h-10 w-10 rounded-xl border border-gray-200 bg-white text-gray-500 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50 transition-all cursor-pointer active:scale-95 shadow-sm"
+          >
+            <ArrowLeft size={18} />
+          </button>
+          <div className="flex flex-col gap-1">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Create New Project</h1>
+            <p className="text-sm text-gray-500">Fill in the details to create a new project.</p>
+          </div>
+        </div>
         <button
           onClick={handleSubmit}
-          className="px-4 sm:px-10 py-2 text-sm sm:text-base font-medium cursor-pointer bg-violet-600 hover:bg-violet-700 text-white rounded-xl flex items-center gap-2"
+          className="flex flex-row text-sm sm:text-base gap-2 items-center font-semibold bg-emerald-600 hover:bg-emerald-700 px-6 py-2.5 cursor-pointer text-white transition-all duration-200 rounded-xl shadow-sm hover:shadow-md active:scale-95"
           disabled={submitting}
         >
-          {submitting && <Loader2 className="w-4 h-4 animate-spin" />} Save
+          {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save size={18} />}
+          Save Project
         </button>
       </div>
 
-      <div className="flex flex-col gap-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
+      {/* Two-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* LEFT COLUMN */}
+        <div className="space-y-6">
+          {/* Basic Information */}
+          <SectionCard title="Basic Information" subtitle="Project title, description, and core details" icon={FileText}>
             <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
-              <input
+              <FieldLabel>Title</FieldLabel>
+              <Input
                 name="title"
                 placeholder="Enter project title"
                 onChange={handleChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-                required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Description
-              </label>
-              <ReactQuill
-                value={form.description || ""}
-                onChange={(val) =>
-                  handleChange({ target: { name: "description", value: val } })
-                }
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-                modules={{
-                  toolbar: [
-                    [{ header: [1, 2, 3, false] }],
-                    ["bold", "italic", "underline"],
-                    [{ list: "ordered" }, { list: "bullet" }],
-                    ["link", "image"],
-                    ["clean"],
-                  ],
-                }}
-              />
+              <FieldLabel>Description</FieldLabel>
+              <div className="border border-gray-200 rounded-xl overflow-hidden focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 transition-all">
+                <ReactQuill
+                  value={form.description || ""}
+                  onChange={(val) =>
+                    handleChange({ target: { name: "description", value: val } })
+                  }
+                  className="[&_.ql-toolbar]:border-0 [&_.ql-toolbar]:border-b [&_.ql-toolbar]:border-gray-200 [&_.ql-toolbar]:bg-gray-50/50 [&_.ql-container]:border-0 [&_.ql-editor]:min-h-[120px]"
+                  modules={{
+                    toolbar: [
+                      [{ header: [1, 2, 3, false] }],
+                      ["bold", "italic", "underline"],
+                      [{ list: "ordered" }, { list: "bullet" }],
+                      ["link", "image"],
+                      ["clean"],
+                    ],
+                  }}
+                />
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Category</label>
-              <select
+              <FieldLabel>Category</FieldLabel>
+              <Select
                 name="category"
                 onChange={(e) => {
                   const selected = Array.from(e.target.selectedOptions).map(
@@ -400,7 +487,6 @@ export default function CreateProjectPage() {
                     ),
                   }));
                 }}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl appearance-none cursor-pointer"
               >
                 <option value={""} disabled>
                   Choose category
@@ -410,880 +496,828 @@ export default function CreateProjectPage() {
                     {cat.name}
                   </option>
                 ))}
-              </select>
+              </Select>
               {form.category.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {form.category.map((cat) => (
-                    <span
+                    <ChipTag
                       key={cat}
-                      className="bg-violet-100 border border-violet-300 py-1 pl-3 pr-2 rounded-full text-sm flex items-center gap-2"
-                    >
-                      {cat}
-                      <button
-                        type="button"
-                        className="cursor-pointer hover:text-red-500 transition-colors"
-                        onClick={() =>
-                          setForm((prev) => ({
-                            ...prev,
-                            category: prev.category.filter((c) => c !== cat),
-                          }))
-                        }
-                      >
-                        <IoIosCloseCircle size={18} />
-                      </button>
-                    </span>
+                      label={cat}
+                      onRemove={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          category: prev.category.filter((c) => c !== cat),
+                        }))
+                      }
+                    />
                   ))}
                 </div>
               )}
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Location</label>
-              <input
-                name="location"
-                placeholder="Enter location"
-                onChange={handleChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <FieldLabel>Location</FieldLabel>
+                <Input
+                  name="location"
+                  placeholder="Enter location"
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <FieldLabel>Status</FieldLabel>
+                <Select
+                  name="status"
+                  value={form.status}
+                  onChange={handleChange}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Upcoming">Upcoming</option>
+                  <option value="Draft">Draft</option>
+                </Select>
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Total Required
-              </label>
-              <input
-                name="totalRequired"
-                type="number"
-                min="0"
-                placeholder="Enter required amount"
-                onChange={handleChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Collected
-              </label>
-              <input
-                name="collected"
-                type="number"
-                min="0"
-                placeholder="Amount collected so far"
-                onChange={handleChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Beneficiaries
-              </label>
-              <input
-                name="beneficiaries"
-                min="0"
-                type="number"
-                placeholder="No. of beneficiaries"
-                onChange={handleChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Completion %
-              </label>
-              <input
-                name="completion"
-                type="number"
-                min="0"
-                placeholder="Completion percentage"
-                onChange={handleChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                Days Left
-              </label>
-              <input
-                name="daysLeft"
-                type="number"
-                min="0"
-                placeholder="Days left to complete"
-                onChange={handleChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Status</label>
-              <select
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-              >
-                <option value="Active">Active</option>
-                <option value="Completed">Completed</option>
-                <option value="Upcoming">Upcoming</option>
-                <option value="Draft">Draft</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Slug</label>
-              <input
+              <FieldLabel>Slug</FieldLabel>
+              <Input
                 name="slug"
-                placeholder="Enter project slug"
+                placeholder="enter-project-slug"
                 onChange={handleChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
               />
             </div>
+          </SectionCard>
+
+          {/* Financials & Progress */}
+          <SectionCard title="Financials & Progress" subtitle="Budget, beneficiaries, and completion tracking" icon={TrendingUp}>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <FieldLabel>Total Required (₹)</FieldLabel>
+                <Input
+                  name="totalRequired"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <FieldLabel>Collected (₹)</FieldLabel>
+                <Input
+                  name="collected"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <FieldLabel>Beneficiaries</FieldLabel>
+                <Input
+                  name="beneficiaries"
+                  min="0"
+                  type="number"
+                  placeholder="0"
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <FieldLabel>Completion %</FieldLabel>
+                <Input
+                  name="completion"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <FieldLabel>Days Left</FieldLabel>
+                <Input
+                  name="daysLeft"
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* Media Section */}
+          <SectionCard title="Media" subtitle="Upload images and embed videos" icon={ImageIcon}>
+            <div className="space-y-4">
+              {/* Main Image */}
+              <div>
+                <FieldLabel>Main Image (1440 × 750)</FieldLabel>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById("mainImageInput").click()}
+                    className="cursor-pointer flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                  >
+                    {uploadingMain ? (
+                      <Loader2 className="animate-spin w-4 h-4" />
+                    ) : (
+                      <Upload size={16} />
+                    )}
+                    Upload Main Image
+                  </button>
+                  <input
+                    id="mainImageInput"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleImageUpload(e, "main")}
+                  />
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      className="w-16 h-16 object-cover rounded-xl border border-gray-200"
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Card Image */}
+              <div>
+                <FieldLabel>Card Image (1440 × 750)</FieldLabel>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById("cardImageInput").click()}
+                    className="cursor-pointer flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                  >
+                    {uploadingCard ? (
+                      <Loader2 className="animate-spin w-4 h-4" />
+                    ) : (
+                      <Upload size={16} />
+                    )}
+                    Upload Card Image
+                  </button>
+                  <input
+                    id="cardImageInput"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => handleImageUpload(e, "card")}
+                  />
+                  {cardPreview && (
+                    <img
+                      src={cardPreview}
+                      className="w-16 h-16 object-cover rounded-xl border border-gray-200"
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Gallery */}
+              <div>
+                <FieldLabel>Photo Gallery (450 × 350)</FieldLabel>
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("galleryInput").click()}
+                  className="cursor-pointer flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                >
+                  {uploadingGallery ? (
+                    <Loader2 className="animate-spin w-4 h-4" />
+                  ) : (
+                    <Upload size={16} />
+                  )}
+                  Upload Gallery Images
+                </button>
+                <input
+                  id="galleryInput"
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleImageUpload(e, "gallery")}
+                />
+                {galleryPreviews.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {galleryPreviews.map((url, i) => (
+                      <img
+                        key={i}
+                        src={url}
+                        className="w-16 h-16 object-cover rounded-xl border border-gray-200"
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* YouTube */}
+              <div>
+                <FieldLabel>YouTube Embed</FieldLabel>
+                <Input
+                  name="youtubeIframe"
+                  placeholder="Paste YouTube iframe embed code"
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+          </SectionCard>
+
+          {/* SEO & Meta */}
+          <SectionCard title="SEO & Meta" subtitle="Search engine optimization settings" icon={Globe}>
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Meta Title
-              </label>
-              <input
+              <FieldLabel>Meta Title</FieldLabel>
+              <Input
                 name="metatitle"
                 placeholder="Enter meta title"
                 onChange={handleChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
               />
             </div>
             <div>
-              <textarea
+              <FieldLabel>Meta Description</FieldLabel>
+              <Textarea
                 name="metadescription"
                 placeholder="Enter meta description"
                 onChange={handleChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
+                rows={3}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Target Keywords
-              </label>
+              <FieldLabel>Target Keywords</FieldLabel>
               <div className="flex gap-2">
-                <input
+                <Input
                   value={newKeyword}
                   onChange={(e) => setNewKeyword(e.target.value)}
                   placeholder="Enter keyword"
-                  className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddKeyword())}
                 />
                 <button
                   type="button"
                   onClick={handleAddKeyword}
-                  className="px-4 py-2 bg-violet-600 text-white rounded-xl"
+                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-all active:scale-95 cursor-pointer whitespace-nowrap"
                 >
-                  Add
+                  <Plus size={16} />
                 </button>
               </div>
               {form.target_keywords.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {form.target_keywords.map((keyword, idx) => (
-                    <span
+                    <ChipTag
                       key={idx}
-                      className="bg-violet-100 border border-violet-300 py-1 pl-3 pr-2 rounded-full text-sm flex items-center gap-2"
-                    >
-                      {keyword}
-                      <button
-                        type="button"
-                        className="cursor-pointer hover:text-red-500 transition-colors"
-                        onClick={() =>
-                          setForm((prev) => ({
-                            ...prev,
-                            target_keywords: prev.target_keywords.filter(
-                              (k) => k !== keyword
-                            ),
-                          }))
-                        }
-                      >
-                        <IoIosCloseCircle size={18} />
-                      </button>
-                    </span>
+                      label={keyword}
+                      onRemove={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          target_keywords: prev.target_keywords.filter(
+                            (k) => k !== keyword
+                          ),
+                        }))
+                      }
+                    />
                   ))}
                 </div>
               )}
             </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">
-                Main Image (1440 X 750) or (1440 X 800)
-              </label>
-              <button
-                type="button"
-                onClick={() =>
-                  document.getElementById("mainImageInput").click()
-                }
-                className="cursor-pointer bg-gray-100 px-4 py-2 rounded-xl border border-gray-300 text-sm"
-              >
-                {uploadingMain ? (
-                  <Loader2 className="animate-spin w-4 h-4" />
-                ) : (
-                  "Upload Main Image"
-                )}
-              </button>
-              <input
-                id="mainImageInput"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => handleImageUpload(e, "main")}
+            <div>
+              <FieldLabel>Schema Markup (JSON-LD)</FieldLabel>
+              <Textarea
+                placeholder='{"name": "Name", "description": "Description", "link": "https://"}'
+                value={newScheme}
+                onChange={(e) => setNewScheme(e.target.value)}
+                rows={4}
+                className="font-mono text-xs"
               />
-              {imagePreview && (
-                <img
-                  src={imagePreview}
-                  className="w-40 h-40 object-cover rounded-xl border border-gray-200"
-                />
-              )}
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">
-                Card Image (1440 X 750) or (1440 X 800)
-              </label>
-              <button
-                type="button"
-                onClick={() =>
-                  document.getElementById("cardImageInput").click()
-                }
-                className="cursor-pointer bg-gray-100 px-4 py-2 rounded-xl border border-gray-300 text-sm"
-              >
-                {uploadingCard ? (
-                  <Loader2 className="animate-spin w-4 h-4" />
-                ) : (
-                  "Upload Card Image"
-                )}
-              </button>
-              <input
-                id="cardImageInput"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => handleImageUpload(e, "card")}
-              />
-              {cardPreview && (
-                <img
-                  src={cardPreview}
-                  className="w-40 h-40 object-cover rounded-xl border border-gray-200"
-                />
-              )}
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">
-                Photo Gallery (450 X 350)
-              </label>
-              <button
-                type="button"
-                onClick={() => document.getElementById("galleryInput").click()}
-                className="cursor-pointer bg-gray-100 px-4 py-2 rounded-xl border border-gray-300 text-sm"
-              >
-                {uploadingGallery ? (
-                  <Loader2 className="animate-spin w-4 h-4" />
-                ) : (
-                  "Upload Gallery Images"
-                )}
-              </button>
-              <input
-                id="galleryInput"
-                type="file"
-                multiple
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => handleImageUpload(e, "gallery")}
-              />
-              <div className="flex flex-wrap gap-2">
-                {galleryPreviews.map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    className="w-24 h-24 object-cover rounded-xl border border-gray-200"
-                  />
-                ))}
+              <div className="mt-2 p-3 rounded-xl bg-gray-50 border border-gray-200 text-xs font-mono text-gray-600 break-all">
+                {newScheme}
               </div>
             </div>
-          </div>
+          </SectionCard>
+        </div>
 
-          <div className="space-y-4">
+        {/* RIGHT COLUMN */}
+        <div className="space-y-6">
+          {/* Project Manager */}
+          <SectionCard title="Project Manager" subtitle="Contact details for the project lead" icon={UserCircle}>
             <div>
-              <label className="block text-sm font-medium mb-1">
-                YouTube iframe embed
-              </label>
-              <input
-                name="youtubeIframe"
-                placeholder="Paste YouTube iframe embed here"
+              <FieldLabel>Name</FieldLabel>
+              <Input
+                name="projectManager.name"
+                placeholder="Manager name"
                 onChange={handleChange}
-                className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
               />
             </div>
-            <h2 className="font-semibold text-sm">Project Manager</h2>
-            <input
-              name="projectManager.name"
-              placeholder="Manager name"
-              onChange={handleChange}
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            <input
-              name="projectManager.email"
-              placeholder="Manager email"
-              onChange={handleChange}
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            <input
-              name="projectManager.phone"
-              placeholder="Manager phone"
-              onChange={handleChange}
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            <h2 className="font-semibold text-sm">OG Metadata</h2>
-            <input
-              name="og.title"
-              placeholder="OG Title"
-              onChange={handleChange}
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            <textarea
-              name="og.description"
-              placeholder="OG Description"
-              onChange={handleChange}
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">OG Image</label>
-              <button
-                type="button"
-                onClick={() => document.getElementById("ogImageInput").click()}
-                className="cursor-pointer bg-gray-100 px-4 py-2 rounded-xl border border-gray-300 text-sm"
-              >
-                {uploadingOgImage ? (
-                  <Loader2 className="animate-spin w-4 h-4" />
-                ) : (
-                  "Upload OG Image"
-                )}
-              </button>
-              <input
-                id="ogImageInput"
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => handleImageUpload(e, "ogImage")}
+            <div>
+              <FieldLabel>Email</FieldLabel>
+              <Input
+                name="projectManager.email"
+                placeholder="Manager email"
+                onChange={handleChange}
               />
-              {ogImagePreview && (
-                <img
-                  src={ogImagePreview}
-                  className="w-40 h-40 object-cover rounded-xl border border-gray-200"
+            </div>
+            <div>
+              <FieldLabel>Phone</FieldLabel>
+              <Input
+                name="projectManager.phone"
+                placeholder="Manager phone"
+                onChange={handleChange}
+              />
+            </div>
+          </SectionCard>
+
+          {/* OG Metadata */}
+          <SectionCard title="Open Graph Metadata" subtitle="Social media sharing preview" icon={Globe}>
+            <div>
+              <FieldLabel>OG Title</FieldLabel>
+              <Input
+                name="og.title"
+                placeholder="OG Title"
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <FieldLabel>OG Description</FieldLabel>
+              <Textarea
+                name="og.description"
+                placeholder="OG Description"
+                onChange={handleChange}
+                rows={3}
+              />
+            </div>
+            <div>
+              <FieldLabel>OG Image</FieldLabel>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("ogImageInput").click()}
+                  className="cursor-pointer flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                >
+                  {uploadingOgImage ? (
+                    <Loader2 className="animate-spin w-4 h-4" />
+                  ) : (
+                    <Upload size={16} />
+                  )}
+                  Upload OG Image
+                </button>
+                <input
+                  id="ogImageInput"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleImageUpload(e, "ogImage")}
                 />
-              )}
+                {ogImagePreview && (
+                  <img
+                    src={ogImagePreview}
+                    className="w-16 h-16 object-cover rounded-xl border border-gray-200"
+                  />
+                )}
+              </div>
             </div>
-            <input
-              name="og.url"
-              placeholder="OG URL"
-              onChange={handleChange}
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            <h2 className="font-semibold text-sm">Impact</h2>
-            <select
-              value={newImpact.type}
-              onChange={(e) =>
-                setNewImpact((prev) => ({ ...prev, type: e.target.value }))
-              }
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            >
-              <option value="Direct">Direct</option>
-              <option value="Indirect">Indirect</option>
-              <option value="Long-term">Long-term</option>
-            </select>
-            <input
-              value={newImpact.title}
-              onChange={(e) =>
-                setNewImpact((prev) => ({ ...prev, title: e.target.value }))
-              }
-              placeholder="Impact Title"
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            <textarea
-              value={newImpact.description}
-              onChange={(e) =>
-                setNewImpact((prev) => ({
-                  ...prev,
-                  description: e.target.value,
-                }))
-              }
-              placeholder="Impact Description"
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
+            <div>
+              <FieldLabel>OG URL</FieldLabel>
+              <Input
+                name="og.url"
+                placeholder="https://example.com/project"
+                onChange={handleChange}
+              />
+            </div>
+          </SectionCard>
+
+          {/* Impact */}
+          <SectionCard title="Impact" subtitle="Define the project's direct and indirect impact" icon={TrendingUp}>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <FieldLabel>Type</FieldLabel>
+                <Select
+                  value={newImpact.type}
+                  onChange={(e) =>
+                    setNewImpact((prev) => ({ ...prev, type: e.target.value }))
+                  }
+                >
+                  <option value="Direct">Direct</option>
+                  <option value="Indirect">Indirect</option>
+                  <option value="Long-term">Long-term</option>
+                </Select>
+              </div>
+              <div>
+                <FieldLabel>Title</FieldLabel>
+                <Input
+                  value={newImpact.title}
+                  onChange={(e) =>
+                    setNewImpact((prev) => ({ ...prev, title: e.target.value }))
+                  }
+                  placeholder="Impact Title"
+                />
+              </div>
+            </div>
+            <div>
+              <FieldLabel>Description</FieldLabel>
+              <Textarea
+                value={newImpact.description}
+                onChange={(e) =>
+                  setNewImpact((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                placeholder="Impact Description"
+                rows={2}
+              />
+            </div>
             <button
               type="button"
               onClick={handleAddImpact}
-              className="px-4 py-2 bg-violet-600 text-white rounded-xl"
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-xl transition-all active:scale-95 cursor-pointer"
             >
-              Add Impact
+              <Plus size={16} /> Add Impact
             </button>
-            {form.impact.map((imp, idx) => (
-              <div
-                key={idx}
-                className={` ${
-                  imp.type === "Direct"
-                    ? "bg-green-200"
-                    : imp.type === "Indirect"
-                    ? "bg-amber-100"
-                    : "bg-violet-100"
-                } p-3 rounded-xl`}
-              >
-                {editingImpactIndex === idx ? (
-                  <div className="space-y-2">
-                    <div className="flex flex-col space-y-2">
-                      <input
-                        type="text"
-                        value={newImpact.type}
-                        onChange={(e) =>
-                          setNewImpact({ ...newImpact, type: e.target.value })
-                        }
-                        className={` ${
-                          imp.type === "Direct"
-                            ? "border-green-300"
-                            : imp.type === "Indirect"
-                            ? "border-amber-300"
-                            : "border-violet-400"
-                        } p-2.5 w-full text-sm border rounded-xl`}
-                      />
-                      <input
-                        type="text"
-                        value={newImpact.title}
-                        onChange={(e) =>
-                          setNewImpact({ ...newImpact, title: e.target.value })
-                        }
-                        className={` ${
-                          imp.type === "Direct"
-                            ? "border-green-300"
-                            : imp.type === "Indirect"
-                            ? "border-amber-300"
-                            : "border-violet-400"
-                        } p-2.5 w-full text-sm border rounded-xl`}
-                      />
-                      <textarea
-                        value={newImpact.description}
-                        onChange={(e) =>
-                          setNewImpact({
-                            ...newImpact,
-                            description: e.target.value,
-                          })
-                        }
-                        className={` ${
-                          imp.type === "Direct"
-                            ? "border-green-300"
-                            : imp.type === "Indirect"
-                            ? "border-amber-300"
-                            : "border-violet-400"
-                        } p-2.5 w-full text-sm border rounded-xl`}
-                      />
-                    </div>
-                    <div className="flex gap-4 justify-end">
-                      <button onClick={handleCancelImpactEdit}>
-                        <span className="font-semibold cursor-pointer bg-red-300 px-2 py-1 rounded-sm">
-                          Cancel
-                        </span>
-                      </button>
-                      <button onClick={handleSaveImpact}>
-                        <span className="font-semibold cursor-pointer bg-violet-600 text-white px-2 py-1 rounded-sm">
-                          Save
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-700 font-semibold text-medium">
-                        {imp.type}
-                      </span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEditImpact(idx)}
-                          className="cursor-pointer"
-                        >
-                          <AiOutlineEdit size={18} />
-                        </button>
-                        <button
-                          onClick={() =>
-                            setForm((prev) => ({
-                              ...prev,
-                              impact: prev.impact.filter((_, i) => i !== idx),
-                            }))
-                          }
-                          className="cursor-pointer"
-                        >
-                          <IoIosCloseCircle size={18} />
-                        </button>
-                      </div>
-                    </div>
-                    <p className="font-bold text-lg">{imp.title}</p>
-                    <p className="text-sm">{imp.description}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-            {/*
-            <h2 className="font-semibold text-sm">Schemes</h2>
-            <input
-              value={newScheme.name}
-              onChange={(e) => setNewScheme((prev) => ({ ...prev, name: e.target.value }))}
-              placeholder="Scheme Name"
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            <textarea
-              value={newScheme.description}
-              onChange={(e) => setNewScheme((prev) => ({ ...prev, description: e.target.value }))}
-              placeholder="Scheme Description"
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            <input
-              value={newScheme.link}
-              onChange={(e) => setNewScheme((prev) => ({ ...prev, link: e.target.value }))}
-              placeholder="Scheme Link"
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            */}
 
-            <div className="text-sm">
-              <label className="font-medium block mb-1">
-                Schema Markup (JSON-LD)
-              </label>
-              <textarea
-                className="border p-2 w-full rounded-xl border-gray-300 font-mono"
-                placeholder='{"name": "Name of Schema", "description": "Description for Schema", "link": "https://"}'
-                value={newScheme}
-                onChange={(e) => setNewScheme(e.target.value)}
-                rows={6}
+            {form.impact.length > 0 && (
+              <div className="space-y-2 mt-2">
+                {form.impact.map((imp, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white border border-gray-200 p-4 rounded-xl"
+                  >
+                    {editingImpactIndex === idx ? (
+                      <div className="space-y-3">
+                        <Select
+                          value={newImpact.type}
+                          onChange={(e) =>
+                            setNewImpact({ ...newImpact, type: e.target.value })
+                          }
+                        >
+                          <option value="Direct">Direct</option>
+                          <option value="Indirect">Indirect</option>
+                          <option value="Long-term">Long-term</option>
+                        </Select>
+                        <Input
+                          value={newImpact.title}
+                          onChange={(e) =>
+                            setNewImpact({ ...newImpact, title: e.target.value })
+                          }
+                        />
+                        <Textarea
+                          value={newImpact.description}
+                          onChange={(e) =>
+                            setNewImpact({
+                              ...newImpact,
+                              description: e.target.value,
+                            })
+                          }
+                          rows={2}
+                        />
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            onClick={handleCancelImpactEdit}
+                            className="px-3 py-1.5 text-sm font-medium cursor-pointer border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={handleSaveImpact}
+                            className="px-3 py-1.5 text-sm font-medium cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all"
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            {statusBadge(imp.type)}
+                          </div>
+                          <p className="font-semibold text-sm text-gray-900">{imp.title}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{imp.description}</p>
+                        </div>
+                        <div className="flex gap-1 shrink-0">
+                          <button
+                            onClick={() => handleEditImpact(idx)}
+                            className="text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg p-1.5 cursor-pointer transition-all"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() =>
+                              setForm((prev) => ({
+                                ...prev,
+                                impact: prev.impact.filter((_, i) => i !== idx),
+                              }))
+                            }
+                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg p-1.5 cursor-pointer transition-all"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+
+          {/* Timeline */}
+          <SectionCard title="Timeline Events" subtitle="Track project milestones and progress" icon={Clock}>
+            <div>
+              <FieldLabel>Event Title</FieldLabel>
+              <Input
+                value={newTimelineEvent.title}
+                onChange={(e) =>
+                  setNewTimelineEvent((prev) => ({
+                    ...prev,
+                    title: e.target.value,
+                  }))
+                }
+                placeholder="Event Title"
               />
             </div>
-            <p className="text-sm p-3 rounded-xl bg-purple-100 border border-gray-300">
-              {newScheme}
-            </p>
-
-            {/*
-            <button
-              type="button"
-              onClick={handleAddScheme}
-              className="px-4 py-2 bg-violet-600 text-white rounded-xl"
-            >
-              Add Scheme
-            </button>
-            */}
-
-            {
-              // form.scheme.length > 0 && (
-              //   <div className="flex flex-wrap gap-2 mt-2">
-              //     {form.scheme.map((sch, idx) => (
-              //       <span
-              //         key={idx}
-              //         className="flex-1 min-w-48 bg-violet-100 border border-violet-300 p-3 rounded-xl text-sm gap-2"
-              //       >
-              //         <div className="flex w-full flex-row gap-4 justify-between items-start">
-              //           <span className="font-semibold">
-              //             {sch.name}
-              //           </span>
-              //           <button
-              //             type="button"
-              //             className="cursor-pointer hover:text-red-500 transition-colors"
-              //             onClick={() =>
-              //               setForm((prev) => ({
-              //                 ...prev,
-              //                 scheme: prev.scheme.filter((_, i) => i !== idx),
-              //               }))
-              //             }
-              //           >
-              //             <IoIosCloseCircle size={18} />
-              //           </button>
-              //         </div>
-              //         <p>{sch.description}</p>
-              //         <p>{sch.link}</p>
-              //       </span>
-              //     ))}
-              //   </div>
-              // )
-            }
-
-            <h2 className="font-semibold text-sm">Timeline Events</h2>
-            <input
-              value={newTimelineEvent.title}
-              onChange={(e) =>
-                setNewTimelineEvent((prev) => ({
-                  ...prev,
-                  title: e.target.value,
-                }))
-              }
-              placeholder="Event Title"
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            <select
-              value={newTimelineEvent.status}
-              onChange={(e) =>
-                setNewTimelineEvent((prev) => ({
-                  ...prev,
-                  status: e.target.value,
-                }))
-              }
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            >
-              <option value="Pending">Pending</option>
-              <option value="In-Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-            </select>
-            <input
-              value={newUpdate.date}
-              onChange={(e) =>
-                setNewTimelineEvent((prev) => ({
-                  ...prev,
-                  date: e.target.value,
-                }))
-              }
-              type="date"
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <FieldLabel>Status</FieldLabel>
+                <Select
+                  value={newTimelineEvent.status}
+                  onChange={(e) =>
+                    setNewTimelineEvent((prev) => ({
+                      ...prev,
+                      status: e.target.value,
+                    }))
+                  }
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="In-Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                </Select>
+              </div>
+              <div>
+                <FieldLabel>Date</FieldLabel>
+                <Input
+                  value={newTimelineEvent.date}
+                  onChange={(e) =>
+                    setNewTimelineEvent((prev) => ({
+                      ...prev,
+                      date: e.target.value,
+                    }))
+                  }
+                  type="date"
+                />
+              </div>
+            </div>
             <button
               type="button"
               onClick={handleAddTimelineEvent}
-              className="px-4 py-2 bg-violet-600 text-white rounded-xl"
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-xl transition-all active:scale-95 cursor-pointer"
             >
-              Add Timeline Event
+              <Plus size={16} /> Add Event
             </button>
-            {form.timeline.map((event, idx) => (
-              <div
-                key={idx}
-                className={` ${
-                  event.status === "Completed"
-                    ? "bg-green-200"
-                    : event.status === "In-Progress"
-                    ? "bg-amber-100"
-                    : "bg-violet-100"
-                } p-3 rounded-xl`}
-              >
-                {editingTimelineEventIndex === idx ? (
-                  <div className="space-y-2">
-                    <div className="flex flex-col space-y-2">
-                      <input
-                        type="text"
-                        value={newTimelineEvent.status}
-                        onChange={(e) =>
-                          setNewTimelineEvent({
-                            ...newTimelineEvent,
-                            status: e.target.value,
-                          })
-                        }
-                        className={` ${
-                          event.status === "Completed"
-                            ? "border-green-300"
-                            : event.status === "In-Progress"
-                            ? "border-amber-300"
-                            : "border-violet-400"
-                        } p-2.5 w-full text-sm border rounded-xl`}
-                      />
-                      <input
-                        type="text"
-                        value={newTimelineEvent.title}
-                        onChange={(e) =>
-                          setNewTimelineEvent({
-                            ...newTimelineEvent,
-                            title: e.target.value,
-                          })
-                        }
-                        className={` ${
-                          event.status === "Completed"
-                            ? "border-green-300"
-                            : event.status === "In-Progress"
-                            ? "border-amber-300"
-                            : "border-violet-400"
-                        } p-2.5 w-full text-sm border rounded-xl`}
-                      />
-                      <input
-                        type="date"
-                        value={newTimelineEvent.date}
-                        onChange={(e) =>
-                          setNewTimelineEvent({
-                            ...newTimelineEvent,
-                            date: e.target.value,
-                          })
-                        }
-                        className={` ${
-                          event.status === "Completed"
-                            ? "border-green-300"
-                            : event.status === "In-Progress"
-                            ? "border-amber-300"
-                            : "border-violet-400"
-                        } p-2.5 w-full text-sm border rounded-xl`}
-                      />
-                    </div>
-                    <div className="flex gap-4 justify-end">
-                      <button onClick={handleCancelTimelineEventEdit}>
-                        <span className="font-semibold cursor-pointer bg-red-300 px-2 py-1 rounded-sm">
-                          Cancel
-                        </span>
-                      </button>
-                      <button onClick={handleSaveTimelineEvent}>
-                        <span className="font-semibold cursor-pointer bg-violet-600 text-white px-2 py-1 rounded-sm">
-                          Save
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-700 font-semibold text-medium">
-                        {event.status}
-                      </span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEditTimelineEvent(idx)}
-                          className="cursor-pointer"
-                        >
-                          <AiOutlineEdit size={18} />
-                        </button>
-                        <button
-                          onClick={() =>
-                            setForm((prev) => ({
-                              ...prev,
-                              timeline: prev.timeline.filter((_, i) => i !== idx),
-                            }))
+
+            {form.timeline.length > 0 && (
+              <div className="space-y-2 mt-2">
+                {form.timeline.map((event, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white border border-gray-200 p-4 rounded-xl"
+                  >
+                    {editingTimelineEventIndex === idx ? (
+                      <div className="space-y-3">
+                        <Select
+                          value={newTimelineEvent.status}
+                          onChange={(e) =>
+                            setNewTimelineEvent({
+                              ...newTimelineEvent,
+                              status: e.target.value,
+                            })
                           }
-                          className="cursor-pointer"
                         >
-                          <IoIosCloseCircle size={18} />
-                        </button>
+                          <option value="Pending">Pending</option>
+                          <option value="In-Progress">In Progress</option>
+                          <option value="Completed">Completed</option>
+                        </Select>
+                        <Input
+                          value={newTimelineEvent.title}
+                          onChange={(e) =>
+                            setNewTimelineEvent({
+                              ...newTimelineEvent,
+                              title: e.target.value,
+                            })
+                          }
+                        />
+                        <Input
+                          type="date"
+                          value={newTimelineEvent.date}
+                          onChange={(e) =>
+                            setNewTimelineEvent({
+                              ...newTimelineEvent,
+                              date: e.target.value,
+                            })
+                          }
+                        />
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            onClick={handleCancelTimelineEventEdit}
+                            className="px-3 py-1.5 text-sm font-medium cursor-pointer border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={handleSaveTimelineEvent}
+                            className="px-3 py-1.5 text-sm font-medium cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all"
+                          >
+                            Save
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <p className="font-bold text-lg">{event.title}</p>
-                    <p className="text-sm">{event.date}</p>
+                    ) : (
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            {statusBadge(event.status)}
+                            <span className="text-xs text-gray-400">{event.date}</span>
+                          </div>
+                          <p className="font-semibold text-sm text-gray-900">{event.title}</p>
+                        </div>
+                        <div className="flex gap-1 shrink-0">
+                          <button
+                            onClick={() => handleEditTimelineEvent(idx)}
+                            className="text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg p-1.5 cursor-pointer transition-all"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() =>
+                              setForm((prev) => ({
+                                ...prev,
+                                timeline: prev.timeline.filter((_, i) => i !== idx),
+                              }))
+                            }
+                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg p-1.5 cursor-pointer transition-all"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
-            <h2 className="font-semibold text-sm">Updates</h2>
-            <input
-              value={newUpdate.version}
-              onChange={(e) =>
-                setNewUpdate((prev) => ({ ...prev, version: e.target.value }))
-              }
-              placeholder="Update Version"
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            <textarea
-              value={newUpdate.content}
-              onChange={(e) =>
-                setNewUpdate((prev) => ({ ...prev, content: e.target.value }))
-              }
-              placeholder="Update Content"
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
-            <input
-              value={newUpdate.date}
-              onChange={(e) =>
-                setNewUpdate((prev) => ({ ...prev, date: e.target.value }))
-              }
-              type="date"
-              className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-            />
+            )}
+          </SectionCard>
+
+          {/* Updates */}
+          <SectionCard title="Updates" subtitle="Log project versions and progress notes" icon={FileText}>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <FieldLabel>Version</FieldLabel>
+                <Input
+                  value={newUpdate.version}
+                  onChange={(e) =>
+                    setNewUpdate((prev) => ({ ...prev, version: e.target.value }))
+                  }
+                  placeholder="v1.0"
+                />
+              </div>
+              <div>
+                <FieldLabel>Date</FieldLabel>
+                <Input
+                  value={newUpdate.date}
+                  onChange={(e) =>
+                    setNewUpdate((prev) => ({ ...prev, date: e.target.value }))
+                  }
+                  type="date"
+                />
+              </div>
+            </div>
+            <div>
+              <FieldLabel>Content</FieldLabel>
+              <Textarea
+                value={newUpdate.content}
+                onChange={(e) =>
+                  setNewUpdate((prev) => ({ ...prev, content: e.target.value }))
+                }
+                placeholder="Update Content"
+                rows={3}
+              />
+            </div>
             <button
               type="button"
               onClick={handleAddUpdate}
-              className="px-4 py-2 bg-violet-600 text-white rounded-xl"
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-xl transition-all active:scale-95 cursor-pointer"
             >
-              Add Update
+              <Plus size={16} /> Add Update
             </button>
-            {form.updates.map((upd, idx) => (
-              <div
-                key={idx}
-                className="p-3 rounded-xl bg-violet-100"
-              >
-                {editingUpdateIndex === idx ? (
-                  <div className="space-y-2">
-                    <div className="flex flex-col space-y-2">
-                      <input
-                        type="text"
-                        value={newUpdate.version}
-                        onChange={(e) =>
-                          setNewUpdate({
-                            ...newUpdate,
-                            version: e.target.value,
-                          })
-                        }
-                        className="p-2.5 w-full text-sm border border-gray-100 rounded-xl"
-                      />
-                      <textarea
-                        value={newUpdate.content}
-                        onChange={(e) =>
-                          setNewUpdate({
-                            ...newUpdate,
-                            content: e.target.value,
-                          })
-                        }
-                        className="p-2.5 w-full text-sm border border-gray-100 rounded-xl"
-                      />
-                      <input
-                        type="date"
-                        value={newUpdate.date}
-                        onChange={(e) =>
-                          setNewUpdate({
-                            ...newUpdate,
-                            date: e.target.value,
-                          })
-                        }
-                        className="p-2.5 w-full text-sm border border-gray-100 rounded-xl"
-                      />
-                    </div>
-                    <div className="flex gap-4 justify-end">
-                      <button onClick={handleCancelUpdateEdit}>
-                        <span className="font-semibold cursor-pointer bg-red-300 px-2 py-1 rounded-sm">
-                          Cancel
-                        </span>
-                      </button>
-                      <button onClick={handleSaveUpdate}>
-                        <span className="font-semibold cursor-pointer bg-violet-600 text-white px-2 py-1 rounded-sm">
-                          Save
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-700 font-semibold text-medium">
-                        {upd.version}
-                      </span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEditUpdate(idx)}
-                          className="cursor-pointer"
-                        >
-                          <AiOutlineEdit size={18} />
-                        </button>
-                        <button
-                          onClick={() =>
-                            setForm((prev) => ({
-                              ...prev,
-                              updates: prev.updates.filter((_, i) => i !== idx),
-                            }))
+
+            {form.updates.length > 0 && (
+              <div className="space-y-2 mt-2">
+                {form.updates.map((upd, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white border border-gray-200 p-4 rounded-xl"
+                  >
+                    {editingUpdateIndex === idx ? (
+                      <div className="space-y-3">
+                        <Input
+                          value={newUpdate.version}
+                          onChange={(e) =>
+                            setNewUpdate({
+                              ...newUpdate,
+                              version: e.target.value,
+                            })
                           }
-                          className="cursor-pointer"
-                        >
-                          <IoIosCloseCircle size={18} />
-                        </button>
+                        />
+                        <Textarea
+                          value={newUpdate.content}
+                          onChange={(e) =>
+                            setNewUpdate({
+                              ...newUpdate,
+                              content: e.target.value,
+                            })
+                          }
+                          rows={2}
+                        />
+                        <Input
+                          type="date"
+                          value={newUpdate.date}
+                          onChange={(e) =>
+                            setNewUpdate({
+                              ...newUpdate,
+                              date: e.target.value,
+                            })
+                          }
+                        />
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            onClick={handleCancelUpdateEdit}
+                            className="px-3 py-1.5 text-sm font-medium cursor-pointer border border-gray-200 rounded-lg hover:bg-gray-50 transition-all"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={handleSaveUpdate}
+                            className="px-3 py-1.5 text-sm font-medium cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all"
+                          >
+                            Save
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <p className="font-bold text-lg">{upd.content}</p>
-                    <p className="text-sm">{upd.date}</p>
+                    ) : (
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
+                              {upd.version}
+                            </span>
+                            <span className="text-xs text-gray-400">{upd.date}</span>
+                          </div>
+                          <p className="text-sm text-gray-700 mt-0.5">{upd.content}</p>
+                        </div>
+                        <div className="flex gap-1 shrink-0">
+                          <button
+                            onClick={() => handleEditUpdate(idx)}
+                            className="text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg p-1.5 cursor-pointer transition-all"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() =>
+                              setForm((prev) => ({
+                                ...prev,
+                                updates: prev.updates.filter((_, i) => i !== idx),
+                              }))
+                            }
+                            className="text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg p-1.5 cursor-pointer transition-all"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                ))}
               </div>
-            ))}
-            <h2 className="font-semibold text-sm">Donation Options</h2>
-            <div className="flex flex-wrap gap-4">
+            )}
+          </SectionCard>
+
+          {/* Donation Options */}
+          <SectionCard title="Donation Options" subtitle="Configure available donation types" icon={Settings}>
+            <div className="grid grid-cols-2 gap-3">
               {form.donationOptions.map((option, index) => (
-                <label key={index} className="flex items-center gap-2 text-sm">
+                <label
+                  key={index}
+                  className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${option.isEnabled
+                      ? "border-emerald-300 bg-emerald-50"
+                      : "border-gray-200 bg-white hover:border-gray-300"
+                    }`}
+                >
                   <input
                     type="checkbox"
-                    className="custom-checkbox"
+                    className="accent-emerald-600 w-4 h-4"
                     name={`donationOptions.${index}`}
                     checked={option.isEnabled}
                     onChange={handleChange}
                   />
-                  <span>{option.type}</span>
+                  <span className="text-sm font-medium text-gray-700">{option.type}</span>
                 </label>
               ))}
             </div>
-          </div>
+          </SectionCard>
         </div>
       </div>
     </div>

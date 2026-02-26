@@ -25,25 +25,25 @@ export default function SettingsPage() {
     password: '',
     sendInviteEmail: true,
   });
-async function handleDeleteUser(email) {
-  const confirmed = confirm(`Are you sure you want to delete the user ${email}?`);
-  if (!confirmed) return;
+  async function handleDeleteUser(email) {
+    const confirmed = confirm(`Are you sure you want to delete the user ${email}?`);
+    if (!confirmed) return;
 
-  try {
-    const res = await fetch(`/api/users/${encodeURIComponent(email)}`, {
-      method: 'DELETE',
-    });
+    try {
+      const res = await fetch(`/api/users/${encodeURIComponent(email)}`, {
+        method: 'DELETE',
+      });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
 
-    alert('User deleted successfully');
-    fetchUsers(); // Refresh list
-  } catch (err) {
-    console.error('Error deleting user:', err);
-    alert('Failed to delete user');
+      alert('User deleted successfully');
+      fetchUsers(); // Refresh list
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      alert('Failed to delete user');
+    }
   }
-}
   const ACCESS_OPTIONS = ["dashboard", "donations", "settings", "cms", "donors"];
   const [loading, setLoading] = useState(true);
 
@@ -116,64 +116,78 @@ async function handleDeleteUser(email) {
   }
 
   async function handleAddSubmit() {
-  if (!newUserData.sendInviteEmail && !newUserData.password) {
-    alert("Please set a password or enable invite email.");
-    return;
+    if (!newUserData.sendInviteEmail && !newUserData.password) {
+      alert("Please set a password or enable invite email.");
+      return;
+    }
+
+    const payload = {
+      email: newUserData.email,
+      role: newUserData.role,
+      access: newUserData.access,
+      password: newUserData.password || undefined,
+      skipEmail: !newUserData.sendInviteEmail || !!newUserData.password,
+    };
+
+    console.log("📤 Sending invite payload:", payload); // 👈 Log here
+
+    try {
+      const res = await fetch('/api/send-invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message);
+
+      const manual = !newUserData.sendInviteEmail || !!newUserData.password;
+      setNewUserData({
+        name: '',
+        email: '',
+        role: '',
+        access: [],
+        password: '',
+        sendInviteEmail: true,
+      });
+      alert(manual ? "User created with manual password." : "Invite sent successfully!");
+    } catch (err) {
+      console.error('❌ Error in adding user:', err);
+      alert("Failed to invite user");
+    }
+  }
+  if (loading) {
+    return (
+      <div className="min-h-full w-full bg-gray-50/50 p-4 sm:p-8 rounded-3xl border border-gray-200/60 shadow-sm flex items-center justify-center">
+        <p className="text-sm text-gray-500">Loading users...</p>
+      </div>
+    );
   }
 
-  const payload = {
-    email: newUserData.email,
-    role: newUserData.role,
-    access: newUserData.access,
-    password: newUserData.password || undefined,
-    skipEmail: !newUserData.sendInviteEmail || !!newUserData.password,
-  };
-
-  console.log("📤 Sending invite payload:", payload); // 👈 Log here
-
-  try {
-    const res = await fetch('/api/send-invite', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) throw new Error(data.message);
-
-    const manual = !newUserData.sendInviteEmail || !!newUserData.password;
-    setNewUserData({
-      name: '',
-      email: '',
-      role: '',
-      access: [],
-      password: '',
-      sendInviteEmail: true,
-    });
-    alert(manual ? "User created with manual password." : "Invite sent successfully!");
-  } catch (err) {
-    console.error('❌ Error in adding user:', err);
-    alert("Failed to invite user");
-  }
-}
-  if (loading) return <div className="p-10 text-center">Loading users...</div>;
+  const inputClass = "p-2.5 text-sm w-full border border-gray-200 rounded-xl bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 transition-all";
+  const labelClass = "block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5";
 
   return (
-    <div className="bg-white p-4 sm:p-6 sm:rounded-2xl min-h-full">
-      <h1 className="text-xl sm:text-2xl font-bold mb-6">Settings - User Management</h1>
+    <div className="min-h-full w-full bg-gray-50/50 p-4 sm:p-8 rounded-3xl border border-gray-200/60 shadow-sm space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Settings</h1>
+        <p className="text-sm text-gray-500">Manage users, roles, and access permissions.</p>
+      </div>
 
-      <div className="overflow-x-auto w-full pb-4">
-        <div className="bg-white w-full border border-gray-300 shadow rounded-xl overflow-x-auto">
+      {/* Users Table Card */}
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
           <table className="w-full table-auto text-left">
-            <thead className="bg-gray-200 text-gray-700 border-b border-gray-300 text-sm font-semibold">
-              <tr>
+            <thead>
+              <tr className="border-b border-gray-200 bg-gray-50/80">
                 {["Avatar", "Email", "Name", "Role", "Access", "Actions"].map((title, idx) => (
                   <th
                     key={idx}
-                    className={`py-3 px-4 text-nowrap font-medium ${idx === 0 ? "rounded-tl-xl" : idx === 5 ? "rounded-tr-xl" : ""}`}
+                    className="py-3 px-4 text-nowrap text-xs font-bold uppercase tracking-wider text-gray-500"
                   >
                     {title}
                   </th>
@@ -187,235 +201,254 @@ async function handleDeleteUser(email) {
                   const initials = user.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || "US";
 
                   return (
-                    <tr key={user.email} className="border-b border-gray-300 last:border-none">
-                      <td className="py-3 px-4 text-sm">
+                    <tr key={user.email} className="border-b border-gray-100 last:border-none hover:bg-gray-50/60 transition-all">
+                      <td className="py-3 px-4">
                         <div
                           style={{ backgroundColor: `${color}20`, color }}
-                          className="min-w-8 w-8 min-h-8 rounded-full font-bold flex items-center justify-center text-sm"
+                          className="min-w-8 w-8 min-h-8 h-8 rounded-full font-bold flex items-center justify-center text-xs"
                         >
                           {initials}
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-sm">{user.email}</td>
-                      <td className="py-3 px-4 text-sm text-nowrap">{user.name || "—"}</td>
-                      <td className="py-3 px-4 text-sm">{user.role || "—"}</td>
-                      <td className="py-3 px-4 text-sm text-nowrap">{user.access?.join(', ') || "—"}</td>
-                      <td className="py-3 px-2 text-sm text-gray-900 bg-white">
-                        <button
-                          onClick={() => openEditModal(user)}
-                          className="ml-4 cursor-pointer text-violet-600 p-2 rounded-full hover:bg-violet-100"
-                          title="Edit user"
-                        >
-                          <TbEdit size={20} />
-                        </button>
-                        <button
-    onClick={() => handleDeleteUser(user.email)}
-    className="ml-2 cursor-pointer text-red-600 p-2 rounded-full hover:bg-red-100"
-    title="Delete user"
-  >
-    <TbTrash size={20} />
-  </button>
+                      <td className="py-3 px-4 text-sm text-gray-500">{user.email}</td>
+                      <td className="py-3 px-4 text-sm text-gray-900 font-medium text-nowrap">{user.name || "—"}</td>
+                      <td className="py-3 px-4 text-sm text-gray-500">{user.role || "—"}</td>
+                      <td className="py-3 px-4 text-sm text-gray-500 text-nowrap">{user.access?.join(', ') || "—"}</td>
+                      <td className="py-3 px-4 text-sm">
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => openEditModal(user)}
+                            className="cursor-pointer text-emerald-600 hover:bg-emerald-50 p-2 rounded-lg transition-all"
+                            title="Edit user"
+                          >
+                            <TbEdit size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user.email)}
+                            className="cursor-pointer text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-all"
+                            title="Delete user"
+                          >
+                            <TbTrash size={18} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
                 })}
+
+              {paginatedUsers.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="text-center py-16 text-gray-400">
+                    <p className="text-base">No users found.</p>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
 
-        <div className="flex justify-between items-center mt-4 px-2 text-sm text-gray-700">
-          <div>
-            Showing {(currentPage - 1) * rowsPerPage + 1} to{" "}
-            {Math.min(currentPage * rowsPerPage, users.length)} of {users.length} entries
-          </div>
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-t border-gray-100 bg-gray-50/50 text-sm">
+          <p className="text-gray-500">
+            Showing{' '}
+            <span className="font-medium text-gray-700">{(currentPage - 1) * rowsPerPage + 1}</span> to{' '}
+            <span className="font-medium text-gray-700">{Math.min(currentPage * rowsPerPage, users.length)}</span> of{' '}
+            <span className="font-medium text-gray-700">{users.length}</span> entries
+          </p>
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="p-3 border cursor-pointer hover:bg-gray-200 rounded-xl disabled:opacity-50"
+              className="p-2.5 border border-gray-200 bg-white hover:bg-gray-100 rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-default transition-all"
             >
-              <FaAnglesLeft />
+              <FaAnglesLeft size={12} />
             </button>
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="p-3 border cursor-pointer hover:bg-gray-200 rounded-xl disabled:opacity-50"
+              className="p-2.5 border border-gray-200 bg-white hover:bg-gray-100 rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-default transition-all"
             >
-              <FaAnglesRight />
+              <FaAnglesRight size={12} />
             </button>
           </div>
         </div>
       </div>
 
       {/* Edit/Add Form Section */}
-      <div className="mt-4 border border-gray-300 rounded-xl p-5 sm:p-6">
-        {editingUser ? (
-          <>
-            <h2 className="font-semibold text-lg mb-4">Edit User</h2>
-            <div className="flex flex-col gap-y-4">
-              <div className="grid sm:grid-cols-2 gap-2 sm:gap-4 w-full">
-                <div>
-                  <label className="block text-sm font-medium mb-1">Email</label>
-                  <input
-                    type="text"
-                    value={updateFormData.email}
-                    disabled
-                    className="p-2.5 text-sm w-full border border-gray-300 rounded-xl bg-gray-100"
-                  />
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-5 sm:p-6 space-y-5">
+          {editingUser ? (
+            <>
+              <h2 className="text-lg font-bold tracking-tight text-gray-900">Edit User</h2>
+              <div className="flex flex-col gap-y-4">
+                <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 w-full">
+                  <div>
+                    <label className={labelClass}>Email</label>
+                    <input
+                      type="text"
+                      value={updateFormData.email}
+                      disabled
+                      className={`${inputClass} bg-gray-100 cursor-not-allowed opacity-60`}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Name</label>
+                    <input
+                      type="text"
+                      value={updateFormData.name}
+                      onChange={(e) => setUpdateFormData({ ...updateFormData, name: e.target.value })}
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Role</label>
+                    <input
+                      type="text"
+                      value={updateFormData.role}
+                      onChange={(e) => setUpdateFormData({ ...updateFormData, role: e.target.value })}
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>New Password</label>
+                    <input
+                      type="password"
+                      value={updateFormData.password}
+                      onChange={(e) => setUpdateFormData({ ...updateFormData, password: e.target.value })}
+                      placeholder="Leave blank to keep current"
+                      className={inputClass}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Name</label>
-                  <input
-                    type="text"
-                    value={updateFormData.name}
-                    onChange={(e) => setUpdateFormData({ ...updateFormData, name: e.target.value })}
-                    className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Role</label>
-                  <input
-                    type="text"
-                    value={updateFormData.role}
-                    onChange={(e) => setUpdateFormData({ ...updateFormData, role: e.target.value })}
-                    className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">New Password</label>
-                  <input
-                    type="password"
-                    value={updateFormData.password}
-                    onChange={(e) => setUpdateFormData({ ...updateFormData, password: e.target.value })}
-                    placeholder="Leave blank to keep current"
-                    className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-                  />
-                </div>
-              </div>
 
-              <div>
-                <p className="font-medium mb-2">Access Permissions</p>
-                <div className="flex flex-wrap gap-4">
-                  {ACCESS_OPTIONS.map((option) => (
-                    <label key={option} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={updateFormData.access.includes(option)}
-                        onChange={() => handleAccessChange(option)}
-                        className="custom-checkbox"
-                      />
-                      <span className="text-sm capitalize">{option}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-4">
-                <button
-                  type="button"
-                  onClick={() => setEditingUser(null)}
-                  className="px-6 py-2 font-medium cursor-pointer border border-violet-600 text-violet-600 hover:bg-violet-600 hover:text-white transition-colors text-sm rounded-xl"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  onClick={handleUpdate}
-                  className="px-6 py-2 font-medium cursor-pointer bg-violet-600 hover:bg-violet-700 text-white text-sm rounded-xl"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <h2 className="font-semibold text-lg mb-4">Add New User</h2>
-            <div className="flex flex-col gap-y-4">
-              <div className="grid sm:grid-cols-2  gap-2 sm:gap-4 w-full">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={newUserData.email}
-                    onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
-                    className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-                  />
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Access Permissions</p>
+                  <div className="flex flex-wrap gap-4">
+                    {ACCESS_OPTIONS.map((option) => (
+                      <label key={option} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={updateFormData.access.includes(option)}
+                          onChange={() => handleAccessChange(option)}
+                          className="custom-checkbox"
+                        />
+                        <span className="text-sm capitalize text-gray-700">{option}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="text-lg font-bold tracking-tight text-gray-900">Add New User</h2>
+              <div className="flex flex-col gap-y-4">
+                <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 w-full">
+                  <div>
+                    <label className={labelClass}>Email</label>
+                    <input
+                      type="email"
+                      value={newUserData.email}
+                      onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })}
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Name</label>
+                    <input
+                      type="text"
+                      value={newUserData.name}
+                      onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Role</label>
+                    <input
+                      type="text"
+                      value={newUserData.role}
+                      onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={newUserData.sendInviteEmail}
+                    onChange={(e) =>
+                      setNewUserData({ ...newUserData, sendInviteEmail: e.target.checked })
+                    }
+                    className="custom-checkbox"
+                  />
+                  <span className="text-sm text-gray-700">Send invite email</span>
+                </div>
+
+                {!newUserData.sendInviteEmail && (
+                  <div>
+                    <label className={labelClass}>Password</label>
+                    <input
+                      type="password"
+                      value={newUserData.password}
+                      onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
+                      className={inputClass}
+                    />
+                  </div>
+                )}
+
                 <div>
-                  <label className="block text-sm font-medium mb-1">Name</label>
-                  <input
-                    type="text"
-                    value={newUserData.name}
-                    onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })}
-                    className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">Role</label>
-                  <input
-                    type="text"
-                    value={newUserData.role}
-                    onChange={(e) => setNewUserData({ ...newUserData, role: e.target.value })}
-                    className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-                  />
+                  <p className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Access Permissions</p>
+                  <div className="flex flex-wrap gap-4">
+                    {ACCESS_OPTIONS.map((option) => (
+                      <label key={option} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newUserData.access.includes(option)}
+                          onChange={() => handleAccessChange(option, true)}
+                          className="custom-checkbox"
+                        />
+                        <span className="text-sm capitalize text-gray-700">{option}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
+            </>
+          )}
+        </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={newUserData.sendInviteEmail}
-                  onChange={(e) =>
-                    setNewUserData({ ...newUserData, sendInviteEmail: e.target.checked })
-                  }
-                  className="custom-checkbox"
-                />
-                <span className="text-sm">Send invite email</span>
-              </div>
-
-              {!newUserData.sendInviteEmail && (
-                <div>
-                  <label className="block text-sm font-medium mb-1">Password</label>
-                  <input
-                    type="password"
-                    value={newUserData.password}
-                    onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })}
-                    className="p-2.5 text-sm w-full border border-gray-300 rounded-xl"
-                  />
-                </div>
-              )}
-
-              <div>
-                <p className="font-medium mb-2">Access Permissions</p>
-                <div className="flex flex-wrap gap-4">
-                  {ACCESS_OPTIONS.map((option) => (
-                    <label key={option} className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={newUserData.access.includes(option)}
-                        onChange={() => handleAccessChange(option, true)}
-                        className="custom-checkbox"
-                      />
-                      <span className="text-sm capitalize">{option}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  onClick={handleAddSubmit}
-                  className="px-10 py-2 font-medium cursor-pointer bg-violet-600 hover:bg-violet-700 text-white text-sm rounded-xl"
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-          </>
-        )}
+        {/* Form Actions Footer */}
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+          {editingUser ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setEditingUser(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-100 cursor-pointer transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                onClick={handleUpdate}
+                className="px-5 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg cursor-pointer transition-all shadow-sm border border-emerald-500/50"
+              >
+                Save
+              </button>
+            </>
+          ) : (
+            <button
+              type="submit"
+              onClick={handleAddSubmit}
+              className="px-6 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg cursor-pointer transition-all shadow-sm border border-emerald-500/50"
+            >
+              Add User
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
