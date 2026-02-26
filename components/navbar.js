@@ -51,7 +51,7 @@ export default function Headers() {
                 item.href === "/donate" ? (
                   <Link
                     key={item.href}
-                    href={isSignedIn ? "/donate" : "/login"}
+                    href={item.href}
                     className={`relative text-sm font-semibold transition-colors group py-2 ${isActive ? "text-emerald-300" : "text-emerald-50 hover:text-emerald-300"
                       }`}
                   >

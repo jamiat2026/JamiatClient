@@ -104,6 +104,26 @@ export default function DonatePage({ searchParams }) {
   const email = user?.emailAddresses[0]?.emailAddress || "";
 
   useEffect(() => {
+    const draftStr = sessionStorage.getItem('donationDraft');
+    if (draftStr) {
+      try {
+        const parsed = JSON.parse(draftStr);
+        if (parsed.donationFrequency !== undefined) setDonationFrequency(parsed.donationFrequency);
+        if (parsed.isRecurring !== undefined) setIsRecurring(parsed.isRecurring);
+        if (parsed.requestCertificate !== undefined) setRequestCertificate(parsed.requestCertificate);
+        if (parsed.customAmount !== undefined) setCustomAmount(parsed.customAmount);
+        if (parsed.donationType !== undefined) setDonationType(parsed.donationType);
+        if (parsed.currentStep !== undefined) setCurrentStep(parsed.currentStep);
+        if (parsed.donationFor !== undefined) setDonationFor(parsed.donationFor);
+        if (parsed.dedicatedTo !== undefined) setDedicatedTo(parsed.dedicatedTo);
+        if (parsed.message !== undefined) setMessage(parsed.message);
+      } catch (err) {
+        console.error("Failed to parse donation draft:", err);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects?status=Active`, {
       next: { revalidate: 3600 },
     })
@@ -111,9 +131,25 @@ export default function DonatePage({ searchParams }) {
       .then((data) => {
         setProjects(data.projects || []);
 
-        if (!data.projects?.some((p) => p._id === projectId)) {
-          setSelectedProjectId(data.projects?.[0]?._id || "");
+        const draftStr = sessionStorage.getItem('donationDraft');
+        let draftProjectId = null;
+        if (draftStr) {
+          try {
+            draftProjectId = JSON.parse(draftStr).selectedProjectId;
+          } catch (e) { }
         }
+
+        const targetId = projectId || draftProjectId;
+
+        if (!targetId || !data.projects?.some((p) => p._id === targetId)) {
+          setSelectedProjectId(data.projects?.[0]?._id || "");
+        } else {
+          setSelectedProjectId(targetId);
+        }
+      })
+      .finally(() => {
+        // Clean up draft after projects fetch has resolved and project is set
+        sessionStorage.removeItem('donationDraft');
       })
       .catch((err) => console.error("Failed to fetch projects:", err));
   }, [projectId]);
@@ -162,7 +198,19 @@ export default function DonatePage({ searchParams }) {
 
   const handlePayment = async ({ bypassConfirm = false } = {}) => {
     if (!isSignedIn) {
-      router.push("/login");
+      sessionStorage.setItem('donationDraft', JSON.stringify({
+        donationFrequency,
+        isRecurring,
+        requestCertificate,
+        selectedProjectId,
+        customAmount,
+        donationType,
+        currentStep: 4,
+        donationFor,
+        dedicatedTo,
+        message,
+      }));
+      router.push("/login?redirect_url=/donate");
       return;
     }
 
