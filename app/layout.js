@@ -19,6 +19,7 @@ export const metadata = {
   icons: {
     icon: "/logo.png",
   },
+  google: "notranslate", // 🚀 Prevents browser translation popups
 };
 
 // CORS headers

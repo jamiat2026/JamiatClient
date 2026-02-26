@@ -86,8 +86,8 @@ export default function DashboardPage() {
     {
       title: 'Completed Projects',
       value: summary.completedCount,
-      icon: <DollarSign className="text-purple-600 w-6 h-6" />,
-      bg: 'bg-purple-100',
+      icon: <DollarSign className="text-emerald-600 w-6 h-6" />,
+      bg: 'bg-emerald-100',
     },
   ]
 
@@ -107,41 +107,82 @@ export default function DashboardPage() {
     datasets: [
       {
         data: [summary.activeCount, summary.completedCount],
-        backgroundColor: ['#34d399', '#a78bfa'],
+        backgroundColor: ['#34d399', '#059669'],
       },
     ],
   }
 
   return (
-    <div className="space-y-6 bg-white rounded-2xl p-6">
-      <h1 className="text-2xl font-semibold">Active Projects</h1>
+    <div className="space-y-8 bg-gray-50/50 rounded-3xl p-4 sm:p-8 border border-gray-200/60 shadow-sm">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Active Projects</h1>
+        <p className="text-sm text-gray-500">Overview of your current project performance and donations.</p>
+      </div>
 
-      {/* Cards */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
           <div
             key={index}
-            className='flex flex-1 sm:flex-col flex-row gap-3 border-[1px] border-gray-300 rounded-xl sm:p-4 p-3'          >
-            <div className={`${stat.bg} flex justify-center items-center w-14 sm:w-fit p-2.5 rounded-xl`}>{stat.icon}</div>
-            <div>
-              <h2 className="text-sm font-medium">{stat.title}</h2>
-              <p className="text-3xl font-semibold">{stat.value}</p>
+            className="group flex flex-row items-center justify-between p-5 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200"
+          >
+            <div className="flex flex-col gap-1">
+              <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                {stat.title}
+              </span>
+              <span className="text-2xl font-bold text-gray-900 leading-tight">
+                {stat.value}
+              </span>
+            </div>
+            <div className={`${stat.bg} flex items-center justify-center h-12 w-12 rounded-xl transition-transform group-hover:scale-110`}>
+              {stat.icon}
             </div>
           </div>
         ))}
       </div>
 
-
-      {/* Graphs */}
+      {/* Graphs Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="p-4 bg-white shadow border border-gray-300 rounded-2xl">
-          <h2 className="text-lg font-semibold mb-4">Monthly Donations</h2>
-          <Bar data={donationBarData} />
+        <div className="flex flex-col bg-white p-6 border border-gray-200 rounded-2xl shadow-sm">
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">Monthly Donations</h2>
+            <p className="text-sm text-gray-500 font-normal">Tracking donation growth over time</p>
+          </div>
+          <div className="h-[300px] flex items-center justify-center">
+            <Bar
+              data={donationBarData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { display: false },
+                },
+                scales: {
+                  y: { beginAtZero: true, grid: { color: "#f3f4f6" } },
+                  x: { grid: { display: false } },
+                },
+              }}
+            />
+          </div>
         </div>
 
-        <div className="p-4 bg-white shadow border border-gray-300 rounded-2xl">
-          <h2 className="text-lg font-semibold mb-4">Project Status Breakdown</h2>
-          <Pie data={projectPieData} style={{ maxHeight: "300px" }} />
+        <div className="flex flex-col bg-white p-6 border border-gray-200 rounded-2xl shadow-sm">
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold text-gray-900">Project Status Breakdown</h2>
+            <p className="text-sm text-gray-500 font-normal">Active vs. Completed projects distribution</p>
+          </div>
+          <div className="h-[300px] flex items-center justify-center">
+            <Pie
+              data={projectPieData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+                },
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

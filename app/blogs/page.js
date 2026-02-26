@@ -31,63 +31,72 @@ export default function BlogListPage() {
   }
 
   return (
-    <div className="bg-white p-4 sm:p-6 sm:rounded-2xl min-h-full w-full">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold">All Blogs</h1>
+    <div className="min-h-full w-full bg-gray-50/50 p-4 sm:p-8 rounded-3xl border border-gray-200/60 shadow-sm space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">All Blogs</h1>
+          <p className="text-sm text-gray-500">Manage and organize your blog posts.</p>
+        </div>
 
         <Link href="/blogeditor">
           <button
-            className="flex flex-row text-sm sm:text-base gap-2 items-center font-medium btn btn-primary border bg-violet-600 hover:bg-violet-700 px-4 sm:px-6 py-2 cursor-pointer text-white transition rounded-xl"
+            className="flex flex-row text-sm sm:text-base gap-2 items-center font-semibold bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 cursor-pointer text-white transition-all rounded-xl shadow-sm border border-emerald-500/50"
           >
             <Plus size={16} /> Create New
           </button>
         </Link>
       </div>
 
-      {/* ✅ Show Loading Indicator */}
-      {loading ? (
-        <div className="text-center py-10 text-gray-500">Loading...</div>
-      ) : (
-        <div className="grid md:grid-cols-3 grid-cols-1 gap-4">
-          {blogs.map(blog => (
-            <div key={blog._id} className="border-2 border-violet-300 bg-violet-50 p-4 rounded-xl gap-4">
-              <div className="flex gap-3">
-                {blog.imageUrl && (
-                  <img src={blog.imageUrl} alt="" className="w-20 h-20 object-cover rounded-full" />
-                )}
+      {/* Content */}
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden p-4 sm:p-6">
+        {loading ? (
+          <div className="text-center py-10 text-gray-500">Loading...</div>
+        ) : (
+          <div className="grid md:grid-cols-3 grid-cols-1 gap-4">
+            {blogs.map(blog => (
+              <div key={blog._id} className="bg-white border border-gray-200 p-4 rounded-xl hover:shadow-md transition-all duration-200 group">
+                <div className="flex gap-3">
+                  {blog.imageUrl && (
+                    <img src={blog.imageUrl} alt="" className="w-20 h-20 object-cover rounded-xl border border-gray-100" />
+                  )}
 
-                <div>
-                  <h2 className="text-xl font-semibold">{blog.title}</h2>
-                  <p className="text-gray-500 text-sm mt-2">{new Date(blog.createdAt).toLocaleString()}</p>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-base font-semibold text-gray-900 truncate">{blog.title}</h2>
+                    <p className="text-gray-400 text-xs mt-1.5">{new Date(blog.createdAt).toLocaleString()}</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-gray-100 flex justify-end gap-2">
+                  <Link href={`/blogs/${blog._id}/edit`}>
+                    <button
+                      className="text-emerald-600 hover:bg-emerald-50 rounded-lg p-2 cursor-pointer transition-all"
+                      title="Edit"
+                    >
+                      <TbEdit size={18} />
+                    </button>
+                  </Link>
+
+                  <button
+                    onClick={() => handleDelete(blog._id)}
+                    className="text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg p-2 cursor-pointer transition-all"
+                    title="Delete"
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               </div>
+            ))}
 
-              <div className="mt-2 flex justify-end gap-4">
-                <Link href={`/blogs/${blog._id}/edit`}>
-                  <button
-                    className="text-violet-600 hover:bg-violet-200 rounded-3xl p-2 cursor-pointer transition"
-                    title="Edit"
-                  >
-                    <TbEdit size={20} />
-                  </button>
-                </Link>
-
-                <button
-                  onClick={() => handleDelete(blog._id)}
-                  className="text-red-600 hover:bg-red-200 rounded-3xl p-2 cursor-pointer transition"
-                  title="Delete"
-                >
-                  <Trash2 size={20} />
-                </button>
+            {!blogs.length && (
+              <div className="col-span-full text-center py-16 text-gray-400">
+                <p className="text-base">No blogs found.</p>
+                <p className="text-sm mt-1">Create your first blog post to get started.</p>
               </div>
-            </div>
-          ))}
-
-          {!blogs.length && (
-            <div className="text-center py-10 text-gray-400">No blogs found.</div>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
