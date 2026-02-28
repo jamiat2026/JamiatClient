@@ -4,6 +4,17 @@ import Link from "next/link";
 import { Pencil } from "lucide-react";
 import InfoRow from "@/app/components/InfoRow";
 
+function normalizePhotoGallery(value) {
+  if (Array.isArray(value)) return value.filter(Boolean);
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
 async function getBaseUrl() {
   const h = await headers();
   const host = h.get("x-forwarded-host") || h.get("host");
@@ -43,6 +54,7 @@ export default async function ProjectDetailPage({ params }) {
   const { id } = await params;
   const project = await getProject(id);
   if (!project) return notFound();
+  const photoGallery = normalizePhotoGallery(project.photoGallery);
 
   return (
     <div className="min-h-full w-full bg-white p-6 rounded-2xl">
@@ -147,10 +159,10 @@ export default async function ProjectDetailPage({ params }) {
       </div>
 
       {/* Photo Gallery */}
-      {project.photoGallery?.length > 0 && (
+      {photoGallery.length > 0 && (
         <Section title="Photo Gallery">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {project.photoGallery.map((url, idx) => (
+            {photoGallery.map((url, idx) => (
               <img
                 key={idx}
                 src={url}

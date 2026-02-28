@@ -11,6 +11,17 @@ import dynamic from "next/dynamic";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
 
+function normalizePhotoGallery(value) {
+  if (Array.isArray(value)) return value.filter(Boolean);
+  if (typeof value === "string") {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
 export default function EditProjectPage({ params }) {
   const { id } = use(params) || {};
   const router = useRouter();
@@ -114,9 +125,7 @@ export default function EditProjectPage({ params }) {
           category: Array.isArray(data.category) ? data.category : [],
           mainImage: data.mainImage || "",
           cardImage: data.cardImage || "",
-          photoGallery: Array.isArray(data.photoGallery)
-            ? data.photoGallery
-            : [],
+          photoGallery: normalizePhotoGallery(data.photoGallery),
           og: {
             title: data.og?.title || "",
             description: data.og?.description || "",
@@ -145,6 +154,7 @@ export default function EditProjectPage({ params }) {
 
         setForm(normalized);
         setInitialForm(normalized);
+        setGalleryPreviews(normalized.photoGallery || []);
       } catch (err) {
         console.error(err);
         setError("Failed to load project details. Please try again.");
