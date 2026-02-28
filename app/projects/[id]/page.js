@@ -1,18 +1,42 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import InfoRow from "@/app/components/InfoRow";
 
-async function getProject(id) {
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/api/projects/${id}`,
-    {
-      cache: "no-store",
-    }
-  );
+async function getBaseUrl() {
+  const h = await headers();
+  const host = h.get("x-forwarded-host") || h.get("host");
+  const proto = h.get("x-forwarded-proto") || "http";
 
-  if (!res.ok) return null;
-  return res.json();
+  if (host) {
+    return `${proto}://${host}`;
+  }
+
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+
+  return "http://localhost:3000";
+}
+
+async function getProject(id) {
+  try {
+    const baseUrl = await getBaseUrl();
+    const res = await fetch(`${baseUrl}/api/projects/${id}`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) return null;
+    return res.json();
+  } catch (error) {
+    console.error("Failed to fetch project:", error);
+    return null;
+  }
 }
 
 export default async function ProjectDetailPage({ params }) {
