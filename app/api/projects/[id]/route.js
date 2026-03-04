@@ -20,9 +20,10 @@ export async function OPTIONS() {
 
 export async function GET(req, props) {
   const { params } = await props;
+  const { id } = await params;
   await dbConnect();
 
-  const project = await Project.findById(params.id);
+  const project = await Project.findById(id);
   if (!project) {
     return new Response(JSON.stringify({ error: "Not found" }), {
       status: 404,
@@ -38,12 +39,13 @@ export async function GET(req, props) {
 
 export async function PUT(req, props) {
   const { params } = await props;
+  const { id } = await params;
   await dbConnect();
 
   const body = await req.json();
   if (body && Object.prototype.hasOwnProperty.call(body, "slug")) {
     if (!body.slug || !String(body.slug).trim()) {
-      const existing = await Project.findById(params.id).select("title");
+      const existing = await Project.findById(id).select("title");
       const baseTitle = body.title || existing?.title;
       if (!baseTitle) {
         return new Response(JSON.stringify({ error: "Title is required" }), {
@@ -53,7 +55,7 @@ export async function PUT(req, props) {
       }
       let slug = generateSlug(baseTitle);
       let slugSuffix = 1;
-      while (await Project.findOne({ slug, _id: { $ne: params.id } })) {
+      while (await Project.findOne({ slug, _id: { $ne: id } })) {
         slug = `${generateSlug(baseTitle)}-${slugSuffix}`;
         slugSuffix++;
       }
@@ -61,7 +63,7 @@ export async function PUT(req, props) {
     }
   }
 
-  const updatedProject = await Project.findByIdAndUpdate(params.id, body, {
+  const updatedProject = await Project.findByIdAndUpdate(id, body, {
     new: true,
   });
 
@@ -73,9 +75,10 @@ export async function PUT(req, props) {
 
 export async function DELETE(req, props) {
   const { params } = await props;
+  const { id } = await params;
   await dbConnect();
 
-  await Project.findByIdAndDelete(params.id);
+  await Project.findByIdAndDelete(id);
 
   return new Response(JSON.stringify({ message: "Project deleted" }), {
     status: 200,

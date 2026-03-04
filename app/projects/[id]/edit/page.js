@@ -166,6 +166,22 @@ export default function EditProjectPage({ params }) {
     fetchProject();
   }, [id]);
 
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const res = await fetch("/api/categories");
+        if (!res.ok) throw new Error("Failed to load categories");
+        const data = await res.json();
+        setCategories(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error(err);
+        setCategories([]);
+      }
+    }
+
+    fetchCategories();
+  }, []);
+
   // track dirty state
   useEffect(() => {
     if (initialForm) {
@@ -273,7 +289,6 @@ export default function EditProjectPage({ params }) {
         impact: [...(prev.impact || []), newImpact],
       }));
       setNewImpact({ type: "Direct", title: "", description: "", icon: "" });
-      setImpactIconPreview("");
     }
   };
 
@@ -314,7 +329,7 @@ export default function EditProjectPage({ params }) {
         ...prev,
         timeline: [...(prev.timeline || []), newTimelineEvent],
       }));
-      setNewImpact({
+      setNewTimelineEvent({
         title: "",
         date: new Date().toISOString().split("T")[0],
         status: "Pending",
@@ -484,11 +499,7 @@ export default function EditProjectPage({ params }) {
         <p className="text-red-500">{error}</p>
         <button
           onClick={() => {
-            setError(null);
-            setLoading(true);
-            setCategories([]);
-            fetchProject();
-            fetchCategories();
+            window.location.reload();
           }}
           className="mt-4 px-4 py-2 bg-violet-600 text-white rounded-xl"
         >

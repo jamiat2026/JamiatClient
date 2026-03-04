@@ -11,8 +11,9 @@ export async function OPTIONS() {
 
 export async function GET(req, props) {
   const { params } = await props;
+  const { id } = await params;
   await dbConnect();
-  const category = await Category.findById(params.id);
+  const category = await Category.findById(id);
   if (!category)
     return NextResponse.json(
       { error: "Not found" },
@@ -23,9 +24,10 @@ export async function GET(req, props) {
 
 export async function PUT(req, props) {
   const { params } = await props;
+  const { id } = await params;
   await dbConnect();
   const data = await req.json();
-  const updated = await Category.findByIdAndUpdate(params.id, data, {
+  const updated = await Category.findByIdAndUpdate(id, data, {
     new: true,
   });
   return NextResponse.json(updated, { headers: corsHeaders });
@@ -33,8 +35,9 @@ export async function PUT(req, props) {
 
 export async function DELETE(req, props) {
   const { params } = await props;
+  const { id } = await params;
   await dbConnect();
-  await Category.findByIdAndDelete(params.id);
+  await Category.findByIdAndDelete(id);
   return NextResponse.json(
     { message: "Deleted successfully" },
     { status: 200, headers: corsHeaders }
