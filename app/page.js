@@ -11,6 +11,7 @@ import useResponsiveLimit from "./hooks/useResponsiveLimit";
 import HomePageHeroSection from "../components/homePageHeroSection";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
+import SocialGallery from "../components/SocialGallery";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -470,6 +471,10 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+
+        <SocialGallery />
+
       </div>
     </>
   );

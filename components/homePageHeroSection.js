@@ -1,10 +1,12 @@
 "use client";
 
-import { Heart, Users, Calendar, ArrowRight, Play, Star, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Heart, Users, Calendar, ArrowRight, Play, Star, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import clsx from "clsx";
 import Image from "next/image";
 import { Playfair_Display } from "next/font/google";
+import { motion, AnimatePresence } from "framer-motion";
 
 const playfair = Playfair_Display({
     subsets: ["latin"],
@@ -35,6 +37,27 @@ function SkeletonBox({ className }) {
 
 export default function HomePageHeroSection({ hero }) {
     const isLoading = !hero;
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [isPaused, setIsPaused] = useState(false);
+
+    const sliderImages = hero?.heroImages || [
+        "/donate.jpg",
+        "https://res.cloudinary.com/doxoxzz02/image/upload/v1755268342/Zakath_Fund_zsrpnx.jpg",
+        "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2070&auto=format&fit=crop",
+    ];
+
+    useEffect(() => {
+        if (isLoading || sliderImages.length <= 1 || isPaused) return;
+
+        const timer = setInterval(() => {
+            setCurrentImageIndex((prev) => (prev + 1) % sliderImages.length);
+        }, 3000);
+
+        return () => clearInterval(timer);
+    }, [isLoading, sliderImages.length, isPaused]);
+
+    const nextSlide = () => setCurrentImageIndex((prev) => (prev + 1) % sliderImages.length);
+    const prevSlide = () => setCurrentImageIndex((prev) => (prev - 1 + sliderImages.length) % sliderImages.length);
 
     return (
         <section className="relative bg-white">
@@ -58,7 +81,7 @@ export default function HomePageHeroSection({ hero }) {
                                 {/* Badge */}
                                 <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full text-sm font-semibold border border-emerald-100 animate-fade-in">
                                     <Sparkles className="size-4" />
-                                    <span>Supporting Families Since 1995</span>
+                                    <span>Supporting Families Since 1919</span>
                                 </div>
 
                                 {/* Heading */}
@@ -142,13 +165,62 @@ export default function HomePageHeroSection({ hero }) {
                                 <>
                                     <div className="relative aspect-square w-full  overflow-hidden  transition-all duration-500 ">
                                         {/* This is the div where the user can put their image */}
-                                        <div id="hero-image-container" className="w-full h-full flex items-center justify-center">
-                                            <div className="w-full h-full rounded-2xl overflow-hidden">
-                                                <img
-                                                    src="/donate.jpg"
-                                                    alt="Hero"
-                                                    className="w-full h-full object-cover"
-                                                />
+                                        <div
+                                            id="hero-image-container"
+                                            className="w-full h-full relative overflow-hidden flex items-center justify-center bg-slate-100 rounded-2xl group/slider"
+                                            onMouseEnter={() => setIsPaused(true)}
+                                            onMouseLeave={() => setIsPaused(false)}
+                                        >
+                                            <AnimatePresence mode="wait">
+                                                <motion.div
+                                                    key={currentImageIndex}
+                                                    initial={{ x: 300, opacity: 0 }}
+                                                    animate={{ x: 0, opacity: 1 }}
+                                                    exit={{ x: -300, opacity: 0 }}
+                                                    transition={{
+                                                        type: "spring",
+                                                        stiffness: 260,
+                                                        damping: 20
+                                                    }}
+                                                    className="absolute inset-0 w-full h-full"
+                                                >
+                                                    <img
+                                                        src={sliderImages[currentImageIndex]}
+                                                        alt={`Hero slide ${currentImageIndex + 1}`}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </motion.div>
+                                            </AnimatePresence>
+
+                                            {/* Navigation Arrows */}
+                                            <button
+                                                onClick={(e) => { e.preventDefault(); prevSlide(); }}
+                                                className="absolute left-4 z-10 p-2 rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-white/40"
+                                            >
+                                                <ChevronLeft className="size-6" />
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.preventDefault(); nextSlide(); }}
+                                                className="absolute right-4 z-10 p-2 rounded-full bg-white/20 backdrop-blur-md text-white opacity-0 group-hover/slider:opacity-100 transition-opacity hover:bg-white/40"
+                                            >
+                                                <ChevronRight className="size-6" />
+                                            </button>
+
+                                            {/* Progress bars/dots */}
+                                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+                                                {sliderImages.map((_, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        onClick={() => setCurrentImageIndex(idx)}
+                                                        className={clsx(
+                                                            "h-1.5 rounded-full transition-all duration-300",
+                                                            currentImageIndex === idx
+                                                                ? "w-8 bg-emerald-500"
+                                                                : "w-2 bg-white/50 hover:bg-white/80"
+                                                        )}
+                                                        aria-label={`Go to slide ${idx + 1}`}
+                                                    />
+                                                ))}
                                             </div>
                                         </div>
 
@@ -157,7 +229,7 @@ export default function HomePageHeroSection({ hero }) {
                                     </div>
 
                                     {/* Floating Card Detail (Optional, like in the image) */}
-                                    <div className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-2xl shadow-emerald-950/10 border-2 border-emerald-50/50 hidden sm:block animate-bounce-slow bg-gray-600">
+                                    <div className="absolute -bottom-6 -left-20 bg-white p-5 rounded-2xl shadow-2xl shadow-emerald-950/10 border-2 border-emerald-50/50 hidden sm:block animate-bounce-slow bg-gray-600">
                                         <div className="flex items-center gap-3">
                                             <div className="size-10 rounded-full bg-emerald-100 flex items-center justify-center">
                                                 <Heart className="size-5 text-emerald-600 fill-emerald-600" />
@@ -202,7 +274,7 @@ export default function HomePageHeroSection({ hero }) {
                         </div>
 
                         {/* Impact Cards */}
-                        <div className="grid sm:grid-cols-3 gap-6 lg:gap-10">
+                        {/* <div className="grid sm:grid-cols-3 gap-6 lg:gap-10">
                             {isLoading
                                 ? Array.from({ length: 3 }).map((_, idx) => (
                                     <div
@@ -238,6 +310,98 @@ export default function HomePageHeroSection({ hero }) {
                                         </div>
                                     );
                                 })}
+                        </div> */}
+
+                        <div className="grid sm:grid-cols-3 gap-6 lg:gap-8">
+                            {/* Card 1: About Us */}
+                            <div className="bg-[#fdf8f0] rounded-[2rem] p-8 lg:p-9 flex flex-col h-full shadow-xl transition-all duration-500 hover:-translate-y-2">
+                                <span className="text-emerald-800 font-bold text-[10px] tracking-[0.3em] mb-4 uppercase">About Us</span>
+                                <h2 className={`${playfair.className} text-3xl lg:text-4xl font-bold text-[#06422d] leading-tight mb-5`}>
+                                    A Century of Commitment
+                                </h2>
+                                <p className="text-slate-600 leading-relaxed text-sm lg:text-base">
+                                    Jamiat Ulama-i-Hind stands commited to protecting
+                                    Muslim rights, upholding secularism, and preserving
+                                    constitutional values-advocating tirelessly for
+                                    justice, harmony, and national unity across every
+                                    corner of India.
+                                </p>
+                            </div>
+
+                            {/* Card 2: Our Purpose */}
+                            <div className="bg-[#fdf8f0] rounded-[2rem] p-8 lg:p-9 flex flex-col h-full shadow-xl transition-all duration-500 hover:-translate-y-2">
+                                <span className="text-emerald-800 font-bold text-[10px] tracking-[0.3em] mb-4 uppercase">Our Purpose</span>
+                                <h2 className={`${playfair.className} text-3xl lg:text-4xl font-bold text-[#06422d] leading-tight mb-6`}>
+                                    Vision & Mission
+                                </h2>
+                                <div className="space-y-4 flex-grow">
+                                    {/* Small Vision & Mission Items */}
+                                    <div className="flex gap-4">
+                                        <div className="mt-1">
+                                            <Star className="size-5 text-emerald-600 fill-emerald-600/10" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-emerald-900 font-bold text-sm uppercase tracking-wider mb-1">Our Vision</h3>
+                                            <p className="text-slate-600 text-xs leading-relaxed">
+                                                To guide Muslimsin all aspects oflife in
+                                                accordance with the teachings of Islam, and to
+                                                spiritually awaken them to fulfil their role as the
+                                                best community.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <div className="mt-1">
+                                            <Sparkles className="size-5 text-emerald-600 fill-emerald-600/10" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-emerald-900 font-bold text-sm uppercase tracking-wider mb-1">Our Mission</h3>
+                                            <p className="text-slate-600 text-xs leading-relaxed">
+                                                To play an efective role as a community in the
+                                                construction and development of our country
+                                                through constructive programs in education, social
+                                                upliftment, justice, and economic empowerment
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Card 3: National Leadership */}
+                            <div className="bg-[#fdf8f0] rounded-[2rem] p-8 lg:p-9 flex flex-col items-center text-center h-full shadow-xl transition-all duration-500 hover:-translate-y-2">
+                                <span className="text-emerald-800 font-bold text-[10px] tracking-[0.3em] mb-6 uppercase">National Leadership</span>
+
+                                <div className="relative mb-6">
+                                    <div className="w-24 h-24 rounded-full bg-[#06422d] p-0.5 shadow-xl">
+                                        <div className="w-full h-full rounded-full border border-amber-400/30 flex items-center justify-center bg-emerald-900/50 overflow-hidden">
+                                            <Users className="size-10 text-amber-400/80" />
+                                        </div>
+                                    </div>
+                                    <div className="absolute -bottom-1 -right-1 bg-amber-400 p-1.5 rounded-full shadow-lg">
+                                        <Sparkles className="size-3.5 text-[#06422d]" />
+                                    </div>
+                                </div>
+
+                                <div className="mb-6">
+                                    <h2 className={`${playfair.className} text-xl lg:text-2xl font-bold text-[#06422d] mb-1`}>
+                                        Maulana Mahmood As'ad Madani
+                                    </h2>
+                                    <span className="text-emerald-700 font-bold text-[10px] tracking-[0.2em] uppercase">
+                                        National President
+                                    </span>
+                                </div>
+
+                                <div className="mt-auto w-full">
+                                    <div className="border-l-2 border-amber-400 pl-4 text-left">
+                                        <p className="text-slate-600 italic text-xs lg:text-[13px] leading-relaxed">
+                                            "Our mission is not just to serve the communityit is to build a nation where every citizen,
+                                            regardless of faith, lives with dignity, justice, and
+                                            equal rights."
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>

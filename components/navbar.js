@@ -23,12 +23,14 @@ export default function Headers() {
     { href: "/donate", label: "Donate" },
     { href: "/volunteer", label: "Volunteer" },
     { href: "/blogs", label: "Blogs" },
+    { href: "/islamic", label: "Islamic" },
+    { href: "/emergencyDonation", label: "Emergency Donation" },
   ];
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[999] transition-all duration-300">
       <div className="md:mx-4 md:mt-4">
-        <div className="w-full md:max-w-7xl mx-auto backdrop-blur-md bg-[#00452E]/90 border-b md:border border-emerald-800/50 shadow-lg shadow-emerald-950/20 md:rounded-2xl px-6 lg:px-8 py-3 flex items-center justify-between">
+        <div className="w-full md:max-w-8xl mx-auto backdrop-blur-md bg-[#00452E]/90 border-b md:border border-emerald-800/50 shadow-lg shadow-emerald-950/20 md:rounded-2xl px-6 lg:px-8 py-3 flex items-center justify-between">
           {/* Left: Logo */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center gap-3 group">
