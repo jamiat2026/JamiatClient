@@ -12,7 +12,7 @@ const EmergencyDonation = () => {
     return (
         <div className="bg-white min-h-screen pb-24">
             {/* Hero / Header Section */}
-            <section className="bg-[#ECFDF5] py-16 lg:py-24 flex flex-col items-center px-4 relative overflow-hidden">
+            <section className="bg-[#ECFDF5] py-16 lg:py-32 flex flex-col items-center px-4 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none overflow-hidden">
                     <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[60%] bg-emerald-100/50 rounded-full blur-[100px]" />
                     <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[60%] bg-emerald-50/50 rounded-full blur-[100px]" />
@@ -64,19 +64,19 @@ const EmergencyDonation = () => {
                             <h2 className={`${playfair.className} text-3xl font-bold text-[#1a2e35]`}>Photos & Videos</h2>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="bg-gray-200 rounded-2xl h-48 w-full overflow-hidden relative group cursor-pointer bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1593113565694-c6e09f5db184?q=80&w=600&auto=format&fit=crop')" }}>
+                            <div className="bg-gray-200 rounded-2xl aspect-square w-full overflow-hidden relative group cursor-pointer bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1593113565694-c6e09f5db184?q=80&w=600&auto=format&fit=crop')" }}>
                                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors" />
                                 <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                                     <p className="text-white font-medium text-sm">Relief distribution center</p>
                                 </div>
                             </div>
-                            <div className="bg-gray-200 rounded-2xl h-48 w-full overflow-hidden relative group cursor-pointer bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?q=80&w=600&auto=format&fit=crop')" }}>
+                            <div className="bg-gray-200 rounded-2xl aspect-square w-full overflow-hidden relative group cursor-pointer bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?q=80&w=600&auto=format&fit=crop')" }}>
                                 <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors" />
                                 <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                                     <p className="text-white font-medium text-sm">Medical camp setup</p>
                                 </div>
                             </div>
-                            <div className="sm:col-span-2 bg-gray-200 rounded-2xl h-64 w-full overflow-hidden relative group cursor-pointer flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=1200&auto=format&fit=crop')" }}>
+                            <div className="sm:col-span-2 bg-gray-200 rounded-2xl h-80 md:h-96 w-full overflow-hidden relative group cursor-pointer flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=1200&auto=format&fit=crop')" }}>
                                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
                                 <div className="w-16 h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center z-10 transition-transform group-hover:scale-110">
                                     <div className="w-0 h-0 border-y-8 border-y-transparent border-l-[16px] border-l-white ml-1"></div>

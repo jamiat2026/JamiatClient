@@ -80,53 +80,46 @@ export default function SocialGallery() {
             A glimpse into our ongoing efforts to uplift communities through education, healthcare, and humanitarian support across the nation.
           </motion.p>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {galleryImages.map((image, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ y: -10 }}
-              className="relative group overflow-hidden rounded-[2rem] shadow-xl aspect-[4/5] bg-slate-100"
-            >
-              <img
-                src={image.src}
-                alt={image.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
-              
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
-              
-              {/* Content */}
-              <div className="absolute inset-0 p-8 flex flex-col justify-end transform transition-transform duration-500">
-                <div className="overflow-hidden">
-                  <motion.span 
-                    className="inline-block px-3 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full mb-3 uppercase tracking-wider"
-                    initial={{ y: 20, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.3 + index * 0.1 }}
-                  >
-                    {image.tag}
-                  </motion.span>
+      <div className="w-full relative overflow-hidden flex pb-8">
+        <motion.div
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ ease: "linear", duration: 40, repeat: Infinity }}
+          className="flex flex-nowrap w-max"
+        >
+          {[...galleryImages, ...galleryImages].map((image, index) => (
+            <div key={index} className="px-4 md:px-6">
+              <motion.div
+                whileHover={{ y: -10 }}
+                className="relative group overflow-hidden rounded-[2rem] shadow-xl aspect-[4/5] bg-slate-100 w-[280px] md:w-[320px] lg:w-[350px] flex-shrink-0"
+              >
+                <img
+                  src={image.src}
+                  alt={image.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                {/* Content */}
+                <div className="absolute inset-0 p-6 md:p-8 flex flex-col justify-end transform transition-transform duration-500">
+                  <div className="overflow-hidden">
+                    <span className="inline-block px-3 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full mb-3 uppercase tracking-wider">
+                      {image.tag}
+                    </span>
+                  </div>
+                  <div className="overflow-hidden">
+                    <h3 className="text-xl md:text-2xl font-bold text-white mb-2 leading-tight">
+                      {image.title}
+                    </h3>
+                  </div>
                 </div>
-                <div className="overflow-hidden">
-                  <motion.h3 
-                    className="text-2xl font-bold text-white mb-2 leading-tight"
-                    initial={{ y: 20, opacity: 0 }}
-                    whileInView={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.4 + index * 0.1 }}
-                  >
-                    {image.title}
-                  </motion.h3>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

@@ -80,7 +80,7 @@ export default function HomePageHeroSection({ hero }) {
                             <>
                                 {/* Badge */}
                                 <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-1.5 rounded-full text-sm font-semibold border border-emerald-100 animate-fade-in">
-                                    <Sparkles className="size-4" />
+
                                     <span>Supporting Families Since 1919</span>
                                 </div>
 
@@ -315,7 +315,9 @@ export default function HomePageHeroSection({ hero }) {
                         <div className="grid sm:grid-cols-3 gap-6 lg:gap-8">
                             {/* Card 1: About Us */}
                             <div className="bg-[#fdf8f0] rounded-[2rem] p-8 lg:p-9 flex flex-col h-full shadow-xl transition-all duration-500 hover:-translate-y-2">
-                                <span className="text-emerald-800 font-bold text-[10px] tracking-[0.3em] mb-4 uppercase">About Us</span>
+                                <div className="mb-4">
+                                    <span className="bg-emerald-100 text-emerald-900 font-bold text-xs tracking-[0.3em] uppercase px-4 py-2 rounded-full inline-block">About Us</span>
+                                </div>
                                 <h2 className={`${playfair.className} text-3xl lg:text-4xl font-bold text-[#06422d] leading-tight mb-5`}>
                                     A Century of Commitment
                                 </h2>
@@ -330,7 +332,9 @@ export default function HomePageHeroSection({ hero }) {
 
                             {/* Card 2: Our Purpose */}
                             <div className="bg-[#fdf8f0] rounded-[2rem] p-8 lg:p-9 flex flex-col h-full shadow-xl transition-all duration-500 hover:-translate-y-2">
-                                <span className="text-emerald-800 font-bold text-[10px] tracking-[0.3em] mb-4 uppercase">Our Purpose</span>
+                                <div className="mb-4">
+                                    <span className="bg-emerald-100 text-emerald-900 font-bold text-xs tracking-[0.3em] uppercase px-4 py-2 rounded-full inline-block">Our Purpose</span>
+                                </div>
                                 <h2 className={`${playfair.className} text-3xl lg:text-4xl font-bold text-[#06422d] leading-tight mb-6`}>
                                     Vision & Mission
                                 </h2>
@@ -342,7 +346,7 @@ export default function HomePageHeroSection({ hero }) {
                                         </div>
                                         <div>
                                             <h3 className="text-emerald-900 font-bold text-sm uppercase tracking-wider mb-1">Our Vision</h3>
-                                            <p className="text-slate-600 text-xs leading-relaxed">
+                                            <p className="text-slate-600 text-sm lg:text-base leading-relaxed">
                                                 To guide Muslimsin all aspects oflife in
                                                 accordance with the teachings of Islam, and to
                                                 spiritually awaken them to fulfil their role as the
@@ -356,7 +360,7 @@ export default function HomePageHeroSection({ hero }) {
                                         </div>
                                         <div>
                                             <h3 className="text-emerald-900 font-bold text-sm uppercase tracking-wider mb-1">Our Mission</h3>
-                                            <p className="text-slate-600 text-xs leading-relaxed">
+                                            <p className="text-slate-600 text-sm lg:text-base leading-relaxed">
                                                 To play an efective role as a community in the
                                                 construction and development of our country
                                                 through constructive programs in education, social
@@ -369,7 +373,9 @@ export default function HomePageHeroSection({ hero }) {
 
                             {/* Card 3: National Leadership */}
                             <div className="bg-[#fdf8f0] rounded-[2rem] p-8 lg:p-9 flex flex-col items-center text-center h-full shadow-xl transition-all duration-500 hover:-translate-y-2">
-                                <span className="text-emerald-800 font-bold text-[10px] tracking-[0.3em] mb-6 uppercase">National Leadership</span>
+                                <div className="mb-6">
+                                    <span className="bg-emerald-100 text-emerald-900 font-bold text-xs  tracking-[0.3em] uppercase px-4 py-2 rounded-full inline-block">National Leadership</span>
+                                </div>
 
                                 <div className="relative mb-6">
                                     <div className="w-24 h-24 rounded-full bg-[#06422d] p-0.5 shadow-xl">
@@ -393,7 +399,7 @@ export default function HomePageHeroSection({ hero }) {
 
                                 <div className="mt-auto w-full">
                                     <div className="border-l-2 border-amber-400 pl-4 text-left">
-                                        <p className="text-slate-600 italic text-xs lg:text-[13px] leading-relaxed">
+                                        <p className="text-slate-600 italic text-sm lg:text-base leading-relaxed">
                                             "Our mission is not just to serve the communityit is to build a nation where every citizen,
                                             regardless of faith, lives with dignity, justice, and
                                             equal rights."
