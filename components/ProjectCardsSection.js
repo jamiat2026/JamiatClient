@@ -74,6 +74,7 @@ export default function ProjectCardsSection({
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [selectedImage, setSelectedImage] = useState(null);
   const { isSignedIn } = useUser();
   const loaderRef = useRef(null);
 
@@ -232,7 +233,7 @@ export default function ProjectCardsSection({
   return (
     <section className="flex flex-col items-center w-full px-4 py-8 sm:px-12 text-slate-900">
       {loading && page === 1 ? (
-        <div className="grid w-full md:gap-8 gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid w-full md:gap-8 gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: infiniteScroll ? initialLimit : 4 }).map(
             (_, i) => (
               <ProjectCardSkeleton key={i} />
@@ -242,20 +243,20 @@ export default function ProjectCardsSection({
       ) : (
         <>
           {/* Projects Grid */}
-          <div className="grid w-full md:gap-8 gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid w-full md:gap-8 gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {filteredProjects.map((project) => (
               <div
                 key={project?._id}
                 className="group overflow-hidden bg-white rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 lg:hover:-translate-y-2 lg:hover:scale-[1.02] flex flex-col border border-slate-100"
               >
                 {/* Image & Share */}
-                <div className="h-48 lg:h-56 relative">
+                <div className="h-48 lg:h-56 relative cursor-pointer" onClick={() => setSelectedImage(project?.cardImage || project?.mainImage)}>
                   <Image
                     src={project?.cardImage || project?.mainImage}
                     alt={project?.title || "Project"}
                     fill
                     className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 25vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#06422d]/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   <div className="absolute top-2 right-2">
@@ -364,7 +365,7 @@ export default function ProjectCardsSection({
           {infiniteScroll && hasMore && (
             <div
               ref={loaderRef}
-              className="mt-6 grid w-full md:gap-8 gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              className="mt-6 grid w-full md:gap-8 gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
             >
               {Array.from({ length: infiniteScroll ? initialLimit : 4 }).map((_, i) => (
                 <ProjectCardSkeleton key={`skeleton-${i}`} />
@@ -384,6 +385,31 @@ export default function ProjectCardsSection({
             </div>
           )}
         </>
+      )}
+
+      {/* Lightbox */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 z-[1100] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4"
+          onClick={() => setSelectedImage(null)}
+        >
+          <div className="relative max-w-5xl w-full h-[85vh] flex items-center justify-center">
+            <button
+              className="absolute -top-12 right-0 text-white hover:text-emerald-400 transition-colors"
+              onClick={() => setSelectedImage(null)}
+            >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <img
+              src={selectedImage}
+              alt="Project detail"
+              className="max-h-full max-w-full rounded-2xl shadow-2xl border-2 border-white/20 object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
       )}
     </section>
   );

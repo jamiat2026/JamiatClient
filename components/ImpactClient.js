@@ -295,15 +295,17 @@ const Impact = () => {
             )}
           </div>
 
-          <div className="mt-16 text-center">
-            <button
-              onClick={() => setShowAllStories(!showAllStories)}
-              className="inline-flex items-center gap-2 border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-10 py-4 rounded-full font-bold transition-all"
-            >
-              {showAllStories ? "Show Fewer Stories" : "Read More Impact Stories"}
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
+          {stories.length >= 4 && (
+            <div className="mt-16 text-center">
+              <button
+                onClick={() => setShowAllStories(!showAllStories)}
+                className="inline-flex items-center gap-2 border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-10 py-4 rounded-full font-bold transition-all"
+              >
+                {showAllStories ? "Show Fewer Stories" : "Read More Impact Stories"}
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

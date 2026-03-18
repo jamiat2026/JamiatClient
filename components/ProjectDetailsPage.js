@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  FileText,
 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -320,10 +321,10 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                         exit={{ opacity: 0, x: 10 }}
                         className="space-y-10"
                       >
-                        <div className="bg-white p-10 rounded-[2.5rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
+                        <div className="bg-white p-6 lg:p-10 rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden">
                           <h3 className="text-2xl font-serif font-bold text-gray-900 mb-6">About the Project</h3>
                           <div
-                            className="text-gray-600 text-lg leading-relaxed whitespace-pre-line prose prose-emerald max-w-none"
+                            className="text-gray-600 text-lg leading-relaxed whitespace-pre-wrap break-words prose prose-emerald max-w-none w-full"
                             dangerouslySetInnerHTML={{ __html: project?.description }}
                           />
                         </div>
@@ -408,7 +409,7 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                                     </p>
                                   </div>
                                 </div>
-                                <p className="text-gray-600 text-sm leading-relaxed">
+                                <p className="text-gray-600 text-sm leading-relaxed break-words">
                                   {impact.description}
                                 </p>
                               </div>
@@ -443,7 +444,7 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                                 {update.date ? new Date(update.date).toLocaleDateString() : ""}
                               </span>
                             </div>
-                            <p className="text-gray-600 leading-relaxed italic">
+                            <p className="text-gray-600 leading-relaxed italic break-words whitespace-pre-wrap">
                               "{update.content}"
                             </p>
                           </div>
@@ -460,8 +461,8 @@ export default function ProjectDetailsPage({ slug, projectId }) {
               {project?.photoGallery?.length > 0 && (
                 <div className="space-y-6">
                   <h3 className="text-2xl font-serif font-bold text-gray-900">Project Gallery</h3>
-                  <div className="rounded-[2.5rem] overflow-hidden shadow-sm">
-                    <ProjectGallery images={project?.photoGallery} />
+                  <div className="rounded-[2.5rem] overflow-hidden shadow-xl p-5">
+                    <ProjectGallery images={project?.photoGallery} className="bg-black" />
                   </div>
                 </div>
               )}
@@ -689,6 +690,38 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                   </div>
                 </div>
               </motion.div>
+
+              {/* PDF Document Card */}
+              {project?.pdfUrl && (
+                <motion.div
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-6"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center text-red-600">
+                      <FileText className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">Project Document</h3>
+                      <p className="text-xs font-bold text-red-600/60 uppercase tracking-widest leading-none">Official PDF File</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-50">
+                    <a
+                      href={project.pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-4 bg-gray-50 text-gray-900 font-bold rounded-2xl shadow-sm hover:bg-gray-100 transition-all flex items-center justify-center gap-2 border border-gray-100 group"
+                    >
+                      <FileText className="w-5 h-5 text-gray-400 group-hover:text-red-500 transition-colors" />
+                      View PDF Document
+                    </a>
+                  </div>
+                </motion.div>
+              )}
             </div>
           </div>
         </div>

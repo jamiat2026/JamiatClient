@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import FooterMobileNav from "./FooterMobileNav";
 import { Playfair_Display } from "next/font/google";
+import { Facebook, Instagram, Linkedin, Twitter, Mail, Phone, MapPin } from "lucide-react";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["400", "700"], // choose weights you want
+  weight: ["400", "700"],
 });
+
 export default function FooterNav() {
   const [footerData, setFooterData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -93,7 +95,7 @@ export default function FooterNav() {
           <div className="flex flex-col gap-6">
             <Link href="/" className="flex items-center gap-3 group">
               <img
-                src="logo.png"
+                src="/logo.png"
                 alt="Jamiat Logo"
                 className="h-10 w-auto transition-transform group-hover:scale-105 filter brightness-0"
               />
@@ -104,43 +106,80 @@ export default function FooterNav() {
             <p className="text-slate-500 text-[15px] leading-loose max-w-[280px]">
               Serving the community with transparency, ihsan, and dedication since 1995. Your trust is our amanah.
             </p>
+            {/* Social Links */}
+            <div className="flex gap-4 mt-2">
+              {footerData?.socialLinks?.facebook && (
+                <a href={footerData.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#1877F2] transition-colors">
+                  <Facebook size={20} />
+                </a>
+              )}
+              {footerData?.socialLinks?.instagram && (
+                <a href={footerData.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#E4405F] transition-colors">
+                  <Instagram size={20} />
+                </a>
+              )}
+              {footerData?.socialLinks?.twitter && (
+                <a href={footerData.socialLinks.twitter} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#1DA1F2] transition-colors">
+                  <Twitter size={20} />
+                </a>
+              )}
+              {footerData?.socialLinks?.linkedin && (
+                <a href={footerData.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#0A66C2] transition-colors">
+                  <Linkedin size={20} />
+                </a>
+              )}
+            </div>
           </div>
 
-          {/* Column 2: Funds */}
+          {/* Column 2: Quick Links */}
           <div>
             <h3 className="text-slate-900 font-bold text-[13px] tracking-[0.1em] uppercase mb-8">
-              Funds
+              Quick Links
             </h3>
             <ul className="space-y-4">
-              {["Zakat", "Fitra", "Sadqa", "Emergency Relief"].map((link) => (
-                <li key={link}>
+              {footerData?.quickLinks?.map((link, idx) => (
+                <li key={idx}>
                   <Link
-                    href={`/funds/${link.toLowerCase().replace(/\s+/g, "-")}`}
+                    href={link.path}
                     className="text-slate-500 hover:text-emerald-700 text-[15px] transition-colors duration-200"
                   >
-                    {link}
+                    {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Column 3: Organization */}
+          {/* Column 3: Contact Us */}
           <div>
             <h3 className="text-slate-900 font-bold text-[13px] tracking-[0.1em] uppercase mb-8">
-              Organization
+              Contact Us
             </h3>
             <ul className="space-y-4">
-              {["About Us", "Financial Reports", "Board of Directors", "Contact"].map((link) => (
-                <li key={link}>
-                  <Link
-                    href={`/${link.toLowerCase().replace(/\s+/g, "-")}`}
-                    className="text-slate-500 hover:text-emerald-700 text-[15px] transition-colors duration-200"
-                  >
-                    {link}
-                  </Link>
+              {footerData?.contact?.email && (
+                <li className="flex items-center gap-3 text-slate-500 text-[15px]">
+                  <Mail size={16} className="text-emerald-600" />
+                  <a href={`mailto:${footerData.contact.email}`} className="hover:text-emerald-700 transition-colors">
+                    {footerData.contact.email}
+                  </a>
                 </li>
-              ))}
+              )}
+              {footerData?.contact?.phone && (
+                <li className="flex items-center gap-3 text-slate-500 text-[15px]">
+                  <Phone size={16} className="text-emerald-600" />
+                  <a href={`tel:${footerData.contact.phone}`} className="hover:text-emerald-700 transition-colors">
+                    {footerData.contact.phone}
+                  </a>
+                </li>
+              )}
+              {footerData?.contact?.address && (
+                <li className="flex gap-3 text-slate-500 text-[15px]">
+                  <MapPin size={16} className="text-emerald-600 mt-1 flex-shrink-0" />
+                  <span className="leading-relaxed">
+                    {footerData.contact.address}
+                  </span>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -167,15 +206,18 @@ export default function FooterNav() {
         {/* Bottom Bar */}
         <div className="mt-20 pt-10 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-8">
           <p className="text-slate-400 text-[13px] font-medium">
-            © {new Date().getFullYear()} Jamiat Organization. All rights reserved.
+            {footerData?.copyrightText || `© ${new Date().getFullYear()} Jamiat Ulama-i-Hind. All rights reserved.`}
           </p>
           <div className="flex gap-10">
-            <Link href="/privacy-policy" className="text-slate-400 hover:text-emerald-700 text-[13px] font-medium transition-colors">
-              Privacy Policy
-            </Link>
-            <Link href="/terms-of-service" className="text-slate-400 hover:text-emerald-700 text-[13px] font-medium transition-colors">
-              Terms of Service
-            </Link>
+            {footerData?.termsLinks?.map((link, idx) => (
+              <Link
+                key={idx}
+                href={link.path}
+                className="text-slate-400 hover:text-emerald-700 text-[13px] font-medium transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
@@ -183,4 +225,5 @@ export default function FooterNav() {
     </footer>
   );
 }
+
 

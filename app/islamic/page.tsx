@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Playfair_Display } from "next/font/google";
 import { Calculator, Calendar, BookOpen, MessageCircle, Quote, HelpCircle, Youtube, Video, Play, MoonStar, ArrowRight, Users } from "lucide-react";
 
@@ -10,6 +10,27 @@ const playfair = Playfair_Display({
 });
 
 const Islamic = () => {
+    const [toolsData, setToolsData] = useState<any>(null);
+    const [dailyData, setDailyData] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [toolsRes, dailyRes] = await Promise.all([
+                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/islamic-tools`).then(res => res.json()).catch(() => null),
+                    fetch(`${process.env.NEXT_PUBLIC_API_URL}/islamic-daily`).then(res => res.json()).catch(() => null)
+                ]);
+
+                if (toolsRes) setToolsData(toolsRes);
+                if (dailyRes) setDailyData(dailyRes);
+            } catch (error) {
+                console.error("Error fetching Islamic data:", error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
     return (
         <div className="bg-white">
 
@@ -62,9 +83,13 @@ const Islamic = () => {
                                 </div>
                             </div>
 
-                            <button className="bg-white text-[#00452E] px-8 py-4 rounded-[16px] font-bold hover:bg-emerald-50 transition-all w-full active:scale-[0.98] shadow-sm text-[17px]">
+                            <a
+                                href={toolsData?.zakatCalculatorLink || toolsData?.zakatCalculator || toolsData?.zakatLink || "#"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-white text-[#00452E] px-8 py-4 rounded-[16px] font-bold hover:bg-emerald-50 transition-all w-full active:scale-[0.98] shadow-sm text-[17px] text-center inline-block">
                                 Calculate My Zakat
-                            </button>
+                            </a>
                         </div>
 
                         {/* Hijri Calendar Card */}
@@ -91,83 +116,66 @@ const Islamic = () => {
                                 </div>
                             </div>
 
-                            <button className="bg-white text-[#00452E] px-8 py-4 rounded-[16px] font-bold hover:bg-emerald-50 transition-all w-full active:scale-[0.98] shadow-sm text-[17px]">
+                            <a
+                                href={toolsData?.hijriCalendarLink || toolsData?.hijriCalendar || toolsData?.calendarLink || "#"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="bg-white text-[#00452E] px-8 py-4 rounded-[16px] font-bold hover:bg-emerald-50 transition-all w-full active:scale-[0.98] shadow-sm text-[17px] text-center inline-block">
                                 View Calendar
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
             </section>
 
             {/* Daily Inspiration Section */}
-            <section className="px-4 py-24 lg:py-32 bg-white border-t border-gray-50">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-20 space-y-4">
-                        <h2 className={`${playfair.className} text-4xl lg:text-5xl font-bold text-[#1a2e35]`}>
-                            Daily Inspiration
-                        </h2>
-                        <p className="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
-                            Reflect on the profound wisdom from the Quran, authentic Hadith, and Islamic quotes.
-                        </p>
-                    </div>
+            {(() => {
+                const cards = Array.isArray(dailyData) ? dailyData : dailyData ? [dailyData] : [];
+                const gridCols = cards.length === 1
+                    ? "md:grid-cols-1 max-w-2xl"
+                    : cards.length === 2
+                        ? "md:grid-cols-2 max-w-5xl"
+                        : "md:grid-cols-3 max-w-7xl";
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-12">
-                        {/* Daily Quran */}
-                        <div className="p-10 lg:p-12 rounded-[40px] border border-gray-50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative group hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-3 bg-[#ECFDF5]">
-                            <Quote className="absolute top-10 right-10 size-10 text-[#A7F3D0] transition-colors duration-500" />
-
-                            <div className="flex items-center gap-5 mb-10 relative z-10">
-                                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-lg bg-emerald-600 flex items-center justify-center text-white">
-                                    <BookOpen className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-[#1a2e35] text-lg">Ayah of the Day</h4>
-                                    <p className="text-emerald-600 text-[11px] font-extrabold tracking-[0.1em] uppercase mt-1">Surah Ash-Sharh (94:6)</p>
-                                </div>
+                return (
+                    <section className="px-4 py-24 lg:py-32 bg-white border-t border-gray-50">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="text-center mb-20 space-y-4">
+                                <h2 className={`${playfair.className} text-4xl lg:text-5xl font-bold text-[#1a2e35]`}>
+                                    Daily Inspiration
+                                </h2>
+                                <p className="text-gray-500 text-lg max-w-2xl mx-auto leading-relaxed">
+                                    Reflect on the profound wisdom from the Quran, authentic Hadith, and Islamic quotes.
+                                </p>
                             </div>
-                            <p className={`${playfair.className} text-gray-600 leading-relaxed italic text-xl relative z-10 antialiased`}>
-                                "Indeed, with hardship [will be] ease."
-                            </p>
-                        </div>
 
-                        {/* Daily Hadees */}
-                        <div className="p-10 lg:p-12 rounded-[40px] border border-gray-50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative group hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-3 bg-white">
-                            <Quote className="absolute top-10 right-10 size-10 text-emerald-500 transition-colors duration-500" />
+                            <div className={`grid grid-cols-1 ${gridCols} gap-8 xl:gap-12 mx-auto`}>
+                                {cards.map((card: any, index: number) => (
+                                    <div
+                                        key={card._id || index}
+                                        className="p-10 lg:p-12 rounded-[40px] border border-gray-50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative group hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-3 bg-[#ECFDF5]"
+                                    >
+                                        <Quote className="absolute top-10 right-10 size-10 text-[#A7F3D0] transition-colors duration-500" />
 
-                            <div className="flex items-center gap-5 mb-10 relative z-10">
-                                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-lg bg-emerald-600 flex items-center justify-center text-white">
-                                    <MessageCircle className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-[#1a2e35] text-lg">Hadees of the Day</h4>
-                                    <p className="text-emerald-600 text-[11px] font-extrabold tracking-[0.1em] uppercase mt-1">Sahih al-Bukhari</p>
-                                </div>
+                                        <div className="flex items-center gap-5 mb-10 relative z-10">
+                                            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-lg bg-emerald-600 flex items-center justify-center text-white">
+                                                <BookOpen className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-bold text-[#1a2e35] text-lg">{card.quranicVerse || "Quranic Verse"}</h4>
+                                                <p className="text-emerald-600 text-[11px] font-extrabold tracking-[0.1em] uppercase mt-1">{card.dailyHadith || "Daily Hadith"}</p>
+                                            </div>
+                                        </div>
+                                        <p className={`${playfair.className} text-gray-600 leading-relaxed italic text-xl relative z-10 antialiased`}>
+                                            &ldquo;{card.dailyQuote || "Patience is the key to relief."}&rdquo;
+                                        </p>
+                                    </div>
+                                ))}
                             </div>
-                            <p className={`${playfair.className} text-gray-600 leading-relaxed italic text-xl relative z-10 antialiased`}>
-                                "The best among you are those who have the best manners and character."
-                            </p>
                         </div>
-
-                        {/* Daily Quote */}
-                        <div className="p-10 lg:p-12 rounded-[40px] border border-gray-50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative group hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-3 bg-[#ECFDF5]">
-                            <Quote className="absolute top-10 right-10 size-10 text-[#A7F3D0] transition-colors duration-500" />
-
-                            <div className="flex items-center gap-5 mb-10 relative z-10">
-                                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-lg bg-emerald-600 flex items-center justify-center text-white">
-                                    <Users className="w-6 h-6" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-[#1a2e35] text-lg">Islamic Quote</h4>
-                                    <p className="text-emerald-600 text-[11px] font-extrabold tracking-[0.1em] uppercase mt-1">Islamic Wisdom</p>
-                                </div>
-                            </div>
-                            <p className={`${playfair.className} text-gray-600 leading-relaxed italic text-xl relative z-10 antialiased`}>
-                                "Patience is not the ability to wait, but the ability to keep a good attitude while waiting."
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+                    </section>
+                );
+            })()}
 
             {/* Knowledge Hub (QnA & Bayans) */}
             <section className="px-4 py-24 lg:py-32 bg-[#F8FAFC]">

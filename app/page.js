@@ -405,15 +405,6 @@ export default function Home() {
               const limit = useResponsiveLimit();
               return <ProjectCardsSection initialLimit={limit} infiniteScroll={false} />;
             })()}
-
-            <div className="mt-12 flex justify-center">
-              <Link
-                href="/projects"
-                className="inline-flex items-center gap-2 text-[#00d084] font-bold hover:gap-3 transition-all"
-              >
-                View All Active Projects <span className="text-xl">→</span>
-              </Link>
-            </div>
           </div>
         </section>
 
