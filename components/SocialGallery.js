@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
 
 const playfair = Playfair_Display({
@@ -44,24 +43,14 @@ const galleryImages = [
 
 export default function SocialGallery({ data }) {
   const displayItems = data?.items || galleryImages;
-  const sectionTitle = data?.title || "Social Highlighting Work";
+  const sectionTitle = data?.title || "Social Highlighting Workss";
+
+
 
   return (
     <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="flex items-center justify-center gap-2 mb-4"
-          >
-            <Sparkles className="w-5 h-5 text-emerald-500" />
-            <span className="text-emerald-700 font-bold tracking-widest uppercase text-sm">
-              Impact Gallery
-            </span>
-          </motion.div>
 
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -80,7 +69,7 @@ export default function SocialGallery({ data }) {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-slate-600 text-lg lg:text-xl max-w-3xl mx-auto leading-relaxed"
           >
-            A glimpse into our ongoing efforts to uplift communities through education, healthcare, and humanitarian support across the nation.
+            {data?.subtitle}
           </motion.p>
         </div>
       </div>

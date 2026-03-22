@@ -69,22 +69,75 @@ const EmergencyDonation = () => {
             description: u.content,
             status: u.status || 'Live'
         })) || [
-            { title: "Food Trucks Arrived", time: "10 mins ago", description: "Two trucks carrying non-perishable food items have reached the southern camp. Distribution will start shortly. Thanks to our volunteers on the ground!", status: "Live" },
-            { title: "Initial Goal Met!", time: "2 hours ago", description: "Thanks to your incredible generosity, we've crossed our first milestone of ₹5,00,000! We are scaling up our medial camp setup.", status: "Past" }
-        ],
+                { title: "Food Trucks Arrived", time: "10 mins ago", description: "Two trucks carrying non-perishable food items have reached the southern camp. Distribution will start shortly. Thanks to our volunteers on the ground!", status: "Live" },
+                { title: "Initial Goal Met!", time: "2 hours ago", description: "Thanks to your incredible generosity, we've crossed our first milestone of ₹5,00,000! We are scaling up our medial camp setup.", status: "Past" }
+            ],
+        linkedProjects: data?.linkedProjects?.map((project: any) => ({
+            _id: project._id,
+            title: project.title,
+            category: project.category,
+            totalRequired: project.totalRequired,
+            collected: project.collected,
+            beneficiaries: project.beneficiaries,
+            status: project.status,
+            slug: project.slug,
+            mainImage: project.mainImage
+        })) || [
+                {
+                    _id: "651a2b3c4d5e6f7g8h9i0j1k",
+                    title: "Medical Supply Distribution",
+                    category: ["Health", "Emergency"],
+                    totalRequired: 1500000,
+                    collected: 650000,
+                    beneficiaries: 5000,
+                    status: "Active",
+                    slug: "medical-supply-distribution",
+                    mainImage: "/uploads/medical-supplies.jpg"
+                },
+                {
+                    _id: "651a2b3c4d5e6f7g8h9i0j9z",
+                    title: "Temporary Shelters Build",
+                    category: ["Infrastructure"],
+                    totalRequired: 2000000,
+                    collected: 1800000,
+                    beneficiaries: 1000,
+                    status: "Active",
+                    slug: "temporary-shelters-build",
+                    mainImage: "/uploads/shelter.jpg"
+                }
+            ],
         stats: {
             raised: data?.raisedAmount || 1245000,
             goal: data?.goalAmount || 2500000,
             donors: data?.donorsCount || 1240
         },
-        recentDonations: data?.recentDonations?.map((d: any) => ({
-            name: d.isAnonymous ? "Anonymous" : d.name,
+        recentDonors: data?.recentDonors?.map((d: any) => ({
+            _id: d._id,
+            name: d.name || "Anonymous",
             amount: d.amount,
-            time: formatTime(d.timestamp),
-            initials: d.isAnonymous ? null : (d.name ? d.name.split(' ').map((n: string) => n[0]).filter(Boolean).join('').toUpperCase().slice(0, 2) : null)
+            dedicatedTo: d.dedicatedTo || null,
+            message: d.message || null,
+            time: formatTime(d.createdAt),
+            initials: d.name ? d.name.split(' ').map((n: string) => n[0]).filter(Boolean).join('').toUpperCase().slice(0, 2) : "A"
         })) || [
-            { name: "Anonymous", amount: 5000, time: "2 mins ago", initials: null },
-            { name: "Sarah M.", amount: 10000, time: "15 mins ago", initials: "SM" }
+            {
+                _id: "example-1",
+                name: "Ahmed H.",
+                amount: 5000,
+                dedicatedTo: "In memory of Grandfather",
+                message: "Stay strong!",
+                time: formatTime("2023-11-06T14:30:00Z"),
+                initials: "AH"
+            },
+            {
+                _id: "example-2",
+                name: "Sarah M.",
+                amount: 10000,
+                dedicatedTo: null,
+                message: "Sending prayers.",
+                time: "15 mins ago",
+                initials: "SM"
+            }
         ]
     };
 
@@ -152,18 +205,41 @@ const EmergencyDonation = () => {
                                     </div>
                                 </div>
                             ))}
-                            {content.gallery.find((item: any) => item.type === 'video') && (
-                                <div className="sm:col-span-2 bg-gray-200 rounded-2xl h-80 md:h-96 w-full overflow-hidden relative group cursor-pointer flex items-center justify-center bg-cover bg-center"
-                                    style={{ backgroundImage: `url('${content.gallery.find((item: any) => item.type === 'video').url}')` }}>
-                                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
-                                    <div className="w-16 h-16 bg-white/30 backdrop-blur-sm rounded-full flex items-center justify-center z-10 transition-transform group-hover:scale-110">
-                                        <div className="w-0 h-0 border-y-8 border-y-transparent border-l-[16px] border-l-white ml-1"></div>
+                            {content.gallery.find((item: any) => item.type === 'video') && (() => {
+                                const videoItem = content.gallery.find((item: any) => item.type === 'video');
+                                const isYouTube = videoItem.url?.includes('youtube.com') || videoItem.url?.includes('youtu.be');
+                                
+                                // Convert standard YouTube watch URLs to embed URLs if needed
+                                let embedUrl = videoItem.url;
+                                if (isYouTube && !embedUrl.includes('embed/')) {
+                                    const videoId = embedUrl.split('v=')[1]?.split('&')[0] || embedUrl.split('youtu.be/')[1]?.split('?')[0];
+                                    if (videoId) embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                                }
+
+                                return (
+                                    <div className="sm:col-span-2 bg-gray-200 rounded-2xl h-80 md:h-96 w-full overflow-hidden relative group flex flex-col items-center justify-center">
+                                        {isYouTube ? (
+                                            <iframe 
+                                                className="w-full h-full object-cover"
+                                                src={embedUrl}
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                            />
+                                        ) : (
+                                            <video 
+                                                src={videoItem.url} 
+                                                controls 
+                                                className="w-full h-full object-cover bg-black"
+                                            />
+                                        )}
+                                        {videoItem.caption && (
+                                            <div className="absolute inset-x-0 top-0 p-4 bg-gradient-to-b from-black/80 to-transparent pointer-events-none z-10">
+                                                <p className="text-white font-medium text-sm">{videoItem.caption}</p>
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent z-10">
-                                        <p className="text-white font-medium text-sm">{content.gallery.find((item: any) => item.type === 'video').caption || 'Mission Video'}</p>
-                                    </div>
-                                </div>
-                            )}
+                                );
+                            })()}
                         </div>
                     </div>
 
@@ -203,59 +279,107 @@ const EmergencyDonation = () => {
                     </div>
                 </div>
 
-                {/* Right Sidebar - Fundraising Amount */}
-                <div className="lg:w-[400px] flex-shrink-0">
-                    <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-[0_15px_50px_-12px_rgba(0,0,0,0.08)]">
-                        <div className="text-center mb-8">
-                            <p className="text-emerald-700 font-bold text-xs tracking-[0.1em] uppercase mb-3">Fundraising Status</p>
-                            <h3 className={`${playfair.className} text-5xl font-bold text-gray-900 mb-2`}>{raisedFormatted}</h3>
-                            <p className="text-gray-500 text-sm font-medium">raised of {goalFormatted} goal</p>
-                        </div>
-
-                        <div className="mb-8">
-                            <div className="relative h-3 w-full overflow-hidden rounded-full bg-emerald-50 mb-3">
-                                <div className="h-full bg-emerald-600 rounded-full relative overflow-hidden transition-all duration-1000" style={{ width: `${progress}%` }}>
-                                    <div className="absolute inset-0 bg-white/20" style={{ backgroundImage: 'linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)', backgroundSize: '1rem 1rem' }}></div>
-                                </div>
-                            </div>
-                            <div className="flex justify-between items-center text-sm font-bold">
-                                <span className="text-[#1a2e35]">{progress}% Funded</span>
-                                <span className="text-gray-500">{content.stats.donors.toLocaleString()} Donors</span>
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <button className="w-full bg-emerald-600 text-white py-4 rounded-full font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
-                                <Heart className="w-5 h-5 fill-current" />
-                                Donate Now
-                            </button>
-                            <button className="w-full bg-emerald-50 text-emerald-700 py-4 rounded-full font-bold hover:bg-emerald-100 transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
-                                <Share2 className="w-5 h-5" />
-                                Share Appeal
-                            </button>
-                        </div>
-
-                        <div className="mt-8 pt-6 border-t border-gray-100">
-                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Recent Donations</h4>
-                            <div className="flex flex-col gap-5">
-                                {content.recentDonations.map((donation, index) => (
-                                    <div key={index} className="flex items-start gap-4">
-                                        <div className={`w-10 h-10 rounded-full ${donation.initials ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-gray-50 border-gray-100 text-gray-400'} flex items-center justify-center flex-shrink-0 font-bold shadow-sm`}>
-                                            {donation.initials || <Heart className="w-4 h-4" />}
+                {/* Right Sidebar - Linked Projects */}
+                <div className="lg:w-[400px] flex-shrink-0 space-y-6">
+                    {content.linkedProjects && content.linkedProjects.length > 0 ? (
+                        content.linkedProjects.map((project: any) => {
+                            const projectRaised = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(project.collected || 0);
+                            const projectGoal = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(project.totalRequired || 1);
+                            const projectProgress = Math.min(Math.round(((project.collected || 0) / (project.totalRequired || 1)) * 100), 100);
+                            
+                            return (
+                                <div key={project._id} className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-[0_15px_50px_-12px_rgba(0,0,0,0.08)] flex flex-col items-center">
+                                    <div className="w-full text-center mb-6">
+                                        {project.category && project.category.length > 0 && (
+                                            <div className="flex justify-center gap-2 mb-3 flex-wrap">
+                                                {project.category.map((cat: string) => (
+                                                    <span key={cat} className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full">{cat}</span>
+                                                ))}
+                                            </div>
+                                        )}
+                                        <h3 className={`${playfair.className} text-2xl font-bold text-gray-900 mb-2 leading-tight`}>{project.title}</h3>
+                                        {project.beneficiaries && (
+                                            <p className="text-gray-500 text-sm font-medium">{project.beneficiaries.toLocaleString()} Beneficiaries</p>
+                                        )}
+                                    </div>
+    
+                                    <div className="w-full text-center mb-6">
+                                        <p className="text-emerald-700 font-bold text-xs tracking-[0.1em] uppercase mb-2">Fundraising Status</p>
+                                        <h4 className={`${playfair.className} text-4xl font-bold text-gray-900 mb-1`}>{projectRaised}</h4>
+                                        <p className="text-gray-500 text-sm font-medium">raised of {projectGoal}</p>
+                                    </div>
+    
+                                    <div className="w-full mb-8">
+                                        <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-emerald-50 mb-3">
+                                            <div className="h-full bg-emerald-600 rounded-full relative overflow-hidden transition-all duration-1000" style={{ width: `${projectProgress}%` }}>
+                                                <div className="absolute inset-0 bg-white/20" style={{ backgroundImage: 'linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent)', backgroundSize: '1rem 1rem' }}></div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-bold text-sm text-gray-900">{donation.name}</p>
-                                            <p className="text-xs text-gray-500 mt-0.5">
-                                                <span className="text-emerald-600 font-bold">
-                                                    {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(donation.amount)}
-                                                </span> • {donation.time}
-                                            </p>
+                                        <div className="flex justify-between items-center text-sm font-bold">
+                                            <span className="text-[#1a2e35]">{projectProgress}% Funded</span>
+                                            <span className={`px-2 py-0.5 rounded-full text-xs ${project.status === 'Active' ? 'bg-emerald-50 text-emerald-600' : 'bg-gray-100 text-gray-600'}`}>{project.status}</span>
+                                        </div>
+                                    </div>
+    
+                                    <div className="w-full space-y-3">
+                                        <button className="w-full bg-emerald-600 text-white py-4 rounded-full font-bold shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                                            <Heart className="w-5 h-5 fill-current" />
+                                            Donate Now
+                                        </button>
+                                        <button className="w-full bg-emerald-50 text-emerald-700 py-4 rounded-full font-bold hover:bg-emerald-100 transition-all flex items-center justify-center gap-2 active:scale-[0.98]">
+                                            <Share2 className="w-5 h-5" />
+                                            Share Appeal
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-[0_15px_50px_-12px_rgba(0,0,0,0.08)] text-center">
+                            <p className="text-gray-500 font-medium">No active linked projects found.</p>
+                        </div>
+                    )}
+
+                    {/* Recent Donors Section */}
+                    {content.recentDonors && content.recentDonors.length > 0 && (
+                        <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-[0_15px_50px_-12px_rgba(0,0,0,0.08)]">
+                            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-6 flex items-center gap-2">
+                                <Heart className="w-4 h-4 text-emerald-500" />
+                                Recent Donors
+                            </h4>
+                            <div className="flex flex-col gap-6">
+                                {content.recentDonors.map((donor: any, index: number) => (
+                                    <div key={donor._id || index} className="flex items-start gap-4">
+                                        <div className={`w-10 h-10 rounded-full ${donor.initials === 'A' ? 'bg-gray-50 border-gray-100 text-gray-400' : 'bg-emerald-50 border-emerald-100 text-emerald-600'} flex items-center justify-center flex-shrink-0 font-bold shadow-sm`}>
+                                            {donor.initials || <Heart className="w-4 h-4" />}
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex justify-between items-start mb-0.5">
+                                                <p className="font-bold text-sm text-gray-900">{donor.name}</p>
+                                                <p className="text-emerald-600 font-bold text-sm">
+                                                    {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(donor.amount)}
+                                                </p>
+                                            </div>
+                                            <p className="text-xs text-gray-400 mb-2">{donor.time}</p>
+                                            
+                                            {donor.dedicatedTo && (
+                                                <p className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-lg mb-2 inline-block shadow-sm">
+                                                    Dedicated: {donor.dedicatedTo}
+                                                </p>
+                                            )}
+                                            
+                                            {donor.message && (
+                                                <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-b-xl rounded-tr-xl border border-gray-100 mt-1 relative">
+                                                    <span className="text-gray-300 absolute -top-2 -left-2 text-2xl font-serif leading-none">"</span>
+                                                    <p className="relative z-10 italic pl-1">{donor.message}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
 
             </div>

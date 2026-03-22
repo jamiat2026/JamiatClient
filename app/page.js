@@ -414,7 +414,7 @@ export default function Home() {
         </div>
 
         {/* Inspirational Quote Section */}
-        <section className="relative py-24 lg:py-18 overflow-hidden bg-white">
+        <section className="relative py-16 lg:py-24 overflow-hidden bg-white">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-50/30 to-transparent"></div>
 
           <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -427,7 +427,7 @@ export default function Home() {
 
             <div className="space-y-10">
               <h3 className="font-serif italic text-4xl lg:text-5xl text-slate-800 leading-tight lg:leading-[1.5] tracking-tight max-w-3xl mx-auto">
-                {quote?.text ||
+                {`"${quote?.text}"` ||
                   "Whoever saves one life - it is as if he had saved mankind entirely."}
               </h3>
 
@@ -449,7 +449,7 @@ export default function Home() {
 
 
         {/* Ready to Make a Difference CTA */}
-        <section className="mx-4 sm:mx-6 lg:mx-10 mb-8 py-16 lg:py-22 px-6 relative overflow-hidden bg-[#06422d] rounded-[2rem] lg:rounded-[4rem] mt-8">
+        <section className="mx-4 sm:mx-6 lg:mx-8 my-16 lg:my-24 py-16 lg:py-24 px-6 relative overflow-hidden bg-[#06422d] rounded-[2rem] lg:rounded-[3rem]">
           {/* Subtle Glow */}
           <div className="absolute top-0 right-0 w-1/2 h-full bg-emerald-500/5 blur-[120px] rounded-full translate-x-1/2"></div>
 

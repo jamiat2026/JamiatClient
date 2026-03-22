@@ -44,7 +44,7 @@ export default function MobileDonationCategories() {
   ];
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-[#F1F5F9] sm:py-24 overflow-hidden relative">
+    <section className="py-16 lg:py-24 px-4 sm:px-6 lg:px-8 bg-[#F1F5F9] overflow-hidden relative">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-emerald-50 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
 

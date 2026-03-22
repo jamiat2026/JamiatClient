@@ -46,7 +46,7 @@ export default function ImpactStats() {
   }
 
   return (
-    <section className="bg-[#F1F5F9]/20 relative py-24 lg:py-40 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section className="bg-[#F1F5F9]/20 relative py-16 lg:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
       {/* Subtle Background Decoration */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.03),transparent_50%)]"></div>
 
@@ -55,6 +55,9 @@ export default function ImpactStats() {
           <h2 className={`${playfair.className} text-4xl lg:text-6xl font-bold text-slate-900 mb-6 tracking-tight`}>
             {impact.title}
           </h2>
+          <h3 className={`${playfair.className}font-bold text-slate-900 mb-6 tracking-tight`}>
+            {impact.subtitle}
+          </h3>
           <div className="h-1.5 w-20 bg-emerald-500 mx-auto rounded-full"></div>
         </div>
 
