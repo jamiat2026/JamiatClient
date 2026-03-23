@@ -96,7 +96,7 @@ const Dropdown = ({ value, onChange, options, icon: Icon, labelKey, valueKey, la
 function Projects({ title }) {
   const [searchInput, setSearchInput] = useState("");
   const debouncedSearch = useDebounce(searchInput);
-
+  const [catCount, setCatCount] = useState();
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [donationTypeFilter, setDonationTypeFilter] = useState(title || "all");
   const [categories, setCategories] = useState([]);
@@ -107,9 +107,28 @@ function Projects({ title }) {
     []
   );
 
+  const categoryOptions = useMemo(() => {
+    let filtered = categories;
+    if (catCount) {
+      filtered = categories.filter(cat => catCount[cat.name] > 0);
+    }
+    
+    return [
+      { _id: 'all', name: 'All Categories', value: 'all' },
+      ...filtered.map(cat => ({ ...cat, value: cat.name }))
+    ];
+  }, [categories, catCount]);
+
+  async function fetchCategoriesCount() {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/counts`);
+    const data = await res.json();
+    setCatCount(data);
+  }
+
   // Fetch categories with cleanup
   useEffect(() => {
     const controller = new AbortController();
+    fetchCategoriesCount();
 
     async function fetchCategories() {
       try {
@@ -201,10 +220,10 @@ function Projects({ title }) {
               <Dropdown
                 value={categoryFilter}
                 onChange={setCategoryFilter}
-                options={[{ _id: 'all', name: 'All Categories' }, ...categories]}
+                options={categoryOptions}
                 icon={Filter}
                 labelKey="name"
-                valueKey="name"
+                valueKey="value"
               />
 
               <Dropdown

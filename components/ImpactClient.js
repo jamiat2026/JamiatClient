@@ -255,59 +255,61 @@ const Impact = () => {
       </section>
 
       {/* Voices of Change Section */}
-      <section className="">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-20 space-y-4">
-            <h2 className={`${playfair.className} text-4xl lg:text-5xl font-bold text-[#1a2e35]`}>
-              Voices of Change
-            </h2>
-            <p className="text-gray-500 text-lg max-w-lg mx-auto leading-relaxed">
-              Real stories from the people whose lives have been transformed by your generosity.
-            </p>
-          </div>
+      {stories.length > 0 && (
+        <section className="">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-20 space-y-4">
+              <h2 className={`${playfair.className} text-4xl lg:text-5xl font-bold text-[#1a2e35]`}>
+                Voices of Change
+              </h2>
+              <p className="text-gray-500 text-lg max-w-lg mx-auto leading-relaxed">
+                Real stories from the people whose lives have been transformed by your generosity.
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-12">
-            {stories.length === 0 ? (
-              <div className="col-span-3 text-center text-gray-400 py-12">No stories available.</div>
-            ) : (
-              visibleStories.map((story, idx) => (
-                <div
-                  key={story._id || story.id}
-                  className={`p-10 lg:p-12 rounded-[40px] border border-gray-50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative group hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-3 ${idx % 2 === 1 ? "bg-white" : "bg-[#ECFDF5]"}`}
-                >
-                  <Quote className={`absolute top-10 right-10 size-10 transition-colors duration-500 ${idx % 2 === 1 ? "text-emerald-500" : "text-[#A7F3D0]"}`} />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-12">
+              {stories.length === 0 ? (
+                <div className="col-span-3 text-center text-gray-400 py-12">No stories available.</div>
+              ) : (
+                visibleStories.map((story, idx) => (
+                  <div
+                    key={story._id || story.id}
+                    className={`p-10 lg:p-12 rounded-[40px] border border-gray-50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative group hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-3 ${idx % 2 === 1 ? "bg-white" : "bg-[#ECFDF5]"}`}
+                  >
+                    <Quote className={`absolute top-10 right-10 size-10 transition-colors duration-500 ${idx % 2 === 1 ? "text-emerald-500" : "text-[#A7F3D0]"}`} />
 
-                  <div className="flex items-center gap-5 mb-10 relative z-10">
-                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-xl">
-                      {story.initials}
+                    <div className="flex items-center gap-5 mb-10 relative z-10">
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-xl">
+                        {story.initials}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-[#1a2e35] text-lg">{story.name}</h4>
+                        <p className="text-emerald-600 text-[11px] font-extrabold tracking-[0.1em] uppercase mt-1">{story.location}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-bold text-[#1a2e35] text-lg">{story.name}</h4>
-                      <p className="text-emerald-600 text-[11px] font-extrabold tracking-[0.1em] uppercase mt-1">{story.location}</p>
-                    </div>
+
+                    <p className={`${playfair.className} text-gray-600 leading-relaxed italic text-xl relative z-10 antialiased`}>
+                      "{story.quote}"
+                    </p>
                   </div>
+                ))
+              )}
+            </div>
 
-                  <p className={`${playfair.className} text-gray-600 leading-relaxed italic text-xl relative z-10 antialiased`}>
-                    "{story.quote}"
-                  </p>
-                </div>
-              ))
+            {stories.length >= 4 && (
+              <div className="mt-16 text-center">
+                <button
+                  onClick={() => setShowAllStories(!showAllStories)}
+                  className="inline-flex items-center gap-2 border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-10 py-4 rounded-full font-bold transition-all"
+                >
+                  {showAllStories ? "Show Fewer Stories" : "Read More Impact Stories"}
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+              </div>
             )}
           </div>
-
-          {stories.length >= 4 && (
-            <div className="mt-16 text-center">
-              <button
-                onClick={() => setShowAllStories(!showAllStories)}
-                className="inline-flex items-center gap-2 border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-10 py-4 rounded-full font-bold transition-all"
-              >
-                {showAllStories ? "Show Fewer Stories" : "Read More Impact Stories"}
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="lg:mx-8  px-4 py-24 lg:py-32 lg:pb-24 ">
