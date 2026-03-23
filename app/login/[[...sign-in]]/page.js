@@ -74,6 +74,7 @@ export default function SignInPage() {
             {/* Decorative Card Shadow/Glow */}
             <div>
               <SignIn
+                signUpUrl="/signup"
                 appearance={{
                   elements: {
                     rootBox: "w-full",
