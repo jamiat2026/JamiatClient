@@ -94,7 +94,13 @@ export default function DonationPage() {
                     <td className="py-3 px-4 text-nowrap text-sm text-gray-900 font-medium">{donation.name}</td>
                     <td className="py-3 px-4 text-nowrap text-sm text-gray-500">{donation.email}</td>
                     <td className="py-3 px-4 text-nowrap text-sm text-gray-900 font-semibold">₹{donation.amount}</td>
-                    <td className="py-3 px-4 text-nowrap text-sm text-gray-500">{donation.donationType}</td>
+                    <td className="py-3 px-4 text-nowrap text-sm text-gray-500">
+                      {donation.donationType === "General Donation" || donation.donationType === "general donations"
+                        ? "Hadiya"
+                        : donation.donationType === "Interest Earnings"
+                          ? "others(general donations & interest income)"
+                          : donation.donationType || "Unknown"}
+                    </td>
                     <td className="py-3 px-4 text-nowrap text-sm text-gray-500">{donation.donationFrequency}</td>
                     <td className="py-3 px-4 text-nowrap text-sm text-gray-500">{getProjectName(donation.projectId)}</td>
                     <td className="py-3 px-4 text-nowrap">

@@ -33,6 +33,7 @@ export default function EditProjectPage({ params }) {
   const [uploadingCard, setUploadingCard] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [uploadingOgImage, setUploadingOgImage] = useState(false);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
   const [categories, setCategories] = useState([]);
   const [imagePreview, setImagePreview] = useState("");
   const [cardPreview, setCardPreview] = useState("");
@@ -85,10 +86,10 @@ export default function EditProjectPage({ params }) {
       phone: "",
     },
     donationOptions: [
-      { type: "General Donation", isEnabled: false },
+      { type: "Hadiya", isEnabled: false },
       { type: "Zakat", isEnabled: false },
       { type: "Sadqa", isEnabled: false },
-      { type: "Interest Earnings", isEnabled: false },
+      { type: "others(general donations & interest income)", isEnabled: false },
     ],
     minDonationAmount: 365,
     donationFrequency: "One Time",
@@ -106,6 +107,7 @@ export default function EditProjectPage({ params }) {
     target_keywords: [],
     metatitle: "",
     metadescription: "",
+    pdfUrl: "",
   });
 
   const [initialForm, setInitialForm] = useState(null);
@@ -138,10 +140,15 @@ export default function EditProjectPage({ params }) {
             phone: data.projectManager?.phone || "",
           },
           donationOptions: Array.isArray(data.donationOptions)
-            ? data.donationOptions.map((opt) => ({
-                type: opt.type || "Unknown",
+            ? data.donationOptions.map((opt) => {
+              let type = opt.type || "Unknown";
+              if (type === "General Donation") type = "Hadiya";
+              if (type === "Interest Earnings") type = "others(general donations & interest income)";
+              return {
+                type,
                 isEnabled: opt.isEnabled || false,
-              }))
+              };
+            })
             : form.donationOptions,
           impact: Array.isArray(data.impact) ? data.impact : [],
           scheme: Array.isArray(data.scheme) ? data.scheme : [],
@@ -150,6 +157,7 @@ export default function EditProjectPage({ params }) {
           target_keywords: Array.isArray(data.target_keywords)
             ? data.target_keywords
             : [],
+          pdfUrl: data.pdfUrl || "",
         };
 
         setForm(normalized);
@@ -180,6 +188,35 @@ export default function EditProjectPage({ params }) {
     }
 
     fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    async function fetchDonationTypes() {
+      try {
+        const res = await fetch("/api/donation-types");
+        if (res.ok) {
+          const types = await res.json();
+          // Merge available types with project's current options (if project is already loaded)
+          setForm((prev) => {
+            const mergedOptions = types.map((defaultOpt) => {
+              const existing = (prev.donationOptions || []).find((opt) => opt.type === defaultOpt.type);
+              return {
+                ...defaultOpt,
+                isEnabled: existing ? existing.isEnabled : false,
+              };
+            });
+            return {
+              ...prev,
+              donationOptions: mergedOptions,
+            };
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch donation types:", err);
+      }
+    }
+
+    fetchDonationTypes();
   }, []);
 
   // track dirty state
@@ -228,6 +265,7 @@ export default function EditProjectPage({ params }) {
       if (type === "gallery") setUploadingGallery(true);
       if (type === "ogImage") setUploadingOgImage(true);
       if (type === "card") setUploadingCard(true);
+      if (type === "pdf") setUploadingPdf(true);
 
       const uploadPromises = files.map(async (file) => {
         const formData = new FormData();
@@ -262,6 +300,8 @@ export default function EditProjectPage({ params }) {
       } else if (type === "card") {
         setForm((prev) => ({ ...prev, cardImage: urls[0] || "" }));
         setCardPreview(urls[0] || "");
+      } else if (type === "pdf") {
+        setForm((prev) => ({ ...prev, pdfUrl: urls[0] || "" }));
       }
     } catch (err) {
       console.error(err);
@@ -271,6 +311,7 @@ export default function EditProjectPage({ params }) {
       if (type === "gallery") setUploadingGallery(false);
       if (type === "ogImage") setUploadingOgImage(false);
       if (type === "card") setUploadingCard(false);
+      if (type === "pdf") setUploadingPdf(false);
     }
   };
 
@@ -523,15 +564,14 @@ export default function EditProjectPage({ params }) {
         <h1 className="text-xl sm:text-2xl font-bold">Edit Project</h1>
         <button
           onClick={handleSubmit}
-          className={`px-4 py-2 rounded-lg flex items-center ${
-            isDirty
-              ? "bg-violet-600 text-white hover:bg-violet-700"
-              : "bg-gray-400 text-gray-200 cursor-not-allowed"
-          }`}
+          className={`px-4 py-2 rounded-lg flex items-center ${isDirty
+            ? "bg-violet-600 text-white hover:bg-violet-700"
+            : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }`}
           disabled={!isDirty || submitting}
           type="submit"
         >
-          {submitting && <Loader2 className="w-4 h-4 animate-spin" />} 
+          {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
           <p className="mx-2">Save Changes</p>
         </button>
       </div>
@@ -897,6 +937,47 @@ export default function EditProjectPage({ params }) {
                 ))}
               </div>
             </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium">Project PDF Document</label>
+              <button
+                type="button"
+                onClick={() => document.getElementById("pdfInput")?.click()}
+                className="cursor-pointer bg-gray-100 px-4 py-2 rounded-xl border border-gray-300 text-sm"
+              >
+                {uploadingPdf ? (
+                  <Loader2 className="animate-spin w-4 h-4" />
+                ) : (
+                  "Upload Project PDF"
+                )}
+              </button>
+              <input
+                id="pdfInput"
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                onChange={(e) => handleImageUpload(e, "pdf")}
+              />
+              {form.pdfUrl && (
+                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-xl border border-gray-200">
+                  <span className="text-sm truncate max-w-[200px]">{form.pdfUrl.split("/").pop()}</span>
+                  <button
+                    type="button"
+                    onClick={() => setForm(prev => ({ ...prev, pdfUrl: "" }))}
+                    className="p-1 hover:text-red-500"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <a
+                    href={form.pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-violet-600 hover:underline ml-auto"
+                  >
+                    View PDF
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -1031,13 +1112,12 @@ export default function EditProjectPage({ params }) {
             {form.impact.map((imp, idx) => (
               <div
                 key={idx}
-                className={` ${
-                  imp.type === "Direct"
-                    ? "bg-green-200"
-                    : imp.type === "Indirect"
+                className={` ${imp.type === "Direct"
+                  ? "bg-green-200"
+                  : imp.type === "Indirect"
                     ? "bg-amber-100"
                     : "bg-violet-100"
-                } p-3 rounded-xl`}
+                  } p-3 rounded-xl`}
               >
                 {editingImpactIndex === idx ? (
                   <div className="space-y-2">
@@ -1048,13 +1128,12 @@ export default function EditProjectPage({ params }) {
                         onChange={(e) =>
                           setNewImpact({ ...newImpact, type: e.target.value })
                         }
-                        className={` ${
-                          imp.type === "Direct"
-                            ? "border-green-300"
-                            : imp.type === "Indirect"
+                        className={` ${imp.type === "Direct"
+                          ? "border-green-300"
+                          : imp.type === "Indirect"
                             ? "border-amber-300"
                             : "border-violet-400"
-                        } p-2.5 w-full text-sm border rounded-xl`}
+                          } p-2.5 w-full text-sm border rounded-xl`}
                       />
                       <input
                         type="text"
@@ -1062,13 +1141,12 @@ export default function EditProjectPage({ params }) {
                         onChange={(e) =>
                           setNewImpact({ ...newImpact, title: e.target.value })
                         }
-                        className={` ${
-                          imp.type === "Direct"
-                            ? "border-green-300"
-                            : imp.type === "Indirect"
+                        className={` ${imp.type === "Direct"
+                          ? "border-green-300"
+                          : imp.type === "Indirect"
                             ? "border-amber-300"
                             : "border-violet-400"
-                        } p-2.5 w-full text-sm border rounded-xl`}
+                          } p-2.5 w-full text-sm border rounded-xl`}
                       />
                       <textarea
                         value={newImpact.description}
@@ -1078,13 +1156,12 @@ export default function EditProjectPage({ params }) {
                             description: e.target.value,
                           })
                         }
-                        className={` ${
-                          imp.type === "Direct"
-                            ? "border-green-300"
-                            : imp.type === "Indirect"
+                        className={` ${imp.type === "Direct"
+                          ? "border-green-300"
+                          : imp.type === "Indirect"
                             ? "border-amber-300"
                             : "border-violet-400"
-                        } p-2.5 w-full text-sm border rounded-xl`}
+                          } p-2.5 w-full text-sm border rounded-xl`}
                       />
                     </div>
                     <div className="flex gap-4 justify-end">
@@ -1196,13 +1273,12 @@ export default function EditProjectPage({ params }) {
             {form.timeline.map((event, idx) => (
               <div
                 key={idx}
-                className={` ${
-                  event.status === "Completed"
-                    ? "bg-green-200"
-                    : event.status === "In-Progress"
+                className={` ${event.status === "Completed"
+                  ? "bg-green-200"
+                  : event.status === "In-Progress"
                     ? "bg-amber-100"
                     : "bg-violet-100"
-                } p-3 rounded-xl`}
+                  } p-3 rounded-xl`}
               >
                 {editingTimelineEventIndex === idx ? (
                   <div className="space-y-2">
@@ -1216,13 +1292,12 @@ export default function EditProjectPage({ params }) {
                             status: e.target.value,
                           })
                         }
-                        className={` ${
-                          event.status === "Completed"
-                            ? "border-green-300"
-                            : event.status === "In-Progress"
+                        className={` ${event.status === "Completed"
+                          ? "border-green-300"
+                          : event.status === "In-Progress"
                             ? "border-amber-300"
                             : "border-violet-400"
-                        } p-2.5 w-full text-sm border rounded-xl`}
+                          } p-2.5 w-full text-sm border rounded-xl`}
                       />
                       <input
                         type="text"
@@ -1233,13 +1308,12 @@ export default function EditProjectPage({ params }) {
                             title: e.target.value,
                           })
                         }
-                        className={` ${
-                          event.status === "Completed"
-                            ? "border-green-300"
-                            : event.status === "In-Progress"
+                        className={` ${event.status === "Completed"
+                          ? "border-green-300"
+                          : event.status === "In-Progress"
                             ? "border-amber-300"
                             : "border-violet-400"
-                        } p-2.5 w-full text-sm border rounded-xl`}
+                          } p-2.5 w-full text-sm border rounded-xl`}
                       />
                       <input
                         type="date"
@@ -1250,13 +1324,12 @@ export default function EditProjectPage({ params }) {
                             date: e.target.value,
                           })
                         }
-                        className={` ${
-                          event.status === "Completed"
-                            ? "border-green-300"
-                            : event.status === "In-Progress"
+                        className={` ${event.status === "Completed"
+                          ? "border-green-300"
+                          : event.status === "In-Progress"
                             ? "border-amber-300"
                             : "border-violet-400"
-                        } p-2.5 w-full text-sm border rounded-xl`}
+                          } p-2.5 w-full text-sm border rounded-xl`}
                       />
                     </div>
                     <div className="flex gap-4 justify-end">

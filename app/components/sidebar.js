@@ -29,7 +29,9 @@ import { FcAbout } from "react-icons/fc";
 const cmsNavItems = [
   { name: "Home", key: "dashboard", href: "/home", icon: <LayoutDashboard size={18} /> },
   { name: "Projects", key: "cms", href: "/projects", icon: <FolderKanban size={18} /> },
+  { name: "Emergency Funds", key: "cms", href: "/emergency-funds", icon: <Handshake size={18} /> },
   { name: "Impact", key: "cms", href: "/impact", icon: <BookOpen size={18} /> },
+  { name: "Islamic", key: "cms", href: "/islamic", icon: <BookOpen size={18} /> },
   { name: "About", key: "about", href: "/about", icon: <FcAbout size={18} /> },
   { name: "Donate Page", key: "cms", href: "/donatepage", icon: <Handshake size={18} /> },
   { name: "Volunteers", key: "cms", href: "/volunteers/list", icon: <Users size={18} /> },

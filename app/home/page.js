@@ -3,12 +3,14 @@ import { useEffect, useRef, useState } from "react"
 import HomeHeroSectionEditor from "../components/homeherosection"
 import HomeImpactSectionEditor from "../components/homeimpactsection"
 import HomeQuoteSectionEditor from "../components/homequotesection"
+import HomeSocialHighlightEditor from "../components/homesocialhighlight"
 import { ChevronDown, Layout } from "lucide-react";
 
 const sections = [
   { name: "Hero Section", key: "hero" },
   { name: "Impact Stats", key: "impact" },
   { name: "Quote Section", key: "tag" },
+  { name: "Social Highlighting Work", key: "social" },
 ]
 
 export default function HomeCMSPage() {
@@ -106,8 +108,10 @@ export default function HomeCMSPage() {
             <HomeHeroSectionEditor />
           ) : activeSection === "impact" ? (
             <HomeImpactSectionEditor />
-          ) : (
+          ) : activeSection === "tag" ? (
             <HomeQuoteSectionEditor />
+          ) : (
+            <HomeSocialHighlightEditor />
           )}
         </div>
       </div>

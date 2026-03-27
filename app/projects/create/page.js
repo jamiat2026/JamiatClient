@@ -95,10 +95,10 @@ export default function CreateProjectPage() {
       phone: "",
     },
     donationOptions: [
-      { type: "General Donation", isEnabled: false },
+      { type: "Hadiya", isEnabled: false },
       { type: "Zakat", isEnabled: false },
       { type: "Sadqa", isEnabled: false },
-      { type: "Interest Earnings", isEnabled: false },
+      { type: "others(general donations & interest income)", isEnabled: false },
     ],
     minDonationAmount: 365,
     donationFrequency: "One Time",
@@ -116,12 +116,14 @@ export default function CreateProjectPage() {
     target_keywords: [],
     metatitle: "",
     metadescription: "",
+    pdfUrl: "",
   });
 
   const [uploadingMain, setUploadingMain] = useState(false);
   const [uploadingCard, setUploadingCard] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
   const [uploadingOgImage, setUploadingOgImage] = useState(false);
+  const [uploadingPdf, setUploadingPdf] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
   const [cardPreview, setCardPreview] = useState("");
@@ -190,6 +192,7 @@ export default function CreateProjectPage() {
     if (type === "gallery") setUploadingGallery(true);
     if (type === "ogImage") setUploadingOgImage(true);
     if (type === "card") setUploadingCard(true);
+    if (type === "pdf") setUploadingPdf(true);
 
     const uploadPromises = files.map(async (file) => {
       const formData = new FormData();
@@ -226,6 +229,9 @@ export default function CreateProjectPage() {
       setForm((prev) => ({ ...prev, cardImage: urls[0] }));
       setCardPreview(urls[0]);
       setUploadingCard(false);
+    } else if (type === "pdf") {
+      setForm((prev) => ({ ...prev, pdfUrl: urls[0] }));
+      setUploadingPdf(false);
     }
   };
 
@@ -391,8 +397,24 @@ export default function CreateProjectPage() {
     setCategories(data);
   }
 
+  async function fetchDonationTypes() {
+    try {
+      const res = await fetch("/api/donation-types");
+      if (res.ok) {
+        const types = await res.json();
+        setForm((prev) => ({
+          ...prev,
+          donationOptions: types,
+        }));
+      }
+    } catch (err) {
+      console.error("Failed to fetch donation types:", err);
+    }
+  }
+
   useEffect(() => {
     fetchCategories();
+    fetchDonationTypes();
   }, []);
 
   const statusBadge = (status) => {
@@ -716,6 +738,47 @@ export default function CreateProjectPage() {
                   placeholder="Paste YouTube iframe embed code"
                   onChange={handleChange}
                 />
+              </div>
+
+              {/* PDF Document */}
+              <div>
+                <FieldLabel>Project PDF Document</FieldLabel>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById("pdfInput").click()}
+                    className="cursor-pointer flex items-center gap-2 bg-white px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-600 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                  >
+                    {uploadingPdf ? (
+                      <Loader2 className="animate-spin w-4 h-4" />
+                    ) : (
+                      <Upload size={16} />
+                    )}
+                    Upload Project PDF
+                  </button>
+                  <input
+                    id="pdfInput"
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={(e) => handleImageUpload(e, "pdf")}
+                  />
+                  {form.pdfUrl && (
+                    <div className="flex items-center gap-3 p-2 bg-emerald-50 rounded-xl border border-emerald-100">
+                      <FileText size={16} className="text-emerald-600" />
+                      <span className="text-xs font-medium text-emerald-700 truncate max-w-[150px]">
+                        {form.pdfUrl.split("/").pop()}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setForm(prev => ({ ...prev, pdfUrl: "" }))}
+                        className="text-gray-400 hover:text-red-500 transition-colors"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </SectionCard>

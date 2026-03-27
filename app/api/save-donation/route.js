@@ -203,7 +203,7 @@ async function generatePdfBuffer(donation, donor) {
   drawText("Jamiat Ulama-i-Hind", margin + paddingX, r2Top - (paddingY + 14), 10);
   drawText("For:", margin + paddingX, r2Top - (paddingY + 36), 10);
   drawText(
-    donation.projectName || "General Donation",
+    donation.projectName || "Hadiya",
     margin + paddingX,
     r2Top - (paddingY + 50),
     10

@@ -189,6 +189,17 @@ export default function HomeHeroSectionEditor() {
       {edit ? (
         <div className="space-y-10">
           <div className="flex flex-col gap-2">
+            <label className="text-sm font-bold uppercase tracking-wider text-gray-500">Pill (Badge)</label>
+            <input
+              name="pill"
+              value={form.pill || ""}
+              onChange={handleChange}
+              placeholder="e.g. New Update or Announcement"
+              className="w-full border border-gray-300 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
             <label className="text-sm font-bold uppercase tracking-wider text-gray-500">Title</label>
             <input
               name="title"
@@ -523,6 +534,15 @@ export default function HomeHeroSectionEditor() {
               Edit Hero Content <TbEdit className="text-xl" />
             </button>
           </div>
+
+          <>
+            <span className="text-base sm:text-xl font-semibold">Pill:</span>
+            <span className="block mt-2">
+              <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-medium">
+                {data.pill || "N/A"}
+              </span>
+            </span>
+          </>
 
           <>
             <span className="text-base sm:text-xl font-semibold">Title:</span>

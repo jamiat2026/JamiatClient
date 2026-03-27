@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Sparkles, LayoutGrid, BookOpen } from "lucide-react";
-import ImpactSectionEditor from "../components/impactstorieseditor";
-import ImpactHeroSectionEditor from "../components/impactherosection";
-import ImpactCategoriesEditor from "../components/impactcategoriessection";
+import { ChevronDown, Link, BookOpen, Layout } from "lucide-react";
+import IslamicToolsEditor from "../components/islamictoolseditor";
+import IslamicDailyEditor from "../components/islamicdailyeditor";
+import IslamicKnowledgeHubEditor from "../components/islamicknowledgehubeditor";
 
 const sections = [
-  { name: "Hero", key: "hero", icon: Sparkles },
-  { name: "Categories", key: "categories", icon: LayoutGrid },
-  { name: "Impact Stories", key: "impact", icon: BookOpen },
+  { name: "Daily Content", key: "daily", icon: BookOpen },
+  { name: "External Links", key: "tools", icon: Link },
+  { name: "Knowledge Hub", key: "knowledge", icon: Layout },
 ];
 
-export default function ImpactCMSPage() {
-  const [activeSection, setActiveSection] = useState("hero");
+export default function IslamicCMSPage() {
+  const [activeSection, setActiveSection] = useState("daily");
   const [showDropdown, setShowDropdown] = useState(false);
 
   const dropdownRef = useRef(null);
@@ -42,8 +42,8 @@ export default function ImpactCMSPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Impact Page</h1>
-          <p className="text-sm text-gray-500">Manage the hero, categories, and impact stories sections.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Islamic Page</h1>
+          <p className="text-sm text-gray-500">Manage daily content and external tool links.</p>
         </div>
       </div>
 
@@ -76,8 +76,8 @@ export default function ImpactCMSPage() {
                     setShowDropdown(false);
                   }}
                   className={`flex items-center gap-2.5 w-full text-left text-sm px-4 py-3 cursor-pointer font-medium transition-all ${activeSection === section.key
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "text-gray-600 hover:bg-gray-50"
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "text-gray-600 hover:bg-gray-50"
                     }`}
                 >
                   <Icon size={16} className={activeSection === section.key ? "text-emerald-600" : "text-gray-400"} />
@@ -98,8 +98,8 @@ export default function ImpactCMSPage() {
               key={section.key}
               onClick={() => setActiveSection(section.key)}
               className={`flex items-center gap-2 px-5 py-2 rounded-lg cursor-pointer text-sm font-semibold transition-all duration-200 ${activeSection === section.key
-                ? "bg-emerald-600 text-white shadow-sm"
-                : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                 }`}
             >
               <Icon size={16} />
@@ -111,12 +111,12 @@ export default function ImpactCMSPage() {
 
       {/* Section Content */}
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-        {activeSection === "hero" ? (
-          <ImpactHeroSectionEditor />
-        ) : activeSection === "impact" ? (
-          <ImpactSectionEditor />
+        {activeSection === "daily" ? (
+          <IslamicDailyEditor />
+        ) : activeSection === "tools" ? (
+          <IslamicToolsEditor />
         ) : (
-          <ImpactCategoriesEditor />
+          <IslamicKnowledgeHubEditor />
         )}
       </div>
     </div>

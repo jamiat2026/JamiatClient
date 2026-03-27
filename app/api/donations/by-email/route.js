@@ -34,7 +34,7 @@ async function handleRequest(email) {
     .sort({ createdAt: -1 });
 
   const donationItems = donations.map((donation) => {
-    const projectTitle = donation.projectId?.title || "General Donation";
+    const projectTitle = donation.projectId?.title || "Hadiya";
     return {
       _id: donation._id,
       amount: donation.amount,

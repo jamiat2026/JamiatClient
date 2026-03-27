@@ -1,6 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Pencil, Trash2, Plus } from "lucide-react";
+import * as LucideIcons from "lucide-react";
+import LucideIconPicker from "./LucideIconPicker";
 
 export default function ImpactCategoriesEditor() {
   const [loading, setLoading] = useState(true);
@@ -15,6 +17,7 @@ export default function ImpactCategoriesEditor() {
     subtitle: "",
     description: "",
     link: "",
+    icon: "",
     stats: [],
   });
 
@@ -97,6 +100,7 @@ export default function ImpactCategoriesEditor() {
       subtitle: "",
       description: "",
       link: "",
+      icon: "",
       stats: [],
     });
   };
@@ -224,13 +228,22 @@ export default function ImpactCategoriesEditor() {
           <p className="text-sm text-gray-500">No categories added yet.</p>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {categories.map((cat) => (
+          {categories.map((cat) => {
+            const CatIcon = cat.icon ? LucideIcons[cat.icon] : null;
+            return (
             <div
               key={cat.key}
               className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow"
             >
               <div className="flex justify-between items-center mb-2">
-                <h3 className="font-semibold text-sm text-gray-900">{cat.title}</h3>
+                <div className="flex items-center gap-2">
+                  {CatIcon && (
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: (cat.color || '#10b981') + '18' }}>
+                      <CatIcon size={15} style={{ color: cat.color || '#10b981' }} />
+                    </div>
+                  )}
+                  <h3 className="font-semibold text-sm text-gray-900">{cat.title}</h3>
+                </div>
                 <div className="flex gap-1">
                   <button
                     onClick={() => handleEditCategory(cat)}
@@ -261,6 +274,9 @@ export default function ImpactCategoriesEditor() {
                 <span className="text-xs text-gray-400">
                   {cat.color || "#10b981"}
                 </span>
+                {cat.icon && (
+                  <span className="text-xs text-gray-400 ml-2">Icon: {cat.icon}</span>
+                )}
               </div>
 
               {cat.stats && cat.stats.length > 0 && (
@@ -282,7 +298,8 @@ export default function ImpactCategoriesEditor() {
                 </div>
               )}
             </div>
-          ))}
+          );
+          })}
         </div>
       </div>
 
@@ -344,19 +361,27 @@ export default function ImpactCategoriesEditor() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Card Color</label>
-          <input
-            type="color"
-            value={
-              newCategory.color?.startsWith("#") ? newCategory.color : "#10b981"
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex items-center gap-3">
+            <label className="text-xs font-semibold uppercase tracking-wider text-gray-400">Card Color</label>
+            <input
+              type="color"
+              value={
+                newCategory.color?.startsWith("#") ? newCategory.color : "#10b981"
+              }
+              onChange={(e) =>
+                setNewCategory({ ...newCategory, color: e.target.value })
+              }
+              className="w-8 h-8 p-0 border-none bg-transparent cursor-pointer"
+            />
+            <span className="text-xs text-gray-400">{newCategory.color || "#10b981"}</span>
+          </div>
+          <LucideIconPicker
+            value={newCategory.icon}
+            onChange={(iconName) =>
+              setNewCategory({ ...newCategory, icon: iconName })
             }
-            onChange={(e) =>
-              setNewCategory({ ...newCategory, color: e.target.value })
-            }
-            className="w-8 h-8 p-0 border-none bg-transparent cursor-pointer"
           />
-          <span className="text-xs text-gray-400">{newCategory.color || "#10b981"}</span>
         </div>
 
         <div>

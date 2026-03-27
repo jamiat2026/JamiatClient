@@ -1,17 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Sparkles, Eye, Heart, BookOpen } from "lucide-react";
+import { ChevronDown, Sparkles, Eye, Heart, BookOpen, Users, FileText } from "lucide-react";
 import AboutHeroSectionEditor from "../components/aboutherosection";
 import AboutVisionSectionEditor from "../components/aboutvisionsection";
 import AboutValuesSectionEditor from "../components/aboutvaluessection";
 import AboutStorySectionEditor from "../components/aboutstorysection";
+import AboutLeadershipSectionEditor from "../components/aboutleadershipsection";
+import AboutFinancialSectionEditor from "../components/aboutfinancialsection";
 
 const sections = [
   { name: "Hero", key: "hero", icon: Sparkles },
   { name: "Vision & Mission", key: "vision", icon: Eye },
   { name: "Values", key: "values", icon: Heart },
   { name: "Story", key: "story", icon: BookOpen },
+  { name: "Leadership", key: "leadership", icon: Users },
+  { name: "Financial", key: "financial", icon: FileText },
 ];
 
 export default function AboutCMSPage() {
@@ -119,8 +123,12 @@ export default function AboutCMSPage() {
           <AboutVisionSectionEditor />
         ) : activeSection === "values" ? (
           <AboutValuesSectionEditor />
-        ) : (
+        ) : activeSection === "story" ? (
           <AboutStorySectionEditor />
+        ) : activeSection === "leadership" ? (
+          <AboutLeadershipSectionEditor />
+        ) : (
+          <AboutFinancialSectionEditor />
         )}
       </div>
     </div>

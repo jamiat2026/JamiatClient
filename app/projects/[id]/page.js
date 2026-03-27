@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { Pencil } from "lucide-react";
+import { Pencil, FileText, ExternalLink } from "lucide-react";
 import InfoRow from "@/app/components/InfoRow";
 
 function normalizePhotoGallery(value) {
@@ -198,6 +198,27 @@ export default async function ProjectDetailPage({ params }) {
             className="aspect-video w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow"
             dangerouslySetInnerHTML={{ __html: project.youtubeIframe }}
           />
+        </Section>
+      )}
+
+      {/* PDF Document */}
+      {project.pdfUrl && (
+        <Section title="Project Document">
+          <a
+            href={project.pdfUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 p-4 bg-violet-50 text-violet-700 rounded-2xl border border-violet-100 hover:bg-violet-100 transition-colors shadow-sm"
+          >
+            <FileText className="w-6 h-6" />
+            <div className="flex flex-col">
+              <span className="font-semibold text-sm">Download Project PDF</span>
+              <span className="text-xs text-violet-500 truncate max-w-[200px]">
+                {project.pdfUrl.split("/").pop()}
+              </span>
+            </div>
+            <ExternalLink className="w-4 h-4 ml-2" />
+          </a>
         </Section>
       )}
 
