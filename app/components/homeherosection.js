@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Calendar, Users, Heart } from "lucide-react";
-import { TbEdit, TbTrash } from "react-icons/tb";
+import { TbEdit, TbTrash, TbPlus, TbCloudUpload } from "react-icons/tb";
 import { useSession } from "next-auth/react";
 import InfoRow from "@/app/components/InfoRow";
 
@@ -20,6 +20,7 @@ export default function HomeHeroSectionEditor() {
   const [edit, setEdit] = useState(false);
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const [rawSchema, setRawSchema] = useState({});
 
@@ -137,6 +138,54 @@ export default function HomeHeroSectionEditor() {
       }
     } catch {
       // ignore while typing invalid JSON
+    }
+  };
+
+  const handleAddImage = () => {
+    if ((form.carouselImages || []).length < 3) {
+      setForm((f) => ({
+        ...f,
+        carouselImages: [...(f.carouselImages || []), ""],
+      }));
+    }
+  };
+
+  const handleRemoveImage = (idx) => {
+    setForm((f) => ({
+      ...f,
+      carouselImages: f.carouselImages.filter((_, i) => i !== idx),
+    }));
+  };
+
+  const handleImageUpload = async (e, idx) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await res.json();
+      if (res.ok && result.url) {
+        setForm((f) => {
+          const newImages = [...(f.carouselImages || [])];
+          newImages[idx] = result.url;
+          return { ...f, carouselImages: newImages };
+        });
+      } else {
+        console.error("Upload error details:", result);
+        alert(result.error || "Upload failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Upload failed", error);
+      alert("Network error: Could not reach the upload server.");
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -403,6 +452,81 @@ export default function HomeHeroSectionEditor() {
             </div>
           </>
 
+          <hr className="text-gray-300 my-8" />
+
+          {/* Carousel Images Section */}
+          <>
+            <div className="flex flex-row gap-2 mb-4 items-center justify-between w-full">
+              <label className="text-sm font-bold uppercase tracking-wider text-gray-500">
+                Carousel Images (Max 3)
+              </label>
+              {(form.carouselImages || []).length < 3 && (
+                <button
+                  className="flex flex-row text-sm sm:text-base gap-2 items-center font-medium btn btn-primary border border-emerald-600 hover:bg-emerald-500 px-4 ms:px-6 py-2 cursor-pointer text-emerald-600 hover:text-white transition rounded-xl"
+                  onClick={handleAddImage}
+                  type="button"
+                >
+                  <TbPlus size={18} /> Add Image
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {(form.carouselImages || []).map((img, idx) => (
+                <div key={idx} className="relative group aspect-square rounded-2xl border-2 border-emerald-100 bg-emerald-50/30 overflow-hidden shadow-sm">
+                  {img ? (
+                    <>
+                      <img src={img} alt={`Carousel ${idx + 1}`} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex gap-2">
+                          <label className="cursor-pointer bg-white/20 backdrop-blur-md border border-white/30 p-2.5 rounded-full text-white hover:bg-white/40 transition-all shadow-lg active:scale-95">
+                            <TbCloudUpload size={20} />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleImageUpload(e, idx)}
+                            />
+                          </label>
+                          <button
+                            onClick={() => handleRemoveImage(idx)}
+                            className="bg-white/20 backdrop-blur-md border border-white/30 p-2.5 rounded-full text-red-200 hover:bg-red-500 hover:text-white transition-all shadow-lg active:scale-95"
+                          >
+                            <TbTrash size={20} />
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-emerald-50 transition-colors">
+                      <div className="p-4 bg-white rounded-2xl shadow-sm text-emerald-500 mb-2">
+                        <TbCloudUpload size={32} />
+                      </div>
+                      <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+                        {uploading ? "Uploading..." : "Upload Image"}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleImageUpload(e, idx)}
+                        disabled={uploading}
+                      />
+                    </label>
+                  )}
+                </div>
+              ))}
+              {(form.carouselImages || []).length === 0 && (
+                <div className="col-span-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-emerald-100 rounded-3xl bg-emerald-50/20 text-gray-400 gap-3">
+                  <div className="p-4 bg-white rounded-2xl shadow-sm border border-emerald-50 transition-transform active:scale-95 cursor-pointer" onClick={handleAddImage}>
+                    <TbPlus size={24} className="text-emerald-500" />
+                  </div>
+                  <span className="text-sm font-semibold">No images added to the carousel yet</span>
+                </div>
+              )}
+            </div>
+          </>
+
           <div className="flex gap-2 justify-end mt-8 border-t border-gray-100 pt-6">
             <button
               className="flex flex-row sm:text-base text-sm gap-2 items-center font-medium btn btn-primary border bg-emerald-600 hover:bg-emerald-700 sm:px-6 px-4 py-2 cursor-pointer text-white transition rounded-xl"
@@ -661,6 +785,34 @@ export default function HomeHeroSectionEditor() {
                   </div>
                 );
               })}
+            </div>
+          </>
+
+          <hr className="text-gray-300 my-8" />
+
+          {/* Carousel Images Section */}
+          <>
+            <span className="text-base sm:text-xl font-semibold block mb-4">
+              Carousel Images:
+            </span>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {(data.carouselImages || []).length > 0 ? (
+                data.carouselImages.map((img, idx) => (
+                  <div key={idx} className="aspect-square rounded-2xl overflow-hidden border-2 border-emerald-100 shadow-sm relative group bg-emerald-50/50">
+                    <img
+                      src={img}
+                      alt={`Hero carousel ${idx + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-gray-100 rounded-3xl bg-gray-50/30 text-gray-400 gap-3">
+                  <span className="text-sm font-semibold italic text-gray-400">No images uploaded for the hero carousel.</span>
+                </div>
+              )}
             </div>
           </>
 

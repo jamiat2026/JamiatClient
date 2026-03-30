@@ -23,32 +23,38 @@ export async function POST(req) {
       );
     }
 
+    console.log(`[Upload API] Starting upload for: ${file.name}, Size: ${file.size}, Type: ${file.type}`);
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    
+    // Using base64 to avoid streaming issues with heavy buffers in serverless/dev environments
+    const base64Data = buffer.toString('base64');
+    const dataURI = `data:${file.type};base64,${base64Data}`;
 
-    const uploadResult = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream(
-          { resource_type: "auto", timeout: 120000 },
-          (error, result) => {
-            if (error) {
-              console.error("Cloudinary upload error:", error);
-              return reject(error);
-            }
-            resolve(result);
-          }
-        )
-        .end(buffer);
+    console.log(`[Upload API] Buffer converted to base64. Sending to Cloudinary...`);
+
+    const uploadResult = await cloudinary.uploader.upload(dataURI, {
+      resource_type: "auto",
+      timeout: 300000, // 5 minutes timeout
     });
+
+    console.log(`[Upload API] Upload successful: ${uploadResult.secure_url}`);
 
     return NextResponse.json(
       { url: uploadResult.secure_url },
       { status: 200, headers: corsHeaders }
     );
   } catch (error) {
-    console.error("Upload error:", error);
+    console.error("[Upload API] Catch Block Error:", error);
+    
+    // Specific check for Cloudinary timeout or common errors
+    const errorMessage = error.message === "Request Timeout" 
+      ? "Upload took too long. Check your internet connection or try a smaller file."
+      : (error.message || "Upload failed");
+
     return NextResponse.json(
-      { error: error.message || "Upload failed" },
+      { error: errorMessage },
       { status: 500, headers: corsHeaders }
     );
   }
