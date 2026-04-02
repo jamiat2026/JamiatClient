@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TbTrash, TbPlus, TbDeviceFloppy } from "react-icons/tb";
+import { TbTrash, TbPlus, TbDeviceFloppy, TbCloudUpload } from "react-icons/tb";
 
 export default function AboutLeadershipSectionEditor() {
   const [data, setData] = useState({
@@ -66,6 +66,30 @@ export default function AboutLeadershipSectionEditor() {
     setData({ ...data, members: updatedMembers });
   };
 
+  const handleFileUpload = async (e, index) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await res.json();
+      if (result.url) {
+        handleMemberChange(index, "image", result.url);
+      } else {
+        alert("Upload failed. No URL returned.");
+      }
+    } catch (error) {
+      console.error("Upload failed", error);
+      alert("Failed to upload image.");
+    }
+  };
+
   const addMember = () => {
     setData({
       ...data,
@@ -78,6 +102,7 @@ export default function AboutLeadershipSectionEditor() {
           initials: "",
           color: "blue",
           icon: "shield",
+          image: "",
         },
       ],
     });
@@ -228,6 +253,26 @@ export default function AboutLeadershipSectionEditor() {
                         <option value="shield">Shield Check</option>
                         <option value="trending">Trending Up</option>
                       </select>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col md:flex-row gap-4 items-end">
+                    <div className="flex-1 w-full">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">Member Image URL</label>
+                      <input
+                        type="text"
+                        readOnly
+                        value={member.image || ""}
+                        className="w-full border border-gray-300 bg-gray-100 rounded-md p-2 text-sm text-gray-500 placeholder-gray-400"
+                        placeholder="No image uploaded"
+                      />
+                    </div>
+                    <div>
+                      <label className="cursor-pointer bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-colors text-sm h-[38px]">
+                        <TbCloudUpload size={16} className="text-blue-600" />
+                        Upload Image
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, index)} />
+                      </label>
                     </div>
                   </div>
 

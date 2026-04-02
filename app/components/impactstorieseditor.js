@@ -183,6 +183,7 @@ export default function ImpactSectionEditor() {
                 value={form.initials}
                 onChange={handleFormChange}
                 required
+                maxLength={2}
                 className="px-4 py-2.5 text-sm w-full border border-gray-200 rounded-xl bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all outline-none"
               />
             </div>

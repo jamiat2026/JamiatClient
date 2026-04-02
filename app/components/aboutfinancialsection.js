@@ -164,7 +164,7 @@ export default function AboutFinancialSectionEditor() {
       {/* Reports / Buttons */}
       <div className="bg-white p-5 border rounded-lg shadow-sm space-y-4">
         <h3 className="font-semibold text-lg border-b pb-2">Reports (Buttons & PDFs)</h3>
-        
+
         {/* Button 1 */}
         <div className="flex flex-col md:flex-row gap-4 items-end mb-4 p-4 border rounded bg-gray-50">
           <div className="flex-1 w-full">
@@ -192,37 +192,6 @@ export default function AboutFinancialSectionEditor() {
               <TbCloudUpload size={18} className="text-emerald-600" />
               Upload PDF
               <input type="file" accept="application/pdf" className="hidden" onChange={(e) => handleFileUpload(e, "button1")} />
-            </label>
-          </div>
-        </div>
-
-        {/* Button 2 */}
-        <div className="flex flex-col md:flex-row gap-4 items-end p-4 border rounded bg-gray-50">
-          <div className="flex-1 w-full">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Button 2 Label</label>
-            <input
-              type="text"
-              value={data.button2?.label || ""}
-              onChange={(e) => handleButtonChange("button2", "label", e.target.value)}
-              className="w-full border border-gray-300 rounded-md p-2 focus:ring-emerald-500 focus:border-emerald-500"
-              placeholder="e.g., View Past Reports"
-            />
-          </div>
-          <div className="flex-1 w-full">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Current PDF URL</label>
-            <input
-              type="text"
-              readOnly
-              value={data.button2?.pdfUrl || ""}
-              className="w-full border border-gray-300 bg-gray-100 rounded-md p-2 text-sm text-gray-500 placeholder-gray-400"
-              placeholder="No file uploaded"
-            />
-          </div>
-          <div>
-            <label className="cursor-pointer bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md font-medium flex items-center gap-2 transition-colors">
-              <TbCloudUpload size={18} className="text-emerald-600" />
-              Upload PDF
-              <input type="file" accept="application/pdf" className="hidden" onChange={(e) => handleFileUpload(e, "button2")} />
             </label>
           </div>
         </div>

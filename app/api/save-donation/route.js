@@ -309,6 +309,7 @@ export async function POST(req) {
     projectId: data.projectId,
     projectName: data.projectName,
     address: data.address || "",
+    ...(data.pancard ? { pancard: data.pancard } : {}),
   });
 
   // Update donor
@@ -330,6 +331,9 @@ export async function POST(req) {
       donor.projectsDonatedTo = donor.projectsDonatedTo || [];
       donor.projectsDonatedTo.push(data.projectId);
     }
+    if (data.pancard && !donor.pancardNumber) {
+      donor.pancardNumber = data.pancard;
+    }
     await donor.save();
   } else {
     donor = await Donor.create({
@@ -337,6 +341,7 @@ export async function POST(req) {
       email: data.email,
       address: data.address || "",
       profilePicture: "",
+      ...(data.pancard ? { pancardNumber: data.pancard } : {}),
       totalDonated: data.amount,
       totalProjects: data.projectId ? 1 : 0,
       projectsDonatedTo: data.projectId ? [data.projectId] : [],
