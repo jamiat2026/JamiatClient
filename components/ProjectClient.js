@@ -257,7 +257,7 @@ function Projects({ title }) {
       </section>
 
       {/* Project Cards */}
-      <section className="relative w-full pb-20 px-4 md:px-0">
+      <section className="relative w-full pb-20 px-3 md:px-0">
         <div className="max-w-7xl mx-auto">
           {(() => {
             const responsiveLimit = useResponsiveLimit();

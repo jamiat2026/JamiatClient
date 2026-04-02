@@ -12,6 +12,11 @@ const revalidate = 60;
 export default function BlogsPage() {
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [categories, setCategories] = useState([]);
+  const blogsPerPage = 5;
 
   useEffect(() => {
     async function fetchBlogs() {
@@ -20,7 +25,6 @@ export default function BlogsPage() {
           next: { revalidate: revalidate },
         });
         const data = await res.json();
-        // Sorting or filtering can be done here if needed
         setBlogs(data);
       } catch (error) {
         console.error("Error fetching blogs:", error);
@@ -28,36 +32,41 @@ export default function BlogsPage() {
         setLoading(false);
       }
     }
+
+    async function fetchCategories() {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`);
+        const data = await res.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    }
+
     fetchBlogs();
+    fetchCategories();
   }, []);
 
-  const categories = [
-    { name: "Success Stories", count: 12 },
-    { name: "Zakat & Fiqh", count: 8 },
-    { name: "Community Events", count: 5 },
-    { name: "Project Updates", count: 24 },
-  ];
+  // Filter blogs based on search and category
+  const filteredBlogs = blogs.filter((blog) => {
+    const matchesSearch = blog.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (blog.excerpt && blog.excerpt.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesCategory = selectedCategory === "All" || blog.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
-  const popularArticles = [
-    {
-      title: "How to Calculate Zakat on Gold Jewelry",
-      date: "Oct 05",
-      readTime: "6 min read",
-      image: "https://images.unsplash.com/photo-1589750678059-a9627a7a8f5d?q=80&w=200&auto=format&fit=crop",
-    },
-    {
-      title: "Winter Relief: Preparing for the Cold",
-      date: "Sep 22",
-      readTime: "4 min read",
-      image: "https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?q=80&w=200&auto=format&fit=crop",
-    },
-    {
-      title: "The Impact of Educating One Girl Child",
-      date: "Aug 15",
-      readTime: "5 min read",
-      image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=200&auto=format&fit=crop",
-    },
-  ];
+  // Pagination logic
+  const totalPages = Math.ceil(filteredBlogs.length / blogsPerPage);
+  const currentBlogs = filteredBlogs.slice(
+    (currentPage - 1) * blogsPerPage,
+    currentPage * blogsPerPage
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
 
   return (
     <div className="min-h-screen bg-white text-gray-900 pb-20 ">
@@ -91,12 +100,12 @@ export default function BlogsPage() {
                 <div key={n} className="animate-pulse bg-gray-100 h-96 rounded-2xl"></div>
               ))}
             </div>
-          ) : blogs.length === 0 ? (
-            <p className="text-center text-gray-500 py-20">No blogs found.</p>
+          ) : filteredBlogs.length === 0 ? (
+            <p className="text-center text-gray-500 py-20">No blogs found matching your criteria.</p>
           ) : (
             <>
               <div className="grid gap-8 sm:grid-cols-2">
-                {blogs.slice(0, 4).map((blog, index) => (
+                {currentBlogs.slice(0, 4).map((blog, index) => (
                   <motion.div
                     key={blog._id}
                     initial={{ opacity: 0, y: 20 }}
@@ -154,7 +163,7 @@ export default function BlogsPage() {
               </div>
 
               {/* 🏆 Featured / Wide Post (as seen in image) */}
-              {blogs.length >= 5 && (
+              {currentBlogs.length >= 5 && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -163,20 +172,20 @@ export default function BlogsPage() {
                 >
                   <div className="relative h-64 md:h-auto md:col-span-2 overflow-hidden">
                     <Image
-                      src={blogs[4].imageUrl || "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=800&auto=format&fit=crop"}
-                      alt={blogs[4].title}
+                      src={currentBlogs[4].imageUrl || "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?q=80&w=800&auto=format&fit=crop"}
+                      alt={currentBlogs[4].title}
                       fill
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute top-4 left-4 bg-[#10B981] text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                      {blogs[4].category || "Volunteering"}
+                      {currentBlogs[4].category || "Volunteering"}
                     </div>
                   </div>
                   <div className="p-8 md:col-span-3 flex flex-col justify-center">
                     <div className="flex items-center gap-4 text-gray-400 text-xs mb-3 font-medium">
                       <span className="flex items-center gap-1">
                         <Calendar size={14} className="text-gray-300" />
-                        {new Date(blogs[4].createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        {new Date(currentBlogs[4].createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock size={14} className="text-gray-300" />
@@ -184,13 +193,13 @@ export default function BlogsPage() {
                       </span>
                     </div>
                     <h2 className="text-2xl font-bold text-[#1F2937] font-serif mb-4 leading-tight group-hover:text-[#10B981] transition-colors">
-                      <Link href={`/blogs/${blogs[4]._id}`}>{blogs[4].title}</Link>
+                      <Link href={`/blogs/${currentBlogs[4]._id}`}>{currentBlogs[4].title}</Link>
                     </h2>
                     <p className="text-gray-500 text-sm mb-6 leading-relaxed">
-                      {blogs[4].excerpt || "Our community efforts have reached new heights. Learn how our dedicated volunteers are making a tangible difference every single day."}
+                      {currentBlogs[4].excerpt || "Our community efforts have reached new heights. Learn how our dedicated volunteers are making a tangible difference every single day."}
                     </p>
                     <Link
-                      href={`/blogs/${blogs[4]._id}`}
+                      href={`/blogs/${currentBlogs[4]._id}`}
                       className="inline-flex items-center gap-1 text-[#10B981] text-xs font-bold uppercase tracking-widest hover:gap-2 transition-all"
                     >
                       Read More <ArrowRight size={14} />
@@ -200,27 +209,38 @@ export default function BlogsPage() {
               )}
 
               {/* 🔢 Pagination */}
-              <div className="mt-16 flex items-center justify-center gap-2">
-                <button className="p-2 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
-                  &lt;
-                </button>
-                <button className="w-10 h-10 flex items-center justify-center rounded-lg bg-[#10B981] text-white font-bold shadow-md shadow-emerald-100">
-                  1
-                </button>
-                <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors">
-                  2
-                </button>
-                <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors">
-                  3
-                </button>
-                <span className="px-2 text-gray-400">...</span>
-                <button className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors">
-                  12
-                </button>
-                <button className="p-2 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
-                  &gt;
-                </button>
-              </div>
+              {totalPages > 1 && (
+                <div className="mt-16 flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="p-2 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    &lt;
+                  </button>
+
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button
+                      key={i + 1}
+                      onClick={() => handlePageChange(i + 1)}
+                      className={`w-10 h-10 flex items-center justify-center rounded-lg font-bold transition-all ${currentPage === i + 1
+                          ? "bg-[#10B981] text-white shadow-md shadow-emerald-100"
+                          : "border border-gray-100 hover:bg-gray-50 text-gray-600"
+                        }`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="p-2 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    &gt;
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>
@@ -234,6 +254,11 @@ export default function BlogsPage() {
               <input
                 type="text"
                 placeholder="Search articles..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full pl-10 pr-4 py-3 bg-white border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#10B981]/10 focus:border-[#10B981] transition-all"
               />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#10B981] transition-colors" size={18} />
@@ -247,49 +272,32 @@ export default function BlogsPage() {
               <h3 className="font-bold text-lg text-[#1F2937]">Categories</h3>
             </div>
             <div className="space-y-3">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.name}
-                  href="#"
-                  className="flex items-center justify-between py-2 text-sm text-gray-500 hover:text-[#10B981] transition-colors group"
+              <button
+                onClick={() => {
+                  setSelectedCategory("All");
+                  setCurrentPage(1);
+                }}
+                className={`flex items-center justify-between w-full py-2 text-sm transition-colors group ${selectedCategory === "All" ? "text-[#10B981] font-bold" : "text-gray-500 hover:text-[#10B981]"}`}
+              >
+                <span>All Categories</span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold transition-colors ${selectedCategory === "All" ? "bg-emerald-100 text-[#10B981]" : "bg-gray-50 text-gray-400 group-hover:bg-emerald-50 group-hover:text-[#10B981]"}`}>
+                  {blogs.length}
+                </span>
+              </button>
+              {categories.map((cat, idx) => (
+                <button
+                  key={cat._id || idx}
+                  onClick={() => {
+                    setSelectedCategory(cat.name);
+                    setCurrentPage(1);
+                  }}
+                  className={`flex items-center justify-between w-full py-2 text-sm transition-colors group ${selectedCategory === cat.name ? "text-[#10B981] font-bold" : "text-gray-500 hover:text-[#10B981]"}`}
                 >
                   <span>{cat.name}</span>
-                  <span className="bg-gray-50 text-gray-400 group-hover:bg-emerald-50 group-hover:text-[#10B981] px-2 py-0.5 rounded text-[10px] font-bold transition-colors">
-                    {cat.count}
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold transition-colors ${selectedCategory === cat.name ? "bg-emerald-100 text-[#10B981]" : "bg-gray-50 text-gray-400 group-hover:bg-emerald-50 group-hover:text-[#10B981]"}`}>
+                    {blogs.filter(b => b.category === cat.name).length}
                   </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Popular Articles */}
-          <div>
-            <div className="flex items-center gap-2 mb-6">
-              <div className="h-6 w-1 bg-[#10B981] rounded-full"></div>
-              <h3 className="font-bold text-lg text-[#1F2937]">Popular Articles</h3>
-            </div>
-            <div className="space-y-6">
-              {popularArticles.map((article, idx) => (
-                <div key={idx} className="flex gap-4 group cursor-pointer">
-                  <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden shadow-sm">
-                    <Image
-                      src={article.image}
-                      alt={article.title}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  </div>
-                  <div className="flex flex-col justify-center">
-                    <h4 className="text-sm font-bold text-[#1F2937] line-clamp-2 leading-snug group-hover:text-[#10B981] transition-colors mb-2">
-                      {article.title}
-                    </h4>
-                    <div className="flex items-center gap-3 text-[10px] text-gray-400 font-medium">
-                      <span>{article.date}</span>
-                      <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
-                      <span>{article.readTime}</span>
-                    </div>
-                  </div>
-                </div>
+                </button>
               ))}
             </div>
           </div>

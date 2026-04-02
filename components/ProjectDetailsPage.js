@@ -42,7 +42,10 @@ export default function ProjectDetailsPage({ slug, projectId }) {
   const [amount, setAmount] = useState("");
   const [frequency, setFrequency] = useState("One-Time");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [showReadMoreButton, setShowReadMoreButton] = useState(false);
   const dropdownRef = useRef(null);
+  const descriptionRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -92,6 +95,12 @@ export default function ProjectDetailsPage({ slug, projectId }) {
         ],
     }
     : null;
+
+  useEffect(() => {
+    if (activeTab === "about" && descriptionRef.current) {
+      setShowReadMoreButton(descriptionRef.current.scrollHeight > 350);
+    }
+  }, [project?.description, activeTab]);
 
   const percentageRaised = useMemo(() => {
     if (!project?.totalRequired) return 0;
@@ -183,14 +192,14 @@ export default function ProjectDetailsPage({ slug, projectId }) {
   }
 
   return (
-    <main className="min-h-screen bg-[#FDFDFC] pt-24 pb-16 px-4 lg:px-8">
+    <main className="min-h-screen bg-[#FDFDFC] pt-24 pb-16 px-3 sm:px-4 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-12">
         {/* Hero Section */}
         {project?.mainImage && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative h-[400px] lg:h-[500px] w-full overflow-hidden rounded-[2.5rem] shadow-2xl"
+            className="relative h-[400px] lg:h-[500px] w-full overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl"
           >
             <Image
               src={project?.mainImage}
@@ -203,36 +212,37 @@ export default function ProjectDetailsPage({ slug, projectId }) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
             {/* Top Navigation Bar (Floating) */}
-            <div className="absolute top-6 left-6 right-6 flex justify-between items-center z-20">
+            <div className="absolute top-4 sm:top-6 left-4 sm:left-6 right-4 sm:right-6 flex justify-between items-center z-20">
               <Link
                 href="/projects"
-                className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-white hover:bg-white/30 transition-all group"
+                className="flex items-center space-x-2 bg-white/20 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-white hover:bg-white/30 transition-all group"
               >
-                <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                <span className="text-sm font-medium">Back to Projects</span>
+                <ChevronLeft className="w-4 sm:w-5 h-4 sm:h-5 group-hover:-translate-x-1 transition-transform" />
+                <span className="text-xs sm:text-sm font-medium hidden sm:block">Back to Projects</span>
+                <span className="text-xs sm:text-sm font-medium sm:hidden">Back</span>
               </Link>
               <div className="bg-white/20 backdrop-blur-md p-1 rounded-full text-white">
-                <ShareButton slug={project?.slug} />
+                <ShareButton slug={project?.slug} title={project?.title} />
               </div>
             </div>
 
             {/* Bottom Content Area */}
-            <div className="absolute bottom-8 left-8 right-8 text-white z-20">
-              <div className="space-y-4 max-w-3xl">
-                <span className="inline-block px-3 py-1 bg-emerald-500/80 backdrop-blur-sm text-white text-xs font-bold rounded-full uppercase tracking-wider">
+            <div className="absolute bottom-6 sm:bottom-8 left-4 sm:left-8 right-4 sm:right-8 text-white z-20">
+              <div className="space-y-3 sm:space-y-4 max-w-3xl">
+                <span className="inline-block px-3 py-1 bg-emerald-500/80 backdrop-blur-sm text-white text-[10px] sm:text-xs font-bold rounded-full uppercase tracking-wider">
                   {project?.category || "Uncategorized"}
                 </span>
-                <h1 className="text-3xl lg:text-5xl font-serif font-bold leading-tight">
+                <h1 className="text-2xl sm:text-3xl lg:text-5xl font-serif font-bold leading-tight">
                   {project?.title || "Untitled Project"}
                 </h1>
-                <div className="flex items-center space-x-4 text-sm font-medium opacity-90">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs sm:text-sm font-medium opacity-90">
                   <div className="flex items-center space-x-1.5">
-                    <MapPin className="w-4 h-4 text-emerald-400" />
+                    <MapPin className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-emerald-400" />
                     <span>{project?.location || "Unknown Location"}</span>
                   </div>
-                  <div className="h-4 w-[1px] bg-white/30" />
+                  <div className="hidden sm:block h-4 w-[1px] bg-white/30" />
                   <div className="flex items-center space-x-1.5" suppressHydrationWarning>
-                    <Calendar className="w-4 h-4 text-emerald-400" />
+                    <Calendar className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-emerald-400" />
                     <span>{project?.daysLeft || 0} Days Left</span>
                   </div>
                 </div>
@@ -249,19 +259,19 @@ export default function ProjectDetailsPage({ slug, projectId }) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="grid grid-cols-3 gap-6"
+              className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6"
             >
-              <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] text-center space-y-1.5">
-                <p className="text-2xl lg:text-3xl font-bold text-emerald-600">{percentageRaised}%</p>
-                <p className="text-[10px] lg:text-xs font-bold text-gray-400 uppercase tracking-widest">FUNDED</p>
+              <div className="bg-white p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] text-center space-y-1 sm:space-y-1.5 flex flex-col justify-center items-center">
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-emerald-600 w-full truncate">{percentageRaised}%</p>
+                <p className="text-[10px] sm:text-[10px] lg:text-xs font-bold text-gray-400 uppercase tracking-widest w-full truncate" title="FUNDED">FUNDED</p>
               </div>
-              <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] text-center space-y-1.5">
-                <p className="text-2xl lg:text-3xl font-bold text-gray-900">{project?.daysLeft || 0}</p>
-                <p className="text-[10px] lg:text-xs font-bold text-gray-400 uppercase tracking-widest">DAYS LEFT</p>
+              <div className="bg-white p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] text-center space-y-1 sm:space-y-1.5 flex flex-col justify-center items-center">
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 w-full truncate">{project?.daysLeft || 0}</p>
+                <p className="text-[10px] sm:text-[10px] lg:text-xs font-bold text-gray-400 uppercase tracking-widest w-full truncate" title="DAYS LEFT">DAYS LEFT</p>
               </div>
-              <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] text-center space-y-1.5">
-                <p className="text-2xl lg:text-3xl font-bold text-gray-900">{project?.beneficiaries || 0}</p>
-                <p className="text-[10px] lg:text-xs font-bold text-gray-400 uppercase tracking-widest">BENEFICIARIES</p>
+              <div className="col-span-2 sm:col-span-1 bg-white p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] text-center space-y-1 sm:space-y-1.5 flex flex-col justify-center items-center">
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 w-full truncate">{project?.beneficiaries || 0}</p>
+                <p className="text-[10px] sm:text-[10px] lg:text-xs font-bold text-gray-400 uppercase tracking-widest w-full truncate" title="BENEFICIARIES">BENEFICIARIES</p>
               </div>
             </motion.div>
 
@@ -274,10 +284,10 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                 className="space-y-8"
               >
                 {/* Custom Tab Switcher */}
-                <div className="flex bg-gray-100/50 p-1.5 rounded-2xl w-fit">
+                <div className="flex bg-gray-100/50 p-1 md:p-1.5 rounded-xl md:rounded-2xl w-full sm:w-fit overflow-x-auto hide-scrollbar">
                   {project?.description && (
                     <button
-                      className={`px-6 py-2.5 text-sm font-bold rounded-xl transition-all ${activeTab === "about"
+                      className={`px-4 sm:px-6 py-2 md:py-2.5 text-xs sm:text-sm font-bold rounded-lg md:rounded-xl transition-all whitespace-nowrap flex-1 sm:flex-none ${activeTab === "about"
                         ? "bg-white text-emerald-600 shadow-sm"
                         : "text-gray-500 hover:text-gray-900"
                         }`}
@@ -288,7 +298,7 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                   )}
                   {project?.impact?.length > 0 && (
                     <button
-                      className={`px-6 py-2.5 text-sm font-bold rounded-xl transition-all ${activeTab === "impact"
+                      className={`px-4 sm:px-6 py-2 md:py-2.5 text-xs sm:text-sm font-bold rounded-lg md:rounded-xl transition-all whitespace-nowrap flex-1 sm:flex-none ${activeTab === "impact"
                         ? "bg-white text-emerald-600 shadow-sm"
                         : "text-gray-500 hover:text-gray-900"
                         }`}
@@ -299,7 +309,7 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                   )}
                   {project?.updates?.length > 0 && (
                     <button
-                      className={`px-6 py-2.5 text-sm font-bold rounded-xl transition-all ${activeTab === "updates"
+                      className={`px-4 sm:px-6 py-2 md:py-2.5 text-xs sm:text-sm font-bold rounded-lg md:rounded-xl transition-all whitespace-nowrap flex-1 sm:flex-none ${activeTab === "updates"
                         ? "bg-white text-emerald-600 shadow-sm"
                         : "text-gray-500 hover:text-gray-900"
                         }`}
@@ -321,12 +331,24 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                         exit={{ opacity: 0, x: 10 }}
                         className="space-y-10"
                       >
-                        <div className="bg-white p-6 lg:p-10 rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden">
-                          <h3 className="text-2xl font-serif font-bold text-gray-900 mb-6">About the Project</h3>
+                        <div className="bg-white p-5 sm:p-6 lg:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-gray-100 shadow-xl overflow-hidden">
+                          <h3 className="text-xl sm:text-2xl font-serif font-bold text-gray-900 mb-4 sm:mb-6">About the Project</h3>
                           <div
-                            className="text-gray-600 text-lg leading-relaxed whitespace-pre-wrap break-words prose prose-emerald max-w-none w-full"
+                            ref={descriptionRef}
+                            className={`text-gray-600 text-lg leading-relaxed whitespace-pre-wrap break-words prose prose-emerald max-w-none w-full transition-all duration-300 overflow-y-auto ${!isDescriptionExpanded ? "max-h-[350px]" : ""}`}
                             dangerouslySetInnerHTML={{ __html: project?.description }}
                           />
+                          {showReadMoreButton && (
+                            <div className="mt-4 pt-4 border-t border-gray-50 flex justify-center">
+                              <button
+                                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                                className="font-bold text-emerald-600 hover:text-emerald-700 flex items-center gap-2 transition-colors px-4 py-2 hover:bg-emerald-50 rounded-xl"
+                              >
+                                {isDescriptionExpanded ? "Show Less" : "Read More"}
+                                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isDescriptionExpanded ? "rotate-180" : ""}`} />
+                              </button>
+                            </div>
+                          )}
                         </div>
 
                         {/* Timeline */}
@@ -351,7 +373,7 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                                     <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white bg-white text-emerald-600 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 transition-colors duration-300">
                                       <Icon className="w-5 h-5" />
                                     </div>
-                                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 rounded-[1.5rem] bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] transition-all">
+                                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-5 sm:p-6 rounded-[1.5rem] bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] transition-all">
                                       <div className="flex items-center justify-between space-x-2 mb-1">
                                         <div className="font-bold text-gray-900">{event.title}</div>
                                         <time className="font-mono text-xs text-emerald-600/50" suppressHydrationWarning>
@@ -394,7 +416,7 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                             return (
                               <div
                                 key={idx}
-                                className="p-8 rounded-[2rem] bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-4"
+                                className="p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2rem] bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-4"
                               >
                                 <div className="flex items-center gap-4">
                                   <div className="p-3.5 rounded-2xl bg-emerald-50 text-emerald-600">
@@ -429,7 +451,7 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                         {project?.updates.map((update, idx) => (
                           <div
                             key={idx}
-                            className="group p-8 rounded-[2.5rem] bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-md transition-all"
+                            className="group p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-md transition-all"
                           >
                             <div className="flex justify-between items-start mb-4">
                               <div className="flex items-center gap-4">
@@ -497,7 +519,7 @@ export default function ProjectDetailsPage({ slug, projectId }) {
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="bg-[#064E3B] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl"
+                className="bg-[#064E3B] rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 text-white relative overflow-hidden shadow-2xl"
               >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl -mr-16 -mt-16"></div>
                 <div className="relative z-10 space-y-8">
@@ -529,16 +551,16 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-white rounded-[2.5rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] "
+                className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] "
               >
-                <div className="px-8 py-6 border-b border-gray-50 flex items-center gap-3">
+                <div className="px-6 sm:px-8 py-5 sm:py-6 border-b border-gray-50 flex items-center gap-3">
                   <div className="bg-emerald-50 p-2.5 rounded-xl">
                     <Heart className="w-5 h-5 text-emerald-600" />
                   </div>
                   <h2 className="text-xl font-bold text-gray-900">Make a Donation</h2>
                 </div>
 
-                <div className="p-8 space-y-8">
+                <div className="p-5 sm:p-8 space-y-6 sm:space-y-8">
                   {/* Donation Type Selection */}
                   <div className="space-y-4">
                     <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Select Purpose</label>
@@ -651,7 +673,7 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-6"
+                className="bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-6"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
@@ -697,7 +719,7 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
-                  className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-6"
+                  className="bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] space-y-6"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center text-red-600">

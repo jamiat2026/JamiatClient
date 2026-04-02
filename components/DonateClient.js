@@ -96,7 +96,7 @@ export default function DonatePage({ searchParams }) {
   const [donationFor, setDonationFor] = useState("self");
   const [dedicatedTo, setDedicatedTo] = useState("");
   const [message, setMessage] = useState("");
-  const [requestCertificate, setRequestCertificate] = useState(false);
+  const [panNumber, setPanNumber] = useState("");
   const minAmounts = {
     "One-Time": 50,
     Weekly: 20,
@@ -117,7 +117,7 @@ export default function DonatePage({ searchParams }) {
         const parsed = JSON.parse(draftStr);
         if (parsed.donationFrequency !== undefined) setDonationFrequency(parsed.donationFrequency);
         if (parsed.isRecurring !== undefined) setIsRecurring(parsed.isRecurring);
-        if (parsed.requestCertificate !== undefined) setRequestCertificate(parsed.requestCertificate);
+        if (parsed.panNumber !== undefined) setPanNumber(parsed.panNumber);
         if (parsed.customAmount !== undefined) setCustomAmount(parsed.customAmount);
         if (parsed.donationType !== undefined) setDonationType(parsed.donationType);
         if (parsed.currentStep !== undefined) setCurrentStep(parsed.currentStep);
@@ -208,7 +208,7 @@ export default function DonatePage({ searchParams }) {
       sessionStorage.setItem('donationDraft', JSON.stringify({
         donationFrequency,
         isRecurring,
-        requestCertificate,
+        panNumber,
         selectedProjectId,
         customAmount,
         donationType,
@@ -304,7 +304,7 @@ export default function DonatePage({ searchParams }) {
                 email,
                 dedicatedTo,
                 message,
-                requestCertificate,
+                panNumber,
                 isRecurring: true,
               }),
             })
@@ -324,7 +324,7 @@ export default function DonatePage({ searchParams }) {
             message,
             isRecurring,
             donationFrequency,
-            requestCertificate,
+            panNumber,
           },
           theme: {
             color: "#059669",
@@ -388,7 +388,7 @@ export default function DonatePage({ searchParams }) {
               email,
               dedicatedTo,
               message,
-              requestCertificate,
+              panNumber,
             }),
           })
             .then((res) => res.json())
@@ -410,7 +410,7 @@ export default function DonatePage({ searchParams }) {
         message,
         isRecurring,
         donationFrequency,
-        requestCertificate,
+        panNumber,
       },
       theme: {
         color: "#059669",
@@ -428,7 +428,7 @@ export default function DonatePage({ searchParams }) {
   return (
     <div className="flex flex-col lg:flex-row justify-center bg-white overflow-x-hidden min-h-screen">
       {/* Hero Section */}
-      <section className="w-full lg:w-5/12 relative pb-12 pt-10 lg:pt-32 lg:pb-0 px-5 lg:px-24 overflow-hidden flex items-start bg-slate-50/50 border-b lg:border-b-0 lg:border-l border-slate-100">
+      <section className="w-full lg:w-5/12 relative pb-12 pt-24 lg:pt-32 lg:pb-0 px-5 lg:px-24 overflow-hidden flex items-start bg-slate-50/50 border-b lg:border-b-0 lg:border-l border-slate-100">
         <div className="absolute inset-0 -z-10 pointer-events-none">
           <div className="absolute top-[-10%] right-[-10%] w-[70%] h-[70%] bg-emerald-50 rounded-full blur-3xl opacity-60" />
           <div className="absolute bottom-[5%] left-[-5%] w-[50%] h-[50%] bg-blue-50 rounded-full blur-3xl opacity-50" />
@@ -469,13 +469,13 @@ export default function DonatePage({ searchParams }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-8 max-w-2xl mx-auto"
+            className="grid grid-cols-3 gap-2 sm:gap-6 pt-8 max-w-2xl mx-auto text-center"
           >
             <div className="space-y-1">
               <div className="text-2xl lg:text-3xl font-bold text-emerald-600">10k+</div>
               <div className="text-[10px] lg:text-xs font-bold text-slate-400 uppercase tracking-widest">ACTIVE DONORS</div>
             </div>
-            <div className="space-y-1 sm:border-x border-slate-100">
+            <div className="space-y-1 border-x border-slate-100">
               <div className="text-2xl lg:text-3xl font-bold text-emerald-600">50k+</div>
               <div className="text-[10px] lg:text-xs font-bold text-slate-400 uppercase tracking-widest">LIVES IMPACTED</div>
             </div>
@@ -608,7 +608,7 @@ export default function DonatePage({ searchParams }) {
                   </motion.div>
                 </section>
 
-                <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex justify-end">
+                <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex justify-center lg:justify-end">
                   <button
                     onClick={() => setCurrentStep(2)}
                     className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all active:scale-95 shadow-xl shadow-emerald-900/10"
@@ -665,19 +665,21 @@ export default function DonatePage({ searchParams }) {
                           />
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center mr-3 transition-colors ${donationType === opt.type ? "bg-emerald-600 text-white" : "bg-white text-emerald-600 border border-emerald-100"
                             }`}>
-                            {opt.type === "General Donation" && <Heart className="w-5 h-5" />}
+                            {(opt.type === "General Donation" || opt.type === "Hadiya") && <Heart className="w-5 h-5" />}
                             {opt.type === "Zakat" && <Gift className="w-5 h-5" />}
                             {opt.type === "Sadqa" && <HandCoins className="w-5 h-5" />}
-                            {opt.type === "Interest Earnings" && <CircleDollarSign className="w-5 h-5" />}
+                            {(opt.type === "Interest Earnings" || opt.type === "others(general donations & interest income)") && <CircleDollarSign className="w-5 h-5" />}
                           </div>
-                          <span className="font-bold text-slate-900">{opt.type}</span>
+                          <span className="font-bold text-slate-900">
+                            {opt.type === "General Donation" ? "Hadiya" : opt.type === "Interest Earnings" ? "others(general donations & interest income)" : opt.type}
+                          </span>
                         </label>
                       ))}
                     </div>
                   </motion.div>
                 </section>
 
-                <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex items-center justify-between">
+                <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex flex-col-reverse lg:flex-row items-center justify-between gap-4 lg:gap-0">
                   <button
                     onClick={() => setCurrentStep(1)}
                     className="text-slate-400 font-bold hover:text-slate-600 transition-colors"
@@ -797,18 +799,21 @@ export default function DonatePage({ searchParams }) {
                       <div className="absolute text-red-500 text-xs mt-2 ml-2">(min: ₹{minAmount})</div>
                     </div>
 
-                    <label className="flex items-start gap-3 cursor-pointer p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                      <input
-                        type="checkbox"
-                        className="mt-1 h-5 w-5 rounded-lg accent-emerald-600"
-                        checked={requestCertificate}
-                        onChange={() => setRequestCertificate(!requestCertificate)}
-                      />
-                      <div className="space-y-1">
-                        <p className="font-bold text-xs text-slate-900 uppercase tracking-widest">Tax Exemption</p>
-                        <p className="text-xs text-slate-500 leading-relaxed">Request official certificate for tax deductions.</p>
+                    {amountValue > 2000 && (
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-slate-400 uppercase tracking-widest pl-1">
+                          PAN CARD NUMBER (REQUIRED)
+                        </label>
+                        <input
+                          type="text"
+                          className="w-full h-14 px-4 rounded-xl border-2 border-slate-100 bg-slate-50/50 focus:outline-none focus:border-emerald-500 focus:bg-white transition-all text-slate-900 font-medium uppercase"
+                          placeholder="Enter 10-digit PAN"
+                          value={panNumber}
+                          onChange={(e) => setPanNumber(e.target.value.toUpperCase())}
+                          maxLength={10}
+                        />
                       </div>
-                    </label>
+                    )}
 
                     {isRecurring && (
                       <motion.div
@@ -836,7 +841,7 @@ export default function DonatePage({ searchParams }) {
                   </motion.div>
                 </section>
 
-                <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex items-center justify-between">
+                <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex flex-col-reverse lg:flex-row items-center justify-between gap-4 lg:gap-0">
                   <button
                     onClick={() => setCurrentStep(2)}
                     className="text-slate-400 font-bold hover:text-slate-600 transition-colors"
@@ -848,6 +853,13 @@ export default function DonatePage({ searchParams }) {
                       if (!amountValue || amountValue < minAmount) {
                         alert(`Please enter a valid donation amount (minimum ₹${minAmount}).`);
                         return;
+                      }
+                      if (amountValue > 2000) {
+                        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+                        if (!panNumber || !panRegex.test(panNumber)) {
+                          alert("Please enter a valid 10-digit PAN Card Number.");
+                          return;
+                        }
                       }
                       setCurrentStep(4);
                     }}
@@ -889,9 +901,10 @@ export default function DonatePage({ searchParams }) {
 
                     <div className="space-y-3">
                       {[
-                        { label: "Purpose", val: donationType },
+                        { label: "Purpose", val: donationType === "General Donation" ? "Hadiya" : donationType === "Interest Earnings" ? "others(general donations & interest income)" : donationType },
                         { label: "Frequency", val: isRecurring ? donationFrequency : "One-Time" },
                         { label: "Dedication", val: donationFor === "self" ? "For Myself" : dedicatedTo || "Family/Memory" },
+                        ...(amountValue > 2000 ? [{ label: "PAN Card", val: panNumber }] : []),
                         { label: "Impact", val: `₹${amountValue}`, accent: true },
                         { label: "Project", val: selectedProject?.title || "—" },
                       ].map((item, idx) => (
@@ -935,7 +948,7 @@ export default function DonatePage({ searchParams }) {
           }
         </AnimatePresence>
         {/* Progress Indicator */}
-        <section className="max-w-2xl mx-auto px-4 sm:px-5 lg:px-8 py-6 sm:py-10 w-full" >
+        <section className="max-w-2xl mx-auto px-4 sm:px-5 lg:px-8 py-6 sm:py-10 w-full order-first lg:order-none mb-2 lg:mb-0" >
           <div className="relative flex justify-between items-center max-w-md mx-auto">
             {/* Progress Line */}
             <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-100 -z-10 rounded-full overflow-hidden">

@@ -82,7 +82,7 @@ const getColorClasses = (colorName) => {
     case 'blue': return { bg: 'bg-blue-100', text: 'text-blue-600' };
     case 'purple': return { bg: 'bg-purple-100', text: 'text-purple-600' };
     case 'amber': return { bg: 'bg-amber-100', text: 'text-amber-600' };
-    case 'emerald': 
+    case 'emerald':
     default: return { bg: 'bg-emerald-100', text: 'text-emerald-600' };
   }
 };
@@ -96,6 +96,9 @@ const AboutClient = () => {
   const [financial, setFinancial] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("journey");
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const contentRef = React.useRef(null);
 
   useEffect(() => {
     if (story) {
@@ -104,6 +107,21 @@ const AboutClient = () => {
       else if (story.future?.length > 0) setActiveTab("future");
     }
   }, [story]);
+
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [activeTab]);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (contentRef.current) {
+        setIsOverflowing(contentRef.current.scrollHeight > 400);
+      }
+    };
+    checkOverflow();
+    const timeoutId = setTimeout(checkOverflow, 100);
+    return () => clearTimeout(timeoutId);
+  }, [activeTab, story]);
 
   const availableTabs = React.useMemo(() => [
     { label: "Our Journey", value: "journey", data: story?.journey },
@@ -174,6 +192,34 @@ const AboutClient = () => {
     }
     fetchContent();
   }, []);
+
+  const handleDownload = async (e, url, filename) => {
+    e.preventDefault();
+    if (!url || url === "#") return;
+
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+
+      let downloadName = filename || "document";
+      if (!downloadName.toLowerCase().endsWith('.pdf')) {
+        downloadName += '.pdf';
+      }
+      link.download = downloadName;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+      // Fallback: open in new tab if fetch fails (e.g. CORS)
+      window.open(url, "_blank");
+    }
+  };
 
   if (loading) {
     return (
@@ -281,7 +327,7 @@ const AboutClient = () => {
 
       {/* our story */}
       <section className="px-5 py-12 lg:px-8 lg:py-20 bg-white">
-        <div className="max-w-md mx-auto lg:max-w-6xl space-y-8 lg:space-y-12">
+        <div className="max-w-md mx-auto lg:max-w-7xl space-y-8 lg:space-y-12">
           <div className="text-center space-y-2 lg:space-y-4">
             <h2 className="text-2xl lg:text-4xl font-bold text-gray-900">
               {story?.title}
@@ -316,14 +362,47 @@ const AboutClient = () => {
             </div>
 
             <div className="mt-6 lg:mt-12 space-y-6">
-              {activeTab === "journey" && (
-                <StorySection items={story?.journey} icons={JOURNEY_ICONS} />
-              )}
-              {activeTab === "impact" && (
-                <StorySection items={story?.impact} icons={IMPACT_ICONS} />
-              )}
-              {activeTab === "future" && (
-                <StorySection items={story?.future} icons={FUTURE_ICONS} />
+              <div
+                ref={contentRef}
+                className={`relative transition-all duration-500 ${isExpanded
+                  ? "max-h-[600px] overflow-y-auto pr-2"
+                  : "max-h-[400px] overflow-hidden"
+                  }`}
+                style={{
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#10B981 transparent'
+                }}
+              >
+                {activeTab === "journey" && (
+                  <StorySection items={story?.journey} icons={JOURNEY_ICONS} />
+                )}
+                {activeTab === "impact" && (
+                  <StorySection items={story?.impact} icons={IMPACT_ICONS} />
+                )}
+                {activeTab === "future" && (
+                  <StorySection items={story?.future} icons={FUTURE_ICONS} />
+                )}
+
+                {/* Gradient overlay when collapsed */}
+                {!isExpanded && isOverflowing && (
+                  <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+                )}
+              </div>
+
+              {/* Toggle Button */}
+              {isOverflowing && (
+                <div className="flex justify-center mt-4 pt-2">
+                  <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="px-6 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-semibold rounded-full transition-colors text-sm flex items-center gap-2"
+                  >
+                    {isExpanded ? (
+                      <>Show Less <ChevronRight className="w-4 h-4 -rotate-90 transition-transform" /></>
+                    ) : (
+                      <>Read More <ChevronRight className="w-4 h-4 rotate-90 transition-transform" /></>
+                    )}
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -353,7 +432,7 @@ const AboutClient = () => {
             </p>
           </div>
 
-          <div className="max-w-4xl mx-auto space-y-6 lg:space-y-8">
+          <div className="w-full mx-auto space-y-6 lg:space-y-8">
             {objectivesToRender.length > 0 ? (
               objectivesToRender.map((objectiveText, idx) => (
                 <motion.div
@@ -399,57 +478,62 @@ const AboutClient = () => {
             const bgColor = isApiData ? getColorClasses(member.color).bg : member.color;
             const textColor = isApiData ? getColorClasses(member.color).text : member.textColor;
             const bioText = isApiData ? member.description : member.bio;
+            const displayInitials = member.initials || (member.name ? member.name.split(" ").map(n => n[0]).join("").toUpperCase().substring(0, 2) : "");
 
             return (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className="group space-y-6 text-center"
-            >
-              <div className="relative mx-auto w-32 h-32 lg:w-40 lg:h-40">
-                <div className="absolute inset-0 bg-emerald-100 rounded-full scale-110 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className={`relative w-full h-full ${bgColor} rounded-full flex items-center justify-center border-4 border-white shadow-lg`}>
-                  <span className={`text-2xl lg:text-3xl font-bold ${textColor}`}>
-                    {member.initials}
-                  </span>
-                  <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-white shadow-md rounded-full flex items-center justify-center border border-slate-100">
-                    {member.icon === "shield" || (!isApiData && idx % 2 === 0) ? (
-                      <ShieldCheck className="w-5 h-5 text-emerald-600" />
-                    ) : (
-                      <TrendingUp className="w-5 h-5 text-emerald-600" />
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                className="group space-y-6 text-center"
+              >
+                <div className="relative mx-auto w-32 h-32 lg:w-40 lg:h-40">
+                  <div className="absolute inset-0 bg-emerald-100 rounded-full scale-110 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className={`relative w-full h-full ${bgColor} rounded-full flex items-center justify-center border-4 border-white shadow-lg overflow-hidden`}>
+                    <span className={`text-2xl lg:text-3xl font-bold ${textColor}`}>
+                      {displayInitials}
+                    </span>
+                    {member.image && (
+                      <img
+                        src={member.image}
+                        alt={member.name}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
                     )}
                   </div>
                 </div>
-              </div>
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="font-bold text-xl text-slate-900 group-hover:text-emerald-600 transition-colors">
-                    {member.name}
-                  </h3>
-                  <p className="text-emerald-600 font-medium text-sm">
-                    {member.role}
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-xl text-slate-900 group-hover:text-emerald-600 transition-colors">
+                      {member.name}
+                    </h3>
+                    <p className="text-emerald-600 font-medium text-sm">
+                      {member.role}
+                    </p>
+                  </div>
+                  <p className="text-slate-500 text-sm leading-relaxed px-4">
+                    {bioText}
                   </p>
                 </div>
-                <p className="text-slate-500 text-sm leading-relaxed px-4">
-                  {bioText}
-                </p>
-              </div>
-            </motion.div>
-          )})}
+              </motion.div>
+            )
+          })}
         </div>
       </section>
 
       {/* Financial Transparency Section */}
-      <section className="px-5 lg:px-8 py-16 lg:py-24 max-w-7xl mx-auto w-full">
+      <section className="max-w-4xl px-5 lg:px-8 py-16 lg:py-24 lg:max-w-7xl mx-auto w-full">
         <div className="relative bg-[#0F172A] rounded-[2.5rem] overflow-hidden p-8 lg:p-16 text-white flex flex-col lg:flex-row gap-16 items-center shadow-2xl">
           <div className="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
             <div className="absolute top-[20%] right-[10%] w-[40%] h-[40%] bg-emerald-500 rounded-full blur-[120px]" />
           </div>
 
-          <div className="relative z-10 lg:w-1/2 space-y-8">
+          <div className="relative z-10 lg:w-1/2 space-y-8 order-2 lg:order-none">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-600/20 text-emerald-400 font-medium text-xs border border-emerald-400/20">
               <PieChart className="w-4 h-4" />
               <span>{financial?.tagline || "Financial Transparency"}</span>
@@ -460,28 +544,19 @@ const AboutClient = () => {
             <p className="text-slate-400 text-lg leading-relaxed">
               {financial?.description || "We believe in complete transparency. Every year, we publish detailed reports so you can see exactly how your contributions are making a difference. We maintain low administrative costs to maximize impact."}
             </p>
-            <div className="flex flex-wrap gap-4 pt-4">
+            <div className="flex flex-wrap gap-4 pt-4 w-full">
               <a
                 href={financial?.button1?.pdfUrl || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-emerald-900/20 active:scale-95"
+                onClick={(e) => handleDownload(e, financial?.button1?.pdfUrl, financial?.button1?.label || "2023 Annual Report")}
+                className="w-full lg:w-auto justify-center px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg shadow-emerald-900/20 active:scale-95 cursor-pointer"
               >
                 <Download className="w-4 h-4" />
                 {financial?.button1?.label || "2023 Annual Report"}
               </a>
-              <a
-                href={financial?.button2?.pdfUrl || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white border border-white/10 rounded-xl font-bold flex items-center gap-2 transition-all"
-              >
-                {financial?.button2?.label || "View Past Reports"}
-              </a>
             </div>
           </div>
 
-          <div className="relative z-10 lg:w-1/2 w-full">
+          <div className="relative z-10 lg:w-1/2 w-full order-1 lg:order-none">
             <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 lg:p-10 space-y-10 shadow-2xl">
               <div className="flex justify-between items-start">
                 <div className="space-y-1">

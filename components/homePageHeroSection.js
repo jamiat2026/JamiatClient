@@ -39,7 +39,7 @@ export default function HomePageHeroSection({ hero }) {
     const isLoading = !hero;
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
-
+    const [recentDonation, setRecentDonation] = useState({ amount: 100, projectId: { title: "General Zakath Fund" } });
     const sliderImages = (hero?.carouselImages?.length > 0) ? hero.carouselImages : [
         "/donate.jpg",
         "https://res.cloudinary.com/doxoxzz02/image/upload/v1755268342/Zakath_Fund_zsrpnx.jpg",
@@ -47,11 +47,17 @@ export default function HomePageHeroSection({ hero }) {
     ];
 
     useEffect(() => {
+        async function fetchRecentDonation() {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/donations/recent`);
+            const data = await res.json();
+            setRecentDonation(data);
+        }
+        fetchRecentDonation();
         if (isLoading || sliderImages.length <= 1 || isPaused) return;
 
         const timer = setInterval(() => {
             setCurrentImageIndex((prev) => (prev + 1) % sliderImages.length);
-        }, 3000);
+        }, 5000);
 
         return () => clearInterval(timer);
     }, [isLoading, sliderImages.length, isPaused]);
@@ -135,7 +141,7 @@ export default function HomePageHeroSection({ hero }) {
                                     </div>
                                     <div className="space-y-0.5">
                                         <p className="text-sm font-bold text-slate-900">
-                                            Trusted by 2,500+ Donors
+                                            Trusted by 100K+ Donors
                                         </p>
                                         <div className="flex gap-0.5">
                                             {[1, 2, 3, 4, 5].map((i) => (
@@ -229,27 +235,30 @@ export default function HomePageHeroSection({ hero }) {
                                     </div>
 
                                     {/* Floating Card Detail (Optional, like in the image) */}
-                                    <div className="absolute -bottom-6 -left-20 bg-white p-5 rounded-2xl shadow-2xl shadow-emerald-950/10 border-2 border-emerald-50/50 hidden sm:block animate-bounce-slow bg-gray-600">
-                                        <div className="flex items-center gap-3">
-                                            <div className="size-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                                                <Heart className="size-5 text-emerald-600 fill-emerald-600" />
-                                            </div>
-                                            <div>
-                                                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Recent Donation</p>
-                                                <p className="text-sm font-bold text-slate-900">₹5,000 for Water Project</p>
+                                    {recentDonation.amount >= 1000 &&
+                                        <div className="absolute -bottom-6 -left-20 bg-white p-5 rounded-2xl shadow-2xl shadow-emerald-950/10 border-2 border-emerald-50/50 hidden sm:block animate-bounce-slow bg-gray-600">
+                                            <div className="flex items-center gap-3">
+
+                                                <div className="size-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                                                    <Heart className="size-5 text-emerald-600 fill-emerald-600" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Recent Donation</p>
+                                                    <p className="text-sm font-bold text-slate-900">₹{recentDonation.amount} for {recentDonation.projectId.title}</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    }
                                 </>
                             )}
                         </div>
                     </div>
                 </div>
                 {/* Stats */}
-                <div className="px-4 sm:px-6 lg:px-8 py-24 bg-[#06422d] lg:py-32">
-                    <div className="max-w-7xl mx-auto space-y-16 lg:space-y-24">
+                <div className="px-4 sm:px-6 lg:px-8 py-12 sm:py-24 bg-[#06422d] lg:py-32">
+                    <div className="max-w-7xl mx-auto space-y-10 sm:space-y-16 lg:space-y-24">
                         {/* Stats Section */}
-                        <div className="grid grid-cols-3 gap-4 lg:gap-12">
+                        <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-12">
                             {isLoading
                                 ? Array.from({ length: 3 }).map((_, i) => (
                                     <div key={i} className="text-center space-y-2">
@@ -263,10 +272,10 @@ export default function HomePageHeroSection({ hero }) {
                                         className={`text-center${i === 1 ? " border-x border-white/10" : ""
                                             }`}
                                     >
-                                        <div className="text-3xl font-bold text-white sm:text-5xl mb-2">
+                                        <div className="text-2xl font-bold text-white sm:text-5xl mb-1 sm:mb-2">
                                             {stat.value}
                                         </div>
-                                        <div className="text-xs text-emerald-100/70 font-medium sm:text-base tracking-wide uppercase">
+                                        <div className="text-[10px] text-emerald-100/70 font-medium sm:text-base tracking-wide uppercase">
                                             {stat.label}
                                         </div>
                                     </div>
@@ -318,7 +327,7 @@ export default function HomePageHeroSection({ hero }) {
                                 <div className="mb-4">
                                     <span className="bg-emerald-100 text-emerald-900 font-bold text-xs tracking-[0.3em] uppercase px-4 py-2 rounded-full inline-block">About Us</span>
                                 </div>
-                                <h2 className={`${playfair.className} text-3xl lg:text-4xl font-bold text-[#06422d] leading-tight mb-5`}>
+                                <h2 className={`${playfair.className} text-2xl lg:text-4xl font-bold text-[#06422d] leading-tight mb-5`}>
                                     A Century of Commitment
                                 </h2>
                                 <p className="text-slate-600 leading-relaxed text-sm lg:text-base">
@@ -335,7 +344,7 @@ export default function HomePageHeroSection({ hero }) {
                                 <div className="mb-4">
                                     <span className="bg-emerald-100 text-emerald-900 font-bold text-xs tracking-[0.3em] uppercase px-4 py-2 rounded-full inline-block">Our Purpose</span>
                                 </div>
-                                <h2 className={`${playfair.className} text-3xl lg:text-4xl font-bold text-[#06422d] leading-tight mb-6`}>
+                                <h2 className={`${playfair.className} text-2xl lg:text-4xl font-bold text-[#06422d] leading-tight mb-6`}>
                                     Vision & Mission
                                 </h2>
                                 <div className="space-y-4 flex-grow">
@@ -389,7 +398,7 @@ export default function HomePageHeroSection({ hero }) {
                                 </div>
 
                                 <div className="mb-6">
-                                    <h2 className={`${playfair.className} text-xl lg:text-2xl font-bold text-[#06422d] mb-1`}>
+                                    <h2 className={`${playfair.className} text-lg lg:text-2xl font-bold text-[#06422d] mb-1`}>
                                         Maulana Mahmood As'ad Madani
                                     </h2>
                                     <span className="text-emerald-700 font-bold text-[10px] tracking-[0.2em] uppercase">

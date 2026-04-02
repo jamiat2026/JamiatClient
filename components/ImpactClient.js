@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   // General & Basic
   Heart, Star, Home, Book, BookOpen, GraduationCap, School, Award, Trophy, Medal, Target, Shield, ShieldCheck, Lock, Unlock, Key, Lightbulb, Zap, Flame, Sparkles, Gem, Search, Scan, Focus, Eye, EyeOff,
@@ -26,7 +26,7 @@ import {
   // Misc & Utilities
   ArrowRight, ArrowUp, CheckCircle, XCircle, AlertCircle, Info, Download, Upload, Recycle, RefreshCw, RotateCcw, Repeat, Infinity, Cross, Scale, Gavel, Crown,
   // Existing/Additional
-  Calculator, Quote, ChevronRight
+  Calculator, Quote, ChevronRight, ChevronDown
 } from "lucide-react";
 import { Playfair_Display } from "next/font/google";
 
@@ -59,7 +59,7 @@ const ICON_MAP = {
   // Misc & Utilities
   ArrowRight, ArrowUp, CheckCircle, XCircle, AlertCircle, Info, Download, Upload, Recycle, RefreshCw, RotateCcw, Repeat, Infinity, Cross, Scale, Gavel, Crown,
   // Existing/Additional
-  Calculator, Quote, ChevronRight,
+  Calculator, Quote, ChevronRight, ChevronDown,
 
   // Semantic Aliases & Fallbacks
   education: GraduationCap,
@@ -89,6 +89,18 @@ const Impact = () => {
 
   const [showAllStories, setShowAllStories] = useState(false);
   const [activeTab, setActiveTab] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     async function fetchContent() {
@@ -166,7 +178,7 @@ const Impact = () => {
   return (
     <div className="bg-white">
       {/* Hero Section */}
-      <section className="bg-[#ECFDF5] py-20 lg:py-32 flex flex-col items-center px-4 overflow-hidden relative">
+      <section className="bg-[#ECFDF5] pt-28 sm:pt-32 pb-16 sm:pb-20 lg:pt-40 lg:pb-32 flex flex-col items-center px-4 overflow-hidden relative">
         <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none overflow-hidden">
           <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[60%] bg-emerald-100/50 rounded-full blur-[100px]" />
           <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[60%] bg-emerald-50/50 rounded-full blur-[100px]" />
@@ -196,15 +208,15 @@ const Impact = () => {
       </section>
 
       {/* Stats Grid */}
-      <section className="bg-white pb-24">
-        <div className="max-w-7xl mx-auto w-full -mt-16 lg:-mt-24 relative z-20 px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <section className="bg-white pb-10 sm:pb-24">
+        <div className="max-w-7xl mx-auto w-full -mt-10 sm:-mt-16 lg:-mt-24 relative z-20 px-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             {statsList.map((stat, idx) => (
               <div
                 key={idx}
-                className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-[0_15px_50px_-12px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.12)] transition-all duration-500 hover:-translate-y-2 group"
+                className="bg-white p-6 sm:p-8 rounded-3xl sm:rounded-[32px] border border-gray-100 shadow-[0_15px_50px_-12px_rgba(0,0,0,0.08)] hover:shadow-[0_20px_60px_-12px_rgba(0,0,0,0.12)] transition-all duration-500 hover:-translate-y-2 group"
               >
-                <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300">
                   {stat.icon}
                 </div>
                 <div className={`${playfair.className} text-4xl font-bold text-gray-900 mb-2`}>{stat.value}</div>
@@ -217,9 +229,9 @@ const Impact = () => {
       </section>
 
       {/* Impact categories section */}
-      <section className="px-4 py-24 lg:py-32 bg-white">
+      <section className="px-4 py-12 sm:py-24 lg:py-32 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16 space-y-4">
+          <div className="text-center mb-10 sm:mb-16 space-y-4">
             <h2 className={`${playfair.className} text-4xl lg:text-5xl font-bold text-[#1a2e35]`}>
               {tabContent?.section?.title || "Areas of Impact"}
             </h2>
@@ -228,8 +240,53 @@ const Impact = () => {
             </p>
           </div>
 
-          {/* Tab navigation */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-12">
+          {/* Tab navigation - Mobile Custom Dropdown */}
+          <div className="block sm:hidden w-full max-w-sm mx-auto mb-8 relative z-50" ref={dropdownRef}>
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className={`w-full flex items-center justify-between bg-white border-2 px-6 py-4 rounded-2xl font-bold text-sm sm:text-base transition-all shadow-sm ${
+                isDropdownOpen ? "border-emerald-500 text-emerald-700 ring-4 ring-emerald-500/10" : "border-gray-100 text-gray-700 hover:border-emerald-200"
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <LayoutGrid className="w-5 h-5 text-emerald-500" />
+                {tabContent?.categories?.find(c => c.key === activeTab)?.title || "Select Category"}
+              </span>
+              <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${isDropdownOpen ? "rotate-180 text-emerald-500" : "text-gray-400"}`} />
+            </button>
+            
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute w-full mt-2 py-2 bg-white border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-50 flex flex-col max-h-[60vh] overflow-y-auto"
+                >
+                  {tabContent?.categories?.map((cat) => (
+                    <button
+                      key={cat.key}
+                      onClick={() => {
+                        setActiveTab(cat.key);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-6 py-3.5 font-bold text-sm transition-colors flex items-center gap-3 ${
+                        activeTab === cat.key
+                          ? "bg-emerald-50 text-emerald-700 border-l-4 border-emerald-500"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-emerald-600 border-l-4 border-transparent"
+                      }`}
+                    >
+                      {cat.title}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Tab navigation - Desktop Tabs */}
+          <div className="hidden sm:flex flex-wrap items-center justify-center gap-2 mb-8 sm:mb-12">
             {tabContent?.categories?.map((cat) => (
               <button
                 key={cat.key}
@@ -245,13 +302,13 @@ const Impact = () => {
           </div>
 
           {/* Tab content */}
-          <div className="mt-12">
+          <div className="mt-8 sm:mt-12">
             {tabContent?.categories?.map(
               ({ key, color, title, subtitle, stats, description, link, icon }) =>
                 activeTab === key && (
-                  <div key={key} className="bg-[#F8FAFC] rounded-[48px] p-8 lg:p-16 border border-gray-100 shadow-sm animate-in fade-in duration-500 max-w-4xl mx-auto">
-                    <div className="space-y-8">
-                      <div className="flex items-center gap-6">
+                  <div key={key} className="bg-[#F8FAFC] rounded-[2rem] sm:rounded-[48px] p-6 sm:p-8 lg:p-16 border border-gray-100 shadow-sm animate-in fade-in duration-500 max-w-4xl mx-auto">
+                    <div className="space-y-6 sm:space-y-8">
+                      <div className="flex items-center gap-4 sm:gap-6">
                         <div className="bg-white w-20 h-20 rounded-[28px] shadow-xl flex items-center justify-center flex-shrink-0 border border-emerald-50">
                           {(() => {
                             // Handle cases where icon might be a path/URL or prefixed string
@@ -268,9 +325,9 @@ const Impact = () => {
                         </div>
                       </div>
 
-                      <div className="space-y-6">
+                      <div className="space-y-4 sm:space-y-6">
                         {stats?.map((stat, index) => (
-                          <div key={index} className="space-y-3">
+                          <div key={index} className="space-y-2 sm:space-y-3">
                             <div className="flex justify-between items-center text-sm lg:text-base">
                               <span className="font-bold text-[#1a2e35]">{stat.label}</span>
                               <span className="font-extrabold text-emerald-600">{stat.value}</span>
@@ -288,12 +345,12 @@ const Impact = () => {
                         ))}
                       </div>
 
-                      <div className="pt-6 border-t border-gray-200">
-                        <p className="text-gray-600 text-lg leading-relaxed">{description}</p>
+                      <div className="pt-5 sm:pt-6 border-t border-gray-200">
+                        <p className="text-gray-600 text-base sm:text-lg leading-relaxed">{description}</p>
                         {typeof link === "string" && (
                           <Link
                             href={link}
-                            className="mt-8 inline-flex items-center gap-2 text-emerald-700 font-bold hover:gap-4 transition-all"
+                            className="mt-6 sm:mt-8 inline-flex items-center gap-2 text-emerald-700 font-bold hover:gap-4 transition-all"
                           >
                             Explore {title.split(" ")[0]} Initiatives
                             <ArrowRight className="h-5 w-5" />
@@ -313,7 +370,7 @@ const Impact = () => {
       {stories.length > 0 && (
         <section className="">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-20 space-y-4">
+            <div className="text-center mb-10 sm:mb-20 space-y-4">
               <h2 className={`${playfair.className} text-4xl lg:text-5xl font-bold text-[#1a2e35]`}>
                 Voices of Change
               </h2>
@@ -322,18 +379,24 @@ const Impact = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-12">
+            <div className={`grid gap-8 xl:gap-12 ${
+              visibleStories.length === 1 
+                ? "grid-cols-1 max-w-md mx-auto w-full" 
+                : visibleStories.length === 2 
+                  ? "grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto w-full" 
+                  : "grid-cols-1 md:grid-cols-3"
+            }`}>
               {stories.length === 0 ? (
                 <div className="col-span-3 text-center text-gray-400 py-12">No stories available.</div>
               ) : (
                 visibleStories.map((story, idx) => (
                   <div
                     key={story._id || story.id}
-                    className={`p-10 lg:p-12 rounded-[40px] border border-gray-50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative group hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-3 ${idx % 2 === 1 ? "bg-white" : "bg-[#ECFDF5]"}`}
+                    className={`p-8 sm:p-10 lg:p-12 rounded-[2rem] sm:rounded-[40px] border border-gray-50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative group hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-3 ${idx % 2 === 1 ? "bg-white" : "bg-[#ECFDF5]"}`}
                   >
-                    <Quote className={`absolute top-10 right-10 size-10 transition-colors duration-500 ${idx % 2 === 1 ? "text-emerald-500" : "text-[#A7F3D0]"}`} />
+                    <Quote className={`absolute top-6 right-6 sm:top-10 sm:right-10 size-8 sm:size-10 transition-colors duration-500 ${idx % 2 === 1 ? "text-emerald-500" : "text-[#A7F3D0]"}`} />
 
-                    <div className="flex items-center gap-5 mb-10 relative z-10">
+                    <div className="flex items-center gap-4 sm:gap-5 mb-6 sm:mb-10 relative z-10">
                       <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-xl">
                         {story.initials}
                       </div>
@@ -352,7 +415,7 @@ const Impact = () => {
             </div>
 
             {stories.length >= 4 && (
-              <div className="mt-16 text-center">
+              <div className="mt-8 sm:mt-16 text-center">
                 <button
                   onClick={() => setShowAllStories(!showAllStories)}
                   className="inline-flex items-center gap-2 border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white px-10 py-4 rounded-full font-bold transition-all"
@@ -367,8 +430,8 @@ const Impact = () => {
       )}
 
       {/* CTA Section */}
-      <section className="lg:mx-8  px-4 py-24 lg:py-32 lg:pb-24 ">
-        <div className="bg-gradient-to-br from-[#064e3b] to-[#065f46] rounded-[48px] py-16 lg:py-20 px-6 text-center relative overflow-hidden shadow-2xl shadow-emerald-900/20">
+      <section className="lg:mx-8 px-4 py-16 sm:py-24 lg:py-32 lg:pb-24">
+        <div className="bg-gradient-to-br from-[#064e3b] to-[#065f46] rounded-[2rem] sm:rounded-[48px] py-12 sm:py-16 lg:py-20 px-6 text-center relative overflow-hidden shadow-2xl shadow-emerald-900/20">
           <div className="absolute top-0 right-0 w-[50%] h-full bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.1),transparent_70%)]" />
           <div className="absolute bottom-0 left-0 w-[50%] h-full bg-[radial-gradient(circle_at_bottom_left,rgba(16,185,129,0.05),transparent_70%)]" />
 

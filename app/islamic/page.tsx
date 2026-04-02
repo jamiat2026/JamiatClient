@@ -39,7 +39,7 @@ const Islamic = () => {
         <div className="bg-white">
 
             {/* Hero Section */}
-            <section className="bg-[#ECFDF5] py-20 lg:py-32 flex flex-col items-center px-4 overflow-hidden relative">
+            <section className="bg-[#ECFDF5] pt-32 pb-20 lg:pt-32 lg:pb-32 flex flex-col items-center px-4 overflow-hidden relative">
                 <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none overflow-hidden">
                     <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[60%] bg-emerald-100/50 rounded-full blur-[100px]" />
                     <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[60%] bg-emerald-50/50 rounded-full blur-[100px]" />
@@ -61,10 +61,10 @@ const Islamic = () => {
 
             {/* Tools Section (Zakat Calculator & Hijri Calendar) - Overlapping Hero */}
             <section className="bg-white pb-24">
-                <div className="max-w-5xl mx-auto w-full -mt-16 lg:-mt-24 relative z-20 px-4">
+                <div className="max-w-5xl mx-auto w-full -mt-16 lg:-mt-24 relative z-20 px-2 md:px-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Zakat Calculator Card */}
-                        <div className="bg-[#00452E]/90 p-8 lg:p-10 rounded-[32px] group flex flex-col items-start h-full shadow-lg shadow-emerald-900/10 transition-all duration-300">
+                        <div className="bg-[#00452E]/90 p-6 md:p-8 lg:p-10 rounded-[32px] group flex flex-col items-start h-full shadow-lg shadow-emerald-900/10 transition-all duration-300">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/20">
                                     <Calculator className="w-7 h-7 text-white" />
@@ -97,7 +97,7 @@ const Islamic = () => {
                         </div>
 
                         {/* Hijri Calendar Card */}
-                        <div className="bg-[#00452E]/90 p-8 lg:p-10 rounded-[32px] group flex flex-col items-start h-full shadow-lg shadow-emerald-900/10 transition-all duration-300">
+                        <div className="bg-[#00452E]/90 p-6 md:p-8 lg:p-10 rounded-[32px] group flex flex-col items-start h-full shadow-lg shadow-emerald-900/10 transition-all duration-300">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/20">
                                     <Calendar className="w-7 h-7 text-white" />
@@ -142,7 +142,7 @@ const Islamic = () => {
                         : "md:grid-cols-3 max-w-7xl";
 
                 return (
-                    <section className="px-4 py-24 lg:py-32 bg-white border-t border-gray-50">
+                    <section className="px-2 md:px-4 py-24 lg:py-32 bg-white border-t border-gray-50">
                         <div className="max-w-7xl mx-auto">
                             <div className="text-center mb-20 space-y-4">
                                 <h2 className={`${playfair.className} text-4xl lg:text-5xl font-bold text-[#1a2e35]`}>
@@ -157,7 +157,7 @@ const Islamic = () => {
                                 {cards.map((card: any, index: number) => (
                                     <div
                                         key={card._id || index}
-                                        className="p-10 lg:p-12 rounded-[40px] border border-gray-50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative group hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-3 bg-[#ECFDF5]"
+                                        className="p-6 md:p-10 lg:p-12 rounded-[32px] md:rounded-[40px] border border-gray-50 shadow-[0_10px_40px_-15px_rgba(0,0,0,0.05)] relative group hover:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.1)] transition-all duration-700 hover:-translate-y-3 bg-[#ECFDF5]"
                                     >
                                         <Quote className="absolute top-10 right-10 size-10 text-[#A7F3D0] transition-colors duration-500" />
 
@@ -182,7 +182,7 @@ const Islamic = () => {
             })()}
 
             {/* Knowledge Hub (QnA & Bayans) */}
-            <section className="px-4 py-24 lg:py-32 bg-[#F8FAFC]">
+            <section className="px-2 md:px-4 py-24 lg:py-32 bg-[#F8FAFC]">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16 space-y-4">
                         <h2 className={`${playfair.className} text-4xl lg:text-5xl font-bold text-[#1a2e35]`}>
@@ -195,7 +195,7 @@ const Islamic = () => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                         {/* QnA Section */}
-                        <div className="bg-white rounded-[48px] p-8 lg:p-16 border border-gray-100 shadow-[0_15px_50px_-12px_rgba(0,0,0,0.08)] flex flex-col h-full hover:-translate-y-2 transition-transform duration-500">
+                        <div className="bg-white rounded-[32px] md:rounded-[48px] p-6 md:p-8 lg:p-16 border border-gray-100 shadow-[0_15px_50px_-12px_rgba(0,0,0,0.08)] flex flex-col h-full hover:-translate-y-2 transition-transform duration-500">
                             <div className="flex items-center gap-6 mb-8">
                                 <div className="bg-emerald-50 w-20 h-20 rounded-[28px] shadow-sm flex items-center justify-center flex-shrink-0 border border-emerald-100">
                                     <HelpCircle className="h-10 w-10 text-emerald-600" />
@@ -249,7 +249,7 @@ const Islamic = () => {
                         </div>
 
                         {/* Recent Bayan Section */}
-                        <div className="bg-white rounded-[48px] p-8 lg:p-16 border border-gray-100 shadow-[0_15px_50px_-12px_rgba(0,0,0,0.08)] flex flex-col h-full hover:-translate-y-2 transition-transform duration-500">
+                        <div className="bg-white rounded-[32px] md:rounded-[48px] p-6 md:p-8 lg:p-16 border border-gray-100 shadow-[0_15px_50px_-12px_rgba(0,0,0,0.08)] flex flex-col h-full hover:-translate-y-2 transition-transform duration-500">
                             <div className="flex items-center gap-6 mb-8">
                                 <div className="bg-emerald-50 w-20 h-20 rounded-[28px] shadow-sm flex items-center justify-center flex-shrink-0 border border-emerald-100">
                                     <Video className="h-10 w-10 text-emerald-600" />

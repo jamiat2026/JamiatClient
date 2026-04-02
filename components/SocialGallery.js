@@ -57,7 +57,7 @@ export default function SocialGallery({ data }) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className={`${playfair.className} text-4xl lg:text-6xl font-bold text-slate-900 mb-6 tracking-tight`}
+            className={`${playfair.className} text-3xl md:text-4xl lg:text-6xl font-bold text-slate-900 mb-6 tracking-tight`}
           >
             {sectionTitle}
           </motion.h2>

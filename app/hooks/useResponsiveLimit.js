@@ -13,7 +13,7 @@ export default function useResponsiveLimit() {
       else setLimit(6);                       // very large screens (4k)
     }
 
-    updateLimit(); 
+    updateLimit();
     window.addEventListener("resize", updateLimit);
     return () => window.removeEventListener("resize", updateLimit);
   }, []);

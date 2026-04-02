@@ -88,7 +88,7 @@ export const VolunteerPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFDFC] pt-32 pb-24 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#FDFDFC] pt-32 pb-24 px-2 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header/Hero Section */}
         <div className="text-center mb-16 space-y-4">
@@ -110,14 +110,14 @@ export const VolunteerPage = () => {
           {/* Left Column: Form */}
           <div className="lg:col-span-7">
             <div className="bg-white rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
-              <div className="px-8 py-6 border-b border-gray-50 flex items-center gap-3">
+              <div className="px-5 sm:px-8 py-6 border-b border-gray-50 flex items-center gap-3">
                 <div className="bg-emerald-50 p-2 rounded-lg">
                   <UserPlus className="w-5 h-5 text-emerald-600" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900">Volunteer Registration</h2>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-8 space-y-6">
+              <form onSubmit={handleSubmit} className="p-5 sm:p-8 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700">
                   <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">First Name</label>
@@ -217,7 +217,7 @@ export const VolunteerPage = () => {
           <div className="lg:col-span-5 space-y-10">
 
             {/* Current Volunteer Opportunities */}
-            <div className="bg-[#ECFDF5] rounded-3xl p-8 space-y-6">
+            <div className="bg-[#ECFDF5] rounded-3xl p-5 sm:p-8 space-y-6">
               <h2 className="text-2xl font-serif text-[#064E3B] font-bold">Current Opportunities</h2>
 
               <div className="space-y-6">
@@ -258,7 +258,7 @@ export const VolunteerPage = () => {
             </div>
 
             {/* Other Ways to Help Card */}
-            <div className="bg-white rounded-3xl p-8 border border-emerald-100 shadow-[0_8px_30px_rgb(16,185,129,0.05)] space-y-6">
+            <div className="bg-white rounded-3xl p-5 sm:p-8 border border-emerald-100 shadow-[0_8px_30px_rgb(16,185,129,0.05)] space-y-6">
               <div className="flex items-center gap-3">
                 <div className="bg-emerald-50 p-2 rounded-lg">
                   <Heart className="w-5 h-5 text-emerald-600" />

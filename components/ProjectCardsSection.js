@@ -229,7 +229,7 @@ export default function ProjectCardsSection({
   }, [projects, searchTerm, categoryFilter, donationTypeFilter]);
 
   return (
-    <section className="flex flex-col items-center w-full px-4 py-8 sm:px-12 text-slate-900">
+    <section className="flex flex-col items-center w-full px-0 py-8 sm:px-12 text-slate-900">
       {loading && page === 1 ? (
         <div className="grid w-full md:gap-8 gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: infiniteScroll ? initialLimit : 4 }).map(
