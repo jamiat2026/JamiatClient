@@ -15,15 +15,19 @@ import {
 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 
 export default function DonatePage({ searchParams }) {
   const { projectId, type, amount, frequency } = searchParams;
   const { isSignedIn, user } = useUser();
   const router = useRouter();
-
+  const mainRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: mainRef,
+    offset: ["start end", "end start"]
+  })
   const [isRazorpayReady, setIsRazorpayReady] = useState(false);
-
+  const [isDonationVisible, setIsDonationVisible] = useState(false);
   const validFrequencies = ["One-Time", "Weekly", "Monthly", "Yearly"];
   const initialFrequency = validFrequencies.includes(frequency) ? frequency : "One-Time";
   const [donationFrequency, setDonationFrequency] =
@@ -66,13 +70,21 @@ export default function DonatePage({ searchParams }) {
         scrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
-    
+
     // Focus the step title for accessibility when step changes
     const timer = setTimeout(() => {
       stepTitleRef.current?.focus();
     }, 300);
     return () => clearTimeout(timer);
   }, [currentStep]);
+
+  // Show fixed mobile progress bar only when page is scrolled past 20%
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    console.log(latest);
+    if (latest > 0.5218372329601254) setIsDonationVisible(true)
+    else setIsDonationVisible(false)
+  });
+
   const quickAmounts = [1000, 2500, 5000, 10000, 15000, 25000];
   const amountValue = customAmount === "" ? 0 : Number(customAmount);
   const impact = isRecurring
@@ -439,7 +451,7 @@ export default function DonatePage({ searchParams }) {
     selectedProject?.donationOptions?.filter((opt) => opt.isEnabled) || [];
 
   return (
-    <div className="flex flex-col lg:flex-row justify-center bg-white overflow-x-hidden min-h-screen">
+    <div ref={mainRef} className="flex flex-col lg:flex-row justify-center bg-white overflow-x-hidden min-h-screen">
       {/* Hero Section */}
       <section className="w-full lg:w-5/12 relative pb-12 pt-24 lg:pt-32 lg:pb-0 px-5 lg:px-24 overflow-hidden flex items-start bg-slate-50/50 border-b lg:border-b-0 lg:border-l border-slate-100">
         <div className="absolute inset-0 -z-10 pointer-events-none">
@@ -530,7 +542,7 @@ export default function DonatePage({ searchParams }) {
                           <Heart className="w-4 h-4" />
                           <span>Target Project</span>
                         </div>
-                        <h2 
+                        <h2
                           ref={stepTitleRef}
                           tabIndex={-1}
                           className="text-2xl lg:text-3xl font-bold text-slate-900 text-center focus:outline-none"
@@ -627,7 +639,7 @@ export default function DonatePage({ searchParams }) {
                   </motion.div>
                 </section>
 
-                  <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex justify-center lg:justify-end">
+                <footer className="max-w-2xl mx-auto px-5 lg:px-8 flex justify-center lg:justify-end">
                   <button
                     onClick={() => setCurrentStep(2)}
                     className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-bold flex items-center gap-2 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all active:scale-95 shadow-xl shadow-emerald-900/10"
@@ -662,7 +674,7 @@ export default function DonatePage({ searchParams }) {
                         <Gift className="w-4 h-4" />
                         <span>Intention</span>
                       </div>
-                      <h2 
+                      <h2
                         ref={stepTitleRef}
                         tabIndex={-1}
                         className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 text-center focus:outline-none"
@@ -745,7 +757,7 @@ export default function DonatePage({ searchParams }) {
                         <IndianRupee className="w-4 h-4" />
                         <span>Investment</span>
                       </div>
-                      <h2 
+                      <h2
                         ref={stepTitleRef}
                         tabIndex={-1}
                         className="text-2xl lg:text-3xl font-bold text-slate-900 text-center focus:outline-none"
@@ -926,7 +938,7 @@ export default function DonatePage({ searchParams }) {
                         <ShieldCheck className="w-4 h-4" />
                         <span>Final Step</span>
                       </div>
-                      <h2 
+                      <h2
                         ref={stepTitleRef}
                         tabIndex={-1}
                         className="text-2xl sm:text-3xl font-bold text-center focus:outline-none"
@@ -984,8 +996,9 @@ export default function DonatePage({ searchParams }) {
             )
           }
         </AnimatePresence>
-        {/* Progress Indicator */}
-        <section className="max-w-2xl mx-auto px-4 sm:px-5 lg:px-8 py-6 sm:py-10 w-full order-first lg:order-none mb-2 lg:mb-0" >
+
+        {/*progress bar desktop version */}
+        <section className="hidden lg:block max-w-2xl mx-auto px-4 sm:px-5 lg:px-8 py-6 sm:py-10 w-full order-first lg:order-none mb-2 lg:mb-0" >
           <div className="relative flex justify-between items-center max-w-md mx-auto">
             {/* Progress Line */}
             <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-100 -z-10 rounded-full overflow-hidden">
@@ -1023,6 +1036,34 @@ export default function DonatePage({ searchParams }) {
         <div className="h-10" />
       </div >
 
+      {/* Progress Indicator – visible only when donation section is in view */}
+      {isDonationVisible && <motion.section animate={{ opacity: [0, 1] }} transition={{ duration: 0.5 }} className="fixed top-16 max-w-2xl mx-auto px-4 sm:px-5 lg:px-8 py-6 sm:py-10 w-full lg:hidden order-first lg:order-none mb-2 lg:mb-0 bg-white" >
+        <div className="relative flex justify-between items-center max-w-md mx-auto">
+
+
+          {[1, 2, 3, 4].map((step) => (
+            <div key={step} className="flex flex-col items-center">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  if (step < currentStep) setCurrentStep(step);
+                }}
+                className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-2 ${currentStep >= step
+                  ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200"
+                  : "bg-white border-slate-200 text-slate-400"
+                  }`}
+              >
+                {step}
+              </motion.button>
+              <span className={`mt-2 text-[10px] font-bold uppercase tracking-widest mx-2 ${currentStep >= step ? "text-emerald-700" : "text-slate-400"
+                }`}>
+                {step === 1 ? "Details" : step === 2 ? "Type" : step === 3 ? "Amount" : "Review"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </motion.section>}
       {/* Recurring Confirmation Popup */}
       {
         showRecurringConfirm && (

@@ -237,9 +237,10 @@ function Projects({ title }) {
                 )}
                 labelMapping={(val) => {
                   if (val === "all") return "All Donation Types";
+                  if (val === "general") return "Hadiya";
                   if (val === "zakat") return "Zakat Eligible";
-                  if (val === "interest_earnings") return "Interest Earnings";
                   if (val === "sadqa") return "Sadqa";
+                  if (val === "interest_earnings") return "Others (General Donations & Interest Income)";
                   return val.charAt(0).toUpperCase() + val.slice(1);
                 }}
               />

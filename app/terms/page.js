@@ -25,16 +25,16 @@ export default function TermsPage() {
             <ChevronRight className="h-4 w-4" />
             <span className="text-emerald-700">Terms & Conditions</span>
           </nav>
-          
+
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-wider mb-6">
             <FileText className="h-3.5 w-3.5" />
             Legal Agreement
           </div>
-          
+
           <h1 className={`${playfair.className} text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6`}>
             Terms & <span className="text-emerald-600">Conditions</span>
           </h1>
-          
+
           <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
             Please read these terms carefully before using our platform. These terms outline our mutual expectations and responsibilities.
           </p>
@@ -43,7 +43,7 @@ export default function TermsPage() {
 
       {/* Content Section */}
       <section className="pb-24 px-4 relative z-10">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="bg-white/80 backdrop-blur-xl border border-white shadow-[0_20px_50px_rgba(0,0,0,0.04)] rounded-[2.5rem] p-8 md:p-12">
             <div className="flex flex-col md:flex-row gap-8 mb-12 pb-8 border-b border-slate-100">
               <div className="flex-1">

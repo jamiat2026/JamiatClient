@@ -90,7 +90,7 @@ export default function BlogsPage() {
       </section>
 
       {/* 🟢 Main Content Area */}
-      <section className="max-w-5xl mx-auto px-4 lg:px-8">
+      <section className="max-w-7xl mx-auto px-4 lg:px-8">
         {loading ? (
           <div className="grid gap-8 sm:grid-cols-2">
             {[1, 2, 3, 4].map((n) => (
@@ -108,7 +108,7 @@ export default function BlogsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="group bg-white rounded-2xl overflow-hidden border border-gray-100 flex flex-col hover:shadow-xl transition-all duration-300 w-full sm:w-[calc(50%-1rem)] max-w-[450px]"
+                  className="group bg-white rounded-2xl overflow-hidden border border-gray-100 flex flex-col hover:shadow-xl transition-all duration-300 w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.34rem)] max-w-[380px]"
                 >
                   {/* Image Container */}
                   <div className="relative h-60 overflow-hidden">

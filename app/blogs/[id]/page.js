@@ -40,8 +40,8 @@ export default async function BlogDetail({ params }) {
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-8 text-center bg-gray-50">
         <h2 className="text-2xl font-bold text-gray-900 mb-4 font-serif">Blog Post Not Found</h2>
         <p className="text-gray-500 mb-8">The post you're looking for might have been moved or deleted.</p>
-        <Link 
-          href="/blogs" 
+        <Link
+          href="/blogs"
           className="bg-emerald-600 text-white px-6 py-2 rounded-full font-medium hover:bg-emerald-700 transition-colors inline-flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -111,12 +111,12 @@ export default async function BlogDetail({ params }) {
         ) : (
           <div className="w-full h-full bg-emerald-50" />
         )}
-        
+
         {/* Floating Back Button */}
         <div className="absolute top-8 left-0 right-0 z-10">
           <div className="max-w-5xl mx-auto px-4 md:px-8">
-            <Link 
-              href="/blogs" 
+            <Link
+              href="/blogs"
               className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full text-white border border-white/20 transition-all hover:bg-white/20 hover:scale-105 group"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
@@ -126,7 +126,7 @@ export default async function BlogDetail({ params }) {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 -mt-16 md:-mt-32 relative z-20">
+      <div className="max-w-7xl mx-auto px-4 -mt-16 md:-mt-32 relative z-20">
         <div className="bg-white rounded-3xl p-6 md:p-12 shadow-xl border border-gray-100">
           <h1 className="text-3xl md:text-5xl font-bold font-serif mb-6 leading-[1.1] text-gray-900">
             {blog.title}
@@ -136,10 +136,10 @@ export default async function BlogDetail({ params }) {
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-emerald-500" />
               <span className="text-sm">
-                {new Date(blog.createdAt).toLocaleDateString("en-US", { 
-                  day: 'numeric', 
-                  month: 'long', 
-                  year: 'numeric' 
+                {new Date(blog.createdAt).toLocaleDateString("en-US", {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric'
                 })}
               </span>
             </div>
@@ -183,8 +183,8 @@ export default async function BlogDetail({ params }) {
               <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none pl-1">Share</p>
               <ShareButton slug={id} title={blog.title} type="blogs" align="left" />
             </div>
-            <Link 
-              href="/blogs" 
+            <Link
+              href="/blogs"
               className="text-emerald-600 font-bold text-sm flex items-center gap-2 group transition-all shrink-0"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />

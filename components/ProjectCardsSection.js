@@ -348,14 +348,14 @@ export default function ProjectCardsSection({
                             ? "/login"
                             : `/donate/${project?.slug || ""}`
                         }
-                        className="w-full sm:flex-1 text-center bg-[#06422d] text-white py-[0.55rem] px-1 rounded-xl hover:bg-emerald-800 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-lg shadow-emerald-900/10 whitespace-nowrap"
+                        className="w-full sm:flex-1 text-center bg-[#06422d] text-white py-[0.70rem] px-1 rounded-xl hover:bg-emerald-800 text-sm font-bold transition-all duration-300 active:scale-[0.98] shadow-lg shadow-emerald-900/10 whitespace-nowrap"
                       >
                         Donate Now
                       </Link>
                     )}
                     <Link
                       href={`/projects/${project?.slug || ""}`}
-                      className="w-full sm:flex-1 text-center border-2 border-emerald-900 text-emerald-900 py-2 px-1 rounded-xl hover:bg-emerald-50 text-sm font-bold transition-all duration-300 active:scale-[0.98] whitespace-nowrap"
+                      className="w-full sm:flex-1 text-center border-2 border-emerald-900 text-emerald-900 py-[0.60rem] px-1 rounded-xl hover:bg-emerald-50 text-sm font-bold transition-all duration-300 active:scale-[0.98] whitespace-nowrap"
                     >
                       View Details
                     </Link>
