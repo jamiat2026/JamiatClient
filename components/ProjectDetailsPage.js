@@ -331,7 +331,7 @@ export default function ProjectDetailsPage({ slug, projectId }) {
                       <h3 className="text-xl sm:text-2xl font-serif font-bold text-gray-900 mb-4 sm:mb-6">About the Project</h3>
                       <div
                         ref={descriptionRef}
-                        className={`text-gray-600 text-lg leading-relaxed whitespace-pre-wrap break-words prose prose-emerald max-w-none w-full transition-all duration-300 overflow-hidden ${!isDescriptionExpanded ? "max-h-[350px]" : ""}`}
+                        className={`text-gray-600 project-description-text leading-relaxed whitespace-pre-wrap break-words prose prose-emerald max-w-none w-full transition-all duration-300 overflow-hidden ${!isDescriptionExpanded ? "max-h-[350px] " : ""}`}
                         dangerouslySetInnerHTML={{ __html: project?.description }}
                       />
                       {showReadMoreButton && (
