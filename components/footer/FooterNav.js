@@ -16,6 +16,10 @@ export default function FooterNav() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // ✅ Added
+  const [email, setEmail] = useState("");
+  const [loadingSubscribe, setLoadingSubscribe] = useState(false);
+
   const normalizeText = (value) => {
     if (!value) return value;
     return value
@@ -67,6 +71,38 @@ export default function FooterNav() {
     fetchFooterData();
   }, []);
 
+  // ✅ Added
+  const handleSubscribe = async () => {
+    try {
+      if (!email) {
+        alert("Please enter your email");
+        return;
+      }
+
+      setLoadingSubscribe(true);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subscribe`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message);
+
+      alert("Subscribed successfully 🎉");
+      setEmail("");
+    } catch (err) {
+      console.error(err);
+      alert(err.message || "Something went wrong");
+    } finally {
+      setLoadingSubscribe(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12 bg-white">
@@ -91,6 +127,7 @@ export default function FooterNav() {
     <footer className="bg-[#F1F5F9] border-t border-gray-100 font-sans pb-16 md:pb-0">
       <div className="max-w-8xl mx-auto px-6 py-10 md:py-16 md:px-12 xl:px-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.5fr_0.7fr_1.3fr_1.5fr] gap-8 md:gap-12 lg:gap-x-12 xl:gap-x-16">
+
           {/* Logo & Description */}
           <div className="flex flex-col gap-6">
             <Link href="/" className="flex items-center gap-3 group">
@@ -106,7 +143,6 @@ export default function FooterNav() {
             <p className="text-slate-500 text-[15px] leading-loose max-w-[280px]">
               Serving the community with transparency, ihsan, and dedication since 1995. Your trust is our amanah.
             </p>
-            {/* Social Links */}
             <div className="flex gap-4 mt-2">
               {footerData?.socialLinks?.facebook && (
                 <a href={footerData.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#1877F2] transition-colors">
@@ -190,14 +226,22 @@ export default function FooterNav() {
             </h3>
             <div className="space-y-5">
               <div className="relative">
+                {/* ✅ Added value + onChange */}
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-[15px] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600/30 transition-all placeholder:text-slate-400"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-5 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-[15px] focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600/30 transition-all placeholder:text-slate-400 text-slate-900"
                 />
               </div>
-              <button className="w-full bg-[#004731] hover:bg-[#003625] text-white font-bold py-4 px-6 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[0.98]">
-                Subscribe
+              {/* ✅ Added onClick + disabled */}
+              <button
+                onClick={handleSubscribe}
+                disabled={loadingSubscribe}
+                className="w-full bg-[#004731] hover:bg-[#003625] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[0.98]"
+              >
+                {loadingSubscribe ? "Subscribing..." : "Subscribe"}
               </button>
             </div>
           </div>
@@ -225,5 +269,3 @@ export default function FooterNav() {
     </footer>
   );
 }
-
-

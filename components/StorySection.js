@@ -32,7 +32,10 @@ const COLLAPSED_HEIGHT = 120; // px – roughly 4-5 lines of text
 const StoryItem = ({ item, icon, idx, isExpanded, onToggle }) => {
   const isEmerald = idx % 2 === 0;
   const contentRef = useRef(null);
+  const itemRef = useRef(null);
+  const headingRef = useRef(null);
   const [needsToggle, setNeedsToggle] = useState(item?.content?.length > 250);
+  const isBeingToggled = useRef(false);
 
   useEffect(() => {
     if (contentRef.current) {
@@ -44,11 +47,39 @@ const StoryItem = ({ item, icon, idx, isExpanded, onToggle }) => {
     }
   }, [item?.content, needsToggle]);
 
+  useEffect(() => {
+    if (isBeingToggled.current) {
+      const element = itemRef.current;
+      if (element) {
+        // Use scrollIntoView with block: "start" to align with our scroll-mt-24
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+
+        // Ensure focus is applied after the transition begins
+        setTimeout(() => {
+          headingRef.current?.focus();
+        }, 100);
+      }
+      isBeingToggled.current = false;
+    }
+  }, [isExpanded]);
+
+  const handleToggleClick = () => {
+    isBeingToggled.current = true;
+    onToggle();
+  };
+
   return (
-    <div className="flex items-start gap-4 lg:gap-6">
+    <div
+      ref={itemRef}
+      className="flex items-start gap-4 lg:gap-6 scroll-mt-24 group"
+    >
       <div
+        onClick={(e) => {
+          e.stopPropagation();
+          handleToggleClick();
+        }}
         className={`${isEmerald ? "bg-emerald-100" : "bg-amber-100"
-          } w-12 h-12 lg:w-16 lg:h-16 rounded-xl flex items-center justify-center flex-shrink-0 mt-1`}
+          } w-12 h-12 lg:w-16 lg:h-16 rounded-xl flex items-center justify-center flex-shrink-0 mt-1 transition-transform hover:scale-105 cursor-pointer`}
       >
         <span
           className={`${isEmerald ? "text-emerald-600" : "text-amber-600"
@@ -58,7 +89,15 @@ const StoryItem = ({ item, icon, idx, isExpanded, onToggle }) => {
         </span>
       </div>
       <div className="space-y-2 lg:space-y-3 w-full">
-        <h3 className="font-semibold lg:text-xl text-gray-900">
+        <h3
+          ref={headingRef}
+          tabIndex={-1}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleToggleClick();
+          }}
+          className="font-semibold lg:text-xl text-gray-900 outline-none hover:text-emerald-700 transition-colors cursor-pointer inline-block"
+        >
           {item?.title}
         </h3>
         <div className="relative">
@@ -82,7 +121,10 @@ const StoryItem = ({ item, icon, idx, isExpanded, onToggle }) => {
 
         {needsToggle && (
           <button
-            onClick={onToggle}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleClick();
+            }}
             className={`inline-flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200 cursor-pointer ${isEmerald
                 ? "text-emerald-600 hover:text-emerald-700"
                 : "text-amber-600 hover:text-amber-700"
