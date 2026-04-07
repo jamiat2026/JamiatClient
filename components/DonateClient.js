@@ -12,6 +12,7 @@ import {
   TrendingUp,
   ArrowRight,
   ChevronDown,
+  CheckCircle,
 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -55,6 +56,8 @@ export default function DonatePage({ searchParams }) {
   const [donationType, setDonationType] = useState(type ?? "Zakat");
   const [showRecurringConfirm, setShowRecurringConfirm] = useState(false);
   const [oneTimeCountdown, setOneTimeCountdown] = useState(0);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successCountdown, setSuccessCountdown] = useState(5);
   const [currentStep, setCurrentStep] = useState(1);
   const scrollRef = useRef(null);
 
@@ -228,6 +231,25 @@ export default function DonatePage({ searchParams }) {
     return () => clearInterval(intervalId);
   }, [showRecurringConfirm]);
 
+  // Success popup countdown & redirect
+  useEffect(() => {
+    if (!showSuccessPopup) {
+      setSuccessCountdown(5);
+      return;
+    }
+
+    if (successCountdown <= 0) {
+      router.push("/");
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setSuccessCountdown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [showSuccessPopup, successCountdown, router]);
+
   const handlePayment = async ({ bypassConfirm = false } = {}) => {
     if (!isSignedIn) {
       sessionStorage.setItem('donationDraft', JSON.stringify({
@@ -310,9 +332,7 @@ export default function DonatePage({ searchParams }) {
             }`,
           handler: async (response) => {
             console.log("Subscription success:", response);
-            alert(
-              `Subscription successful! Subscription ID: ${response.razorpay_subscription_id}`
-            );
+            setShowSuccessPopup(true);
 
             // Save subscription record in your DB
             await fetch(`${process.env.NEXT_PUBLIC_API_URL}/save-donation`, {
@@ -375,9 +395,7 @@ export default function DonatePage({ searchParams }) {
       description: `Donation for ${selectedProject?.title || "General Fund"}`,
       handler: async (response) => {
         console.log("Payment success:", response);
-        alert(
-          `Payment successful! Payment ID: ${response.razorpay_payment_id}`
-        );
+        setShowSuccessPopup(true);
 
         try {
           // 1️⃣ Capture the payment via backend
@@ -1107,6 +1125,97 @@ export default function DonatePage({ searchParams }) {
           </div>
         )
       }
+
+      {/* Success Popup */}
+      <AnimatePresence>
+        {showSuccessPopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[1200] px-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.85, y: 20 }}
+              transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
+              className="bg-white rounded-[2rem] shadow-2xl max-w-md w-full p-8 sm:p-10 text-center space-y-6 relative overflow-hidden"
+            >
+              {/* Decorative background glow */}
+              <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-[-30%] left-[50%] -translate-x-1/2 w-[200%] h-[60%] bg-emerald-100 rounded-full blur-3xl opacity-40" />
+              </div>
+
+              {/* Animated checkmark */}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", delay: 0.2, duration: 0.6, bounce: 0.4 }}
+                className="relative mx-auto w-20 h-20 rounded-full bg-emerald-50 border-4 border-emerald-200 flex items-center justify-center"
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", delay: 0.4, duration: 0.5, bounce: 0.5 }}
+                >
+                  <CheckCircle className="w-10 h-10 text-emerald-600" strokeWidth={2.5} />
+                </motion.div>
+              </motion.div>
+
+              <div className="space-y-2 relative">
+                <h3 className="text-2xl sm:text-3xl font-bold text-slate-900">
+                  Donation Successful!
+                </h3>
+                <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
+                  JazakAllah Khair for your generous contribution of{" "}
+                  <span className="font-bold text-emerald-600">₹{amountValue.toLocaleString("en-IN")}</span>.
+                  May Allah reward you abundantly.
+                </p>
+              </div>
+
+              {/* Countdown ring */}
+              <div className="relative flex flex-col items-center gap-3">
+                <div className="relative w-16 h-16">
+                  <svg className="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+                    <circle
+                      cx="32" cy="32" r="28"
+                      fill="none"
+                      stroke="#e2e8f0"
+                      strokeWidth="4"
+                    />
+                    <motion.circle
+                      cx="32" cy="32" r="28"
+                      fill="none"
+                      stroke="#059669"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                      strokeDasharray={2 * Math.PI * 28}
+                      initial={{ strokeDashoffset: 0 }}
+                      animate={{ strokeDashoffset: 2 * Math.PI * 28 }}
+                      transition={{ duration: 5, ease: "linear" }}
+                    />
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-emerald-600">
+                    {successCountdown}
+                  </span>
+                </div>
+                <p className="text-slate-400 text-xs font-medium">
+                  Redirecting to home in {successCountdown} second{successCountdown !== 1 ? "s" : ""}...
+                </p>
+              </div>
+
+              <button
+                onClick={() => router.push("/")}
+                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all active:scale-95 shadow-xl shadow-emerald-900/10 relative"
+              >
+                Go to Home Now
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div >
   );
 }
