@@ -141,7 +141,7 @@ export default function FooterNav() {
               </span>
             </Link>
             <p className="text-slate-500 text-[15px] leading-loose max-w-[280px]">
-              Serving the community with transparency, ihsan, and dedication since 1995. Your trust is our amanah.
+              Serving the community with transparency, ihsan, and dedication since 1919. Your trust is our amanah.
             </p>
             <div className="flex gap-4 mt-2">
               {footerData?.socialLinks?.facebook && (
