@@ -15,9 +15,11 @@ import {
   LogOut,
   Loader2,
   CheckCircle2,
-  LayoutDashboard,
   ShieldCheck,
-  ChevronLeft
+  ChevronLeft,
+  Repeat,
+  Receipt,
+  Calendar
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -25,6 +27,7 @@ export default function ProfilePage() {
   const { user, isLoaded } = useUser();
   const [formData, setFormData] = useState(null);
   const [projects, setProjects] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [donationSummary, setDonationSummary] = useState({
     totalDonations: 0,
     totalAmount: 0
@@ -82,15 +85,28 @@ export default function ProfilePage() {
 
     (async () => {
       setLoadingDonor(true);
+      const email = clerkInitial.email;
       try {
-        const email = clerkInitial.email;
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/donors/${email}`);
+        // 1) Reconcile recurring Razorpay charges before reading history.
+        // Razorpay debits subscriptions on its own servers, so charges after
+        // the first never reach us unless we pull them. Best-effort: never
+        // block the profile if the sync is slow or Razorpay is unreachable.
+        try {
+          await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/donations/sync-razorpay?email=${encodeURIComponent(
+              email
+            )}`
+          );
+        } catch (syncErr) {
+          console.error("Razorpay sync failed (showing existing history):", syncErr);
+        }
 
+        // 2) Load donor profile.
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/donors/${email}`);
         if (res.ok) {
           const donorFromDb = await res.json();
           setDonorExists(true);
-
-          const merged = {
+          setFormData({
             ...clerkInitial,
             ...donorFromDb,
             address: {
@@ -98,39 +114,12 @@ export default function ProfilePage() {
               ...(donorFromDb.address || {})
             },
             projectsDonatedTo: donorFromDb.projectsDonatedTo || []
-          };
-
-          setFormData(merged);
-
-          // Fetch detailed donation data
-          try {
-            const donationsRes = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/donations/by-email?email=${encodeURIComponent(
-                email
-              )}`
-            );
-            if (donationsRes.ok) {
-              const donationData = await donationsRes.json();
-              const donated = (donationData.projects || []).map((p) => ({
-                _id: p.projectId,
-                title: p.projectTitle,
-                amount: p.amount,
-                donationsCount: p.donationsCount
-              }));
-              setProjects(donated);
-
-              // Update total donated if available in the donation summary
-              if (donationData.totalDonated !== undefined) {
-                setFormData(prev => ({ ...prev, totalDonated: donationData.totalDonated }));
-              }
-            }
-          } catch (donError) {
-            console.error("Error fetching donation details:", donError);
-          }
+          });
         } else if (res.status === 404) {
           setDonorExists(false);
         }
 
+        // 3) Load the full payment history (individual charges + per-project totals).
         const donationsRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/donations/by-email?email=${encodeURIComponent(
             email
@@ -138,17 +127,27 @@ export default function ProfilePage() {
         );
         if (donationsRes.ok) {
           const donationData = await donationsRes.json();
-          const donatedProjects = (donationData.projects || []).map((p) => ({
-            _id: p.projectId,
-            title: p.projectTitle,
-            amount: p.amount,
-            donationsCount: p.donationsCount
-          }));
-          setProjects(donatedProjects);
+
+          setPayments(donationData.donations || []);
+
+          setProjects(
+            (donationData.projects || []).map((p) => ({
+              _id: p.projectId,
+              title: p.projectTitle,
+              amount: p.amount,
+              donationsCount: p.donationsCount
+            }))
+          );
+
           setDonationSummary({
             totalDonations: donationData.totalDonations || 0,
             totalAmount: donationData.totalAmount || 0
           });
+
+          // Prefer the freshly summed total (includes just-synced recurring charges).
+          if (donationData.totalAmount !== undefined) {
+            setFormData((prev) => ({ ...prev, totalDonated: donationData.totalAmount }));
+          }
         }
       } catch (err) {
         console.error("Error fetching donor:", err);
@@ -211,8 +210,8 @@ export default function ProfilePage() {
     }
   }
 
-  const totalPages = Math.max(1, Math.ceil((projects?.length || 0) / rowsPerPage));
-  const paginatedProjects = (projects || []).slice(
+  const totalPages = Math.max(1, Math.ceil((payments?.length || 0) / rowsPerPage));
+  const paginatedPayments = (payments || []).slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
@@ -222,6 +221,16 @@ export default function ProfilePage() {
       currency: "INR",
       maximumFractionDigits: 0
     }).format(amount || 0);
+  const formatDate = (value) =>
+    value
+      ? new Date(value).toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric"
+        })
+      : "";
+  const isRecurringFrequency = (frequency) =>
+    Boolean(frequency) && frequency.toLowerCase() !== "one-time";
   return (
     <div className="min-h-screen bg-[#FDFDFC] pt-32 pb-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-12">
@@ -426,8 +435,8 @@ export default function ProfilePage() {
                       <p className="text-xs font-medium text-emerald-200 uppercase tracking-wider">PROJECTS</p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-2xl font-bold tracking-tight">{donorExists ? "Live" : "New"}</p>
-                      <p className="text-xs font-medium text-emerald-200 uppercase tracking-wider">STATUS</p>
+                      <p className="text-2xl font-bold tracking-tight">{donationSummary.totalDonations || payments.length}</p>
+                      <p className="text-xs font-medium text-emerald-200 uppercase tracking-wider">PAYMENTS</p>
                     </div>
                   </div>
                 </div>
@@ -440,7 +449,7 @@ export default function ProfilePage() {
               </div>
             </motion.div>
 
-            {/* Recent Donations Section */}
+            {/* Payment History Section */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -449,41 +458,74 @@ export default function ProfilePage() {
             >
               <div className="flex items-center justify-between px-2">
                 <h3 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <LayoutDashboard className="w-6 h-6 text-emerald-600" />
-                  Contributions
+                  <Receipt className="w-6 h-6 text-emerald-600" />
+                  Payment History
                 </h3>
                 <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">
-                  {projects.length} Total
+                  {payments.length} Total
                 </span>
               </div>
 
-              {projects.length > 0 ? (
+              {payments.length > 0 ? (
                 <div className="space-y-4">
                   <AnimatePresence mode="popLayout">
-                    {paginatedProjects.map((project, idx) => (
-                      <motion.div
-                        key={project._id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className="group bg-white p-5 rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] hover:shadow-md transition-all cursor-pointer relative flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="flex-shrink-0 w-12 h-12 bg-gray-50 rounded-xl flex items-center justify-center text-emerald-600 border border-gray-100 group-hover:bg-emerald-50 group-hover:border-emerald-100 transition-colors">
-                            <Heart className="w-5 h-5" />
+                    {paginatedPayments.map((payment, idx) => {
+                      const recurring = isRecurringFrequency(payment.donationFrequency);
+                      return (
+                        <motion.div
+                          key={payment._id || payment.paymentId}
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: idx * 0.05 }}
+                          className="group bg-white p-5 rounded-2xl border border-gray-100 shadow-[0_4px_20px_rgb(0,0,0,0.02)] hover:shadow-md transition-all relative"
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-start gap-4 min-w-0">
+                              <div
+                                className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center border transition-colors ${
+                                  recurring
+                                    ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                    : "bg-gray-50 text-emerald-600 border-gray-100 group-hover:bg-emerald-50 group-hover:border-emerald-100"
+                                }`}
+                              >
+                                {recurring ? (
+                                  <Repeat className="w-5 h-5" />
+                                ) : (
+                                  <Heart className="w-5 h-5" />
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <h4 className="font-bold text-gray-900 line-clamp-1 group-hover:text-emerald-700 transition-colors">
+                                  {payment.projectTitle || "General Donation"}
+                                </h4>
+                                <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                  <span className="inline-flex items-center gap-1 text-xs text-gray-400 font-medium">
+                                    <Calendar className="w-3.5 h-3.5" />
+                                    {formatDate(payment.createdAt)}
+                                  </span>
+                                  {recurring && (
+                                    <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
+                                      <Repeat className="w-3 h-3" />
+                                      {payment.donationFrequency}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <p className="font-bold text-gray-900">
+                                {formatCurrency(payment.amount)}
+                              </p>
+                              {payment.paymentId && (
+                                <p className="text-[10px] text-gray-300 font-mono mt-1 truncate max-w-[120px]">
+                                  {payment.paymentId}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-bold text-gray-900 line-clamp-1 group-hover:text-emerald-700 transition-colors">
-                              {project.title}
-                            </h4>
-                            <p className="text-xs text-gray-400 font-medium">
-                              ₹{project.amount?.toLocaleString('en-IN') || 0} • {project.donationsCount || 0} donation{project.donationsCount !== 1 ? 's' : ''}
-                            </p>
-                          </div>
-                        </div>
-                        <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-emerald-500 transition-transform group-hover:translate-x-1" />
-                      </motion.div>
-                    ))}
+                        </motion.div>
+                      );
+                    })}
                   </AnimatePresence>
 
                   {/* Pagination */}
@@ -512,10 +554,10 @@ export default function ProfilePage() {
               ) : (
                 <div className="bg-gray-50/50 rounded-[2rem] p-10 border-2 border-dashed border-gray-200 text-center space-y-4">
                   <div className="bg-white w-12 h-12 rounded-full shadow-sm flex items-center justify-center mx-auto text-gray-300">
-                    <Heart className="w-6 h-6" />
+                    <Receipt className="w-6 h-6" />
                   </div>
                   <div className="space-y-1">
-                    <p className="font-bold text-gray-900">No donations yet</p>
+                    <p className="font-bold text-gray-900">No payments yet</p>
                     <p className="text-xs text-gray-500 leading-relaxed">Your journey of giving starts with a single step.</p>
                   </div>
                   <button className="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors uppercase tracking-widest pt-2">
