@@ -307,6 +307,10 @@ export default function DonatePage({ searchParams }) {
             frequency: donationFrequency,
             name,
             email,
+            projectId: selectedProjectId,
+            projectName: selectedProject?.title || "",
+            donationType,
+            donationFrequency,
           }),
         });
 

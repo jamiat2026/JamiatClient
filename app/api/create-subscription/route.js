@@ -5,7 +5,16 @@ import Razorpay from "razorpay";
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { amount, frequency, name, email } = body;
+    const {
+      amount,
+      frequency,
+      name,
+      email,
+      projectId,
+      projectName,
+      donationType,
+      donationFrequency,
+    } = body;
 
     if (!amount || !frequency) {
       return NextResponse.json(
@@ -76,11 +85,26 @@ export async function POST(req) {
         : period === "monthly"
         ? 120 // 10 years
         : 20; // yearly: 20 years
+    // Attribution for the webhook. Recurring charges (2nd cycle onward) arrive
+    // server-to-server on subscription.charged with NO browser context, so the
+    // only way to tie them to a donor/project is what we stash here. The webhook
+    // reads exactly these keys (email, name, donationType, donationFrequency,
+    // projectId, projectName) off subscription.notes.
+    const notes = {
+      email: email || "",
+      name: name || "",
+      donationType: donationType || "",
+      donationFrequency: donationFrequency || frequency || "",
+      projectId: projectId ? String(projectId) : "",
+      projectName: projectName || "",
+    };
+
     const subscription = await razorpay.subscriptions.create({
       plan_id: plan.id,
       customer_notify: 1,
       total_count: totalCount,
       customer_id: customer.id,
+      notes,
     });
 
     return NextResponse.json({ success: true, plan, customer, subscription });
